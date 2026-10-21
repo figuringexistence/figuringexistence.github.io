@@ -1,323 +1,352 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekap Mata Kuliah TIF</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini - Course Finder & Navigator</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            geminiBg: '#131314',
+            geminiSidebar: '#1e1f20',
+            geminiCard: '#1e1f20',
+            geminiCardHover: '#282a2c',
+            geminiInput: '#1e1f20',
+            geminiAccent: '#a8c7fa',
+            geminiBorder: '#333537',
+            geminiBlue: '#4285f4',
+            geminiPurple: '#9b51e0'
+          },
+          fontFamily: {
+            sans: ['Google Sans', 'Inter', 'system-ui', '-apple-system', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        bgDark: '#110E1B',
-                        cardDark: '#1A162B',
-                        inputBg: '#131021',
-                        accentOrange: '#FF8A00',
-                        accentPurple: '#9D4EDD',
-                        accentGlow: 'rgba(255, 138, 0, 0.25)'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        heading: ['Plus Jakarta Sans', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    /* Subtle gradient background for Gemini signature look */
+    .gemini-gradient-text {
+      background: linear-gradient(135deg, #4285f4 0%, #9b51e0 50%, #d96570 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-    <style>
-        body {
-            background-color: #110E1B;
-            color: #E2E8F0;
-            font-family: 'Inter', sans-serif;
-        }
+    .gemini-gradient-bg {
+      background: linear-gradient(135deg, #4285f4 0%, #9b51e0 50%, #d96570 100%);
+    }
 
-        /* Glowing Accent Focus for Input Box */
-        .glow-input {
-            border: 2px solid #FF8A00;
-            box-shadow: 0 0 20px rgba(255, 138, 0, 0.25);
-            transition: all 0.3s ease;
-        }
-
-        .glow-input:focus-within {
-            box-shadow: 0 0 28px rgba(255, 138, 0, 0.45);
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #110E1B;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #2D2744;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #9D4EDD;
-        }
-    </style>
+    /* Custom scrollbar for sleek dark mode look */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #333537;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #444746;
+    }
+  </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8">
+<body class="bg-geminiBg text-gray-200 h-screen flex overflow-hidden antialiased selection:bg-geminiBlue/30 selection:text-blue-200">
 
-    <div class="w-full max-w-2xl bg-cardDark rounded-3xl p-6 sm:p-10 border border-white/5 shadow-2xl relative overflow-hidden">
-        
-        <!-- Subtle Glow Background Effect -->
-        <div class="absolute -top-24 -left-24 w-60 h-60 bg-accentPurple/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-24 -right-24 w-60 h-60 bg-accentOrange/15 rounded-full blur-3xl pointer-events-none"></div>
+  <!-- Toast Notification for Redirection Feedback -->
+  <div id="redirectToast" class="fixed top-6 right-6 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 ease-in-out pointer-events-none">
+    <div class="bg-geminiSidebar border border-geminiBlue/40 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3">
+      <div class="p-2 rounded-xl bg-geminiBlue/20 text-geminiBlue animate-pulse">
+        <i data-lucide="external-link" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <p class="text-xs text-gray-400 font-medium">Mengarahkan Ke...</p>
+        <p id="toastTargetUrl" class="text-sm font-semibold text-geminiAccent truncate max-w-xs">https://figuringexistence.github.io/...</p>
+      </div>
+    </div>
+  </div>
 
-        <!-- Header -->
-        <div class="text-center mb-8 relative z-10">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-accentOrange to-accentPurple text-white text-3xl mb-4 shadow-lg shadow-accentOrange/20">
-                <i class="fa-solid fa-code-branch"></i>
-            </div>
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-white font-heading tracking-tight flex items-center justify-center gap-3">
-                Matkul Navigator
-            </h1>
-            <p class="text-slate-400 mt-2 text-sm sm:text-base max-w-md mx-auto">
-                Ketik nama mata kuliah untuk membuka repository GitHub secara otomatis.
-            </p>
+  <!-- Sidebar Overlay for Mobile -->
+  <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 z-20 hidden md:hidden transition-opacity"></div>
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed md:relative z-30 w-72 h-full bg-geminiSidebar border-r border-geminiBorder flex flex-col justify-between transition-all duration-300 -translate-x-full md:translate-x-0">
+    <!-- Top Section -->
+    <div class="p-4 flex flex-col gap-4">
+      <!-- Top Toggle & New Chat Button -->
+      <div class="flex items-center justify-between">
+        <button onclick="toggleSidebar()" class="p-2.5 hover:bg-geminiCardHover rounded-full text-gray-400 hover:text-white transition-colors" title="Sembunyikan menu">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <div class="flex items-center gap-1.5 px-2 py-1 rounded-full bg-geminiCard border border-geminiBorder">
+          <div class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
+          <span class="text-xs font-medium text-gray-300">Fast Redirect</span>
         </div>
+      </div>
 
-        <!-- Custom figuringexistence Config -->
-        <div class="mb-6 bg-inputBg/60 p-3.5 sm:p-4 rounded-xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm">
-            <label for="figuringexistence" class="text-slate-300 font-medium flex items-center gap-2">
-                <i class="fa-brands fa-github text-base text-accentOrange"></i>
-                GitHub figuringexistence / Org Default:
-            </label>
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-                <span class="text-slate-500 font-mono hidden sm:inline">github.com/</span>
-                <input 
-                    type="text" 
-                    id="figuringexistence" 
-                    value="my-figuringexistence" 
-                    placeholder="figuringexistence"
-                    class="bg-cardDark text-white px-3 py-1.5 rounded-lg border border-white/10 focus:outline-none focus:border-accentOrange font-mono w-full sm:w-40 text-xs sm:text-sm"
-                    oninput="updateUrl()"
-                >
+      <!-- New Chat / Search Action -->
+      <button onclick="resetInterface()" class="flex items-center gap-3 px-4 py-3 bg-geminiCard border border-geminiBorder/60 hover:bg-geminiCardHover rounded-2xl text-gray-300 hover:text-white transition-all shadow-sm group">
+        <i data-lucide="plus" class="w-5 h-5 text-geminiAccent group-hover:scale-110 transition-transform"></i>
+        <span class="text-sm font-medium">Sesi Baru</span>
+      </button>
+
+      <!-- Recent Searches / Courses -->
+      <div class="mt-4">
+        <p class="text-xs font-semibold text-gray-400 px-3 uppercase tracking-wider mb-2">Mata Kuliah Favorit</p>
+        <div class="flex flex-col gap-1">
+          <button onclick="handleDirectRedirect('pemdas')" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm text-gray-300 hover:bg-geminiCardHover transition-colors group text-left">
+            <div class="flex items-center gap-3 truncate">
+              <i data-lucide="code" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <span class="truncate">Pemrograman Dasar (PEMDAS)</span>
             </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-500 group-hover:text-gray-300 transition-colors flex-shrink-0"></i>
+          </button>
+
+          <button onclick="handleDirectRedirect('pti')" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm text-gray-300 hover:bg-geminiCardHover transition-colors group text-left">
+            <div class="flex items-center gap-3 truncate">
+              <i data-lucide="cpu" class="w-4 h-4 text-geminiBlue flex-shrink-0"></i>
+              <span class="truncate">Pengantar Teknologi Informasi (PTI)</span>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-500 group-hover:text-gray-300 transition-colors flex-shrink-0"></i>
+          </button>
         </div>
+      </div>
+    </div>
 
-        <!-- Form Input Utama -->
-        <div class="space-y-6 relative z-10">
-            
-            <!-- INPUT FIELD (YOU SAY) -->
-            <div>
-                <div class="flex justify-between items-center mb-2">
-                    <label for="matkulInput" class="text-xs font-bold tracking-wider text-accentOrange uppercase flex items-center gap-2">
-                        <i class="fa-solid fa-keyboard"></i> Nama Mata Kuliah
-                    </label>
-                    <span id="shortcutBadge" class="text-[10px] bg-accentPurple/20 text-accentPurple px-2 py-0.5 rounded font-mono hidden">
-                        Shortcut Mapped
-                    </span>
-                </div>
-                <div class="glow-input rounded-2xl bg-inputBg p-1">
-                    <textarea 
-                        id="matkulInput" 
-                        rows="3" 
-                        placeholder="Ketik nama matkul (contoh: pemdas, pbo, jarkom, strukdat)..."
-                        class="w-full bg-transparent text-white placeholder-slate-500 p-4 focus:outline-none resize-none font-medium text-base sm:text-lg"
-                        oninput="handleInput()"
-                        onkeydown="handleKeyDown(event)"
-                    ></textarea>
-                </div>
-            </div>
+    <!-- Bottom Sidebar Section -->
+    <div class="p-4 border-t border-geminiBorder/60 flex flex-col gap-2">
+      <button onclick="handleDirectRedirect('')" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-geminiCardHover transition-colors text-left w-full">
+        <i data-lucide="globe" class="w-4 h-4"></i>
+        <span>Halaman Utama (Root)</span>
+      </button>
+      <div class="flex items-center justify-between px-3 py-2 text-xs text-gray-500">
+        <span>Google Gemini UI Clone</span>
+        <span>v2.1</span>
+      </div>
+    </div>
+  </aside>
 
-            <!-- PREVIEW / DESTINATION (THE GHOST SAYS) -->
-            <div>
-                <label class="block text-xs font-bold tracking-wider text-accentOrange uppercase mb-2">
-                    <i class="fa-solid fa-link"></i> Repository Destination
-                </label>
-                <div class="w-full bg-inputBg/80 border border-white/5 rounded-2xl p-4 min-h-[64px] flex items-center justify-between gap-3">
-                    <div id="urlPreview" class="text-slate-400 font-mono text-xs sm:text-sm truncate select-all">
-                        ...
-                    </div>
-                    <button 
-                        id="copyBtn"
-                        onclick="copyToClipboard()"
-                        title="Copy Link"
-                        class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors hidden"
-                    >
-                        <i class="fa-regular fa-copy"></i>
-                    </button>
-                </div>
-            </div>
+  <!-- Main Content Area -->
+  <main class="flex-1 h-full flex flex-col justify-between relative overflow-y-auto">
+    
+    <!-- Mobile Header -->
+    <header class="md:hidden flex items-center justify-between p-4 border-b border-geminiBorder bg-geminiBg sticky top-0 z-10">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-geminiCard text-gray-300">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+        <span class="font-bold text-lg gemini-gradient-text">Gemini Nav</span>
+      </div>
+      <button onclick="resetInterface()" class="p-2 rounded-lg hover:bg-geminiCard text-gray-300">
+        <i data-lucide="plus-circle" class="w-6 h-6"></i>
+      </button>
+    </header>
 
-            <!-- Controls & Auto-Redirect Toggle -->
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-                <label class="inline-flex items-center gap-3 cursor-pointer text-xs sm:text-sm text-slate-300 self-start sm:self-auto">
-                    <input type="checkbox" id="autoRedirect" class="sr-only peer" checked>
-                    <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accentOrange relative"></div>
-                    <span>Tekan <kbd class="bg-white/10 px-1.5 py-0.5 rounded text-xs font-mono">Enter</kbd> untuk buka langsung</span>
-                </label>
+    <!-- Content Wrapper -->
+    <div class="max-w-4xl w-full mx-auto px-4 py-8 flex-1 flex flex-col justify-center items-center">
+      
+      <!-- Welcome Heading -->
+      <div class="text-center mb-8 md:mb-12 space-y-3">
+        <h1 class="text-3xl md:text-5xl font-bold tracking-tight">
+          <span class="gemini-gradient-text">Halo, Selamat Datang</span>
+        </h1>
+        <p class="text-gray-400 text-base md:text-lg max-w-xl mx-auto font-normal">
+          Ketik nama mata kuliah atau kata kunci di bawah ini untuk menuju ke halaman modul pembelajaran secara otomatis.
+        </p>
+      </div>
 
-                <button 
-                    id="openBtn"
-                    onclick="openRepository()"
-                    class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-accentOrange to-accentPurple hover:opacity-90 text-white font-semibold rounded-xl shadow-lg shadow-accentOrange/20 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    <span>Buka Repository</span>
-                    <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                </button>
-            </div>
+      <!-- Quick Suggestion Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 w-full max-w-3xl mb-8">
+        <!-- Card 1: Pemdas -->
+        <button onclick="handleDirectRedirect('pemdas')" class="p-4 bg-geminiCard border border-geminiBorder hover:border-gray-500 hover:bg-geminiCardHover rounded-2xl text-left transition-all group flex flex-col justify-between h-32 relative overflow-hidden">
+          <div>
+            <p class="text-sm font-semibold text-gray-200 group-hover:text-geminiAccent transition-colors">Matkul Pemdas</p>
+            <p class="text-xs text-gray-400 mt-1 line-clamp-2">Akses modul Pemrograman Dasar dan materi praktikum.</p>
+          </div>
+          <div class="flex justify-between items-center w-full mt-2">
+            <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-mono">/pemdas</span>
+            <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-400 group-hover:text-white transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"></i>
+          </div>
+        </button>
 
-            <!-- Shortcuts / Popular Presets -->
-            <div class="pt-4 border-t border-white/5">
-                <span class="text-xs text-slate-400 block mb-2 font-medium">Shortcut Cepat:</span>
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="setMatkul('pemdas')" class="px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-slate-300 font-mono transition-colors">pemdas</button>
-                    <button onclick="setMatkul('pbo')" class="px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-slate-300 font-mono transition-colors">pbo</button>
-                    <button onclick="setMatkul('jarkom')" class="px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-slate-300 font-mono transition-colors">jarkom</button>
-                    <button onclick="setMatkul('strukdat')" class="px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-slate-300 font-mono transition-colors">strukdat</button>
-                    <button onclick="setMatkul('basdat')" class="px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-slate-300 font-mono transition-colors">basdat</button>
-                    <button onclick="setMatkul('webprog')" class="px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs text-slate-300 font-mono transition-colors">webprog</button>
-                </div>
-            </div>
+        <!-- Card 2: PTI -->
+        <button onclick="handleDirectRedirect('pti')" class="p-4 bg-geminiCard border border-geminiBorder hover:border-gray-500 hover:bg-geminiCardHover rounded-2xl text-left transition-all group flex flex-col justify-between h-32 relative overflow-hidden">
+          <div>
+            <p class="text-sm font-semibold text-gray-200 group-hover:text-geminiAccent transition-colors">Matkul PTI</p>
+            <p class="text-xs text-gray-400 mt-1 line-clamp-2">Pengantar Teknologi Informasi, konsep dasar TI & komputer.</p>
+          </div>
+          <div class="flex justify-between items-center w-full mt-2">
+            <span class="text-[10px] bg-blue-500/10 text-geminiBlue px-2 py-0.5 rounded-full font-mono">/pti</span>
+            <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-400 group-hover:text-white transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"></i>
+          </div>
+        </button>
 
-        </div>
-
-        <!-- Toast Notification Box -->
-        <div id="toast" class="fixed bottom-6 right-6 bg-accentPurple text-white px-4 py-2.5 rounded-xl shadow-xl text-sm font-medium transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2 pointer-events-none">
-            <i class="fa-solid fa-circle-check"></i>
-            <span id="toastMsg">Notification</span>
-        </div>
+        <!-- Card 3: Generic Search Sample -->
+        <button onclick="handleDirectRedirect('kalkulus')" class="p-4 bg-geminiCard border border-geminiBorder hover:border-gray-500 hover:bg-geminiCardHover rounded-2xl text-left transition-all group flex flex-col justify-between h-32 relative overflow-hidden sm:col-span-2 md:col-span-1">
+          <div>
+            <p class="text-sm font-semibold text-gray-200 group-hover:text-geminiAccent transition-colors">Kalkulus / Lainnya</p>
+            <p class="text-xs text-gray-400 mt-1 line-clamp-2">Navigasi langsung ke slug mata kuliah acak lainnya.</p>
+          </div>
+          <div class="flex justify-between items-center w-full mt-2">
+            <span class="text-[10px] bg-purple-500/10 text-purple-400 px-2 py-0.5 rounded-full font-mono">/kalkulus</span>
+            <i data-lucide="arrow-up-right" class="w-4 h-4 text-gray-400 group-hover:text-white transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"></i>
+          </div>
+        </button>
+      </div>
 
     </div>
 
-    <script>
-        // Mapping shortcut kustom (bisa dikustomisasi lebih lanjut)
-        const customShortcuts = {
-            'pemdas': 'pemrograman-dasar',
-            'pbo': 'pemrograman-berbasis-objek',
-            'jarkom': 'jaringan-komputer',
-            'strukdat': 'struktur-data',
-            'basdat': 'basis-data',
-            'webprog': 'pemrograman-web',
-            'alpro': 'algoritma-pemrograman',
-            'matdis': 'matematika-diskrit'
-        };
+    <!-- Floating Bottom Prompt Input Area -->
+    <div class="p-4 pb-6 w-full max-w-3xl mx-auto sticky bottom-0 bg-gradient-to-t from-geminiBg via-geminiBg to-transparent pt-6">
+      <form id="searchForm" onsubmit="processSearch(event)" class="relative flex items-center bg-geminiInput border border-geminiBorder focus-within:border-gray-400 rounded-3xl px-4 py-2.5 shadow-2xl transition-all">
+        
+        <!-- Sparkle Icon -->
+        <div class="pl-1 pr-3 text-geminiBlue">
+          <i data-lucide="sparkles" class="w-5 h-5 animate-pulse"></i>
+        </div>
 
-        let currentTargetUrl = "";
+        <!-- Input Field -->
+        <input 
+          type="text" 
+          id="userInput"
+          placeholder="Ketik mata kuliah (contoh: 'matkul pemdas', 'pti', 'kalkulus')..." 
+          class="w-full bg-transparent text-white placeholder-gray-500 focus:outline-none text-sm md:text-base pr-20"
+          autocomplete="off"
+        >
 
-        function handleInput() {
-            updateUrl();
-        }
+        <!-- Right Side Controls -->
+        <div class="absolute right-3 flex items-center gap-1.5">
+          <button type="button" onclick="clearInput()" id="clearBtn" class="hidden p-1.5 text-gray-400 hover:text-white rounded-full hover:bg-geminiCardHover transition-colors">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
 
-        function updateUrl() {
-            const rawInput = document.getElementById('matkulInput').value.trim().toLowerCase();
-            const figuringexistence = document.getElementById('figuringexistence').value.trim() || 'figuringexistence';
-            const urlPreview = document.getElementById('urlPreview');
-            const copyBtn = document.getElementById('copyBtn');
-            const shortcutBadge = document.getElementById('shortcutBadge');
+          <!-- Voice / Attachment Dummy Icon -->
+          <button type="button" class="p-2 text-gray-400 hover:text-gray-200 rounded-full hover:bg-geminiCardHover transition-colors hidden sm:block" title="Mic">
+            <i data-lucide="mic" class="w-4 h-4"></i>
+          </button>
 
-            if (!rawInput) {
-                urlPreview.innerText = "...";
-                urlPreview.classList.add('text-slate-400');
-                urlPreview.classList.remove('text-accentOrange');
-                copyBtn.classList.add('hidden');
-                shortcutBadge.classList.add('hidden');
-                currentTargetUrl = "";
-                return;
-            }
+          <!-- Submit / Send Button -->
+          <button type="submit" class="p-2 bg-geminiBlue hover:bg-blue-600 text-white rounded-full transition-colors flex items-center justify-center shadow-md">
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </form>
 
-            // Cek apakah input berupa full URL GitHub
-            if (rawInput.startsWith('http://') || rawInput.startsWith('https://')) {
-                currentTargetUrl = rawInput;
-                shortcutBadge.classList.add('hidden');
-            } 
-            // Cek apakah input berupa path kustom misal: "user/repo"
-            else if (rawInput.includes('/')) {
-                currentTargetUrl = `https://github.com/${rawInput}`;
-                shortcutBadge.classList.add('hidden');
-            } 
-            // Cek pemetaan shortcut matkul
-            else {
-                const mappedRepo = customShortcuts[rawInput] || rawInput;
-                currentTargetUrl = `https://github.com/${figuringexistence}/${mappedRepo}`;
-                
-                if (customShortcuts[rawInput]) {
-                    shortcutBadge.classList.remove('hidden');
-                } else {
-                    shortcutBadge.classList.add('hidden');
-                }
-            }
+      <!-- Footer Disclaimer -->
+      <p class="text-[11px] text-gray-500 text-center mt-3">
+        Base Domain: <span class="text-gray-400 font-mono">https://figuringexistence.github.io/</span>
+      </p>
+    </div>
 
-            urlPreview.innerText = currentTargetUrl;
-            urlPreview.classList.remove('text-slate-400');
-            urlPreview.classList.add('text-accentOrange');
-            copyBtn.classList.remove('hidden');
-        }
+  </main>
 
-        function handleKeyDown(event) {
-            // Jika ditekan Enter tanpa Shift
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                const isAutoRedirect = document.getElementById('autoRedirect').checked;
-                
-                if (isAutoRedirect) {
-                    openRepository();
-                }
-            }
-        }
+  <script>
+    // Base configuration URL
+    const BASE_URL = 'https://figuringexistence.github.io/';
 
-        function openRepository() {
-            if (!currentTargetUrl) {
-                showToast("Silakan ketik nama mata kuliah terlebih dahulu!");
-                return;
-            }
-            
-            // Buka link di tab baru
-            window.open(currentTargetUrl, '_blank');
-            showToast("Membuka Repository GitHub...");
-        }
+    // Initialize Lucide Icons
+    lucide.createIcons();
 
-        function setMatkul(name) {
-            const input = document.getElementById('matkulInput');
-            input.value = name;
-            updateUrl();
-            input.focus();
-        }
+    const userInput = document.getElementById('userInput');
+    const clearBtn = document.getElementById('clearBtn');
+    const toast = document.getElementById('redirectToast');
+    const toastTargetUrl = document.getElementById('toastTargetUrl');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-        function copyToClipboard() {
-            if (!currentTargetUrl) return;
-            
-            // Menggunakan execCommand untuk kompatibilitas iframe
-            const textarea = document.createElement('textarea');
-            textarea.value = currentTargetUrl;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
+    // Show/Hide Clear Button on Input Change
+    userInput.addEventListener('input', () => {
+      if (userInput.value.trim().length > 0) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+    });
 
-            showToast("URL berhasil disalin ke clipboard!");
-        }
+    function clearInput() {
+      userInput.value = '';
+      clearBtn.classList.add('hidden');
+      userInput.focus();
+    }
 
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toastMsg');
-            toastMsg.innerText = message;
+    function toggleSidebar() {
+      sidebar.classList.toggle('-translate-x-full');
+      sidebarOverlay.classList.toggle('hidden');
+    }
 
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
+    function resetInterface() {
+      userInput.value = '';
+      clearBtn.classList.add('hidden');
+      userInput.focus();
+    }
 
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 2500);
-        }
+    /**
+     * Extracts and normalizes the target path/slug from user input
+     */
+    function extractSlug(rawInput) {
+      if (!rawInput || !rawInput.trim()) return '';
 
-        // Jalankan updateUrl saat awal dimuat
-        window.onload = function() {
-            updateUrl();
-        }
-    </script>
+      let cleaned = rawInput.toLowerCase().trim();
+
+      // Remove leading prefix 'matkul' or 'mata kuliah' if present
+      cleaned = cleaned.replace(/^(matkul|mata\s+kuliah)\s+/i, '');
+
+      // Explicit Keyword Mappings
+      if (cleaned === 'pemdas' || cleaned === 'pemrograman dasar') {
+        return 'pemdas';
+      }
+      if (cleaned === 'pti' || cleaned === 'pengantar teknologi informasi') {
+        return 'pti';
+      }
+
+      // Default Fallback Slugification
+      return cleaned
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+    }
+
+    // Direct Redirection triggered by prompt submit
+    function processSearch(event) {
+      if (event) event.preventDefault();
+
+      const rawText = userInput.value;
+      const slug = extractSlug(rawText);
+      handleDirectRedirect(slug);
+    }
+
+    // Navigation and Toast Handler
+    function handleDirectRedirect(slug = '') {
+      // Build clean destination URL using the main base URL
+      const targetUrl = slug ? `${BASE_URL}${slug}` : BASE_URL;
+      
+      // Update Toast UI
+      toastTargetUrl.textContent = targetUrl;
+      toast.classList.remove('translate-y-[-100px]', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      // Redirect after smooth visual delay
+      setTimeout(() => {
+        window.location.href = targetUrl;
+      }, 800);
+    }
+  </script>
 </body>
 </html>
