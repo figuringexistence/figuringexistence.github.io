@@ -87,19 +87,19 @@
             </p>
         </div>
 
-        <!-- Custom Username Config -->
+        <!-- Custom figuringexistence Config -->
         <div class="mb-6 bg-inputBg/60 p-3.5 sm:p-4 rounded-xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm">
-            <label for="githubUsername" class="text-slate-300 font-medium flex items-center gap-2">
+            <label for="figuringexistence" class="text-slate-300 font-medium flex items-center gap-2">
                 <i class="fa-brands fa-github text-base text-accentOrange"></i>
-                GitHub Username / Org Default:
+                GitHub figuringexistence / Org Default:
             </label>
             <div class="flex items-center gap-2 w-full sm:w-auto">
                 <span class="text-slate-500 font-mono hidden sm:inline">github.com/</span>
                 <input 
                     type="text" 
-                    id="githubUsername" 
-                    value="my-username" 
-                    placeholder="username"
+                    id="figuringexistence" 
+                    value="my-figuringexistence" 
+                    placeholder="figuringexistence"
                     class="bg-cardDark text-white px-3 py-1.5 rounded-lg border border-white/10 focus:outline-none focus:border-accentOrange font-mono w-full sm:w-40 text-xs sm:text-sm"
                     oninput="updateUrl()"
                 >
@@ -213,7 +213,7 @@
 
         function updateUrl() {
             const rawInput = document.getElementById('matkulInput').value.trim().toLowerCase();
-            const username = document.getElementById('githubUsername').value.trim() || 'username';
+            const figuringexistence = document.getElementById('figuringexistence').value.trim() || 'figuringexistence';
             const urlPreview = document.getElementById('urlPreview');
             const copyBtn = document.getElementById('copyBtn');
             const shortcutBadge = document.getElementById('shortcutBadge');
@@ -241,7 +241,7 @@
             // Cek pemetaan shortcut matkul
             else {
                 const mappedRepo = customShortcuts[rawInput] || rawInput;
-                currentTargetUrl = `https://github.com/${username}/${mappedRepo}`;
+                currentTargetUrl = `https://github.com/${figuringexistence}/${mappedRepo}`;
                 
                 if (customShortcuts[rawInput]) {
                     shortcutBadge.classList.remove('hidden');
