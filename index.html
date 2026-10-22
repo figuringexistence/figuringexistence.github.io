@@ -173,33 +173,91 @@
                     </div>
                 </div>
 
-                <!-- TAB: PROFILE -->
-                <div id="tab-content-profile" class="hidden space-y-4">
-                    <div class="bg-gemini-surface border border-gemini-border rounded-2xl p-6 shadow-lg text-center">
-                        <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white font-bold text-2xl flex items-center justify-center mx-auto mb-3 shadow-lg user-initial">U</div>
-                        <h2 id="profile-email-display" class="text-lg font-bold">pengguna@tif.social</h2>
-                        <p class="text-xs text-gray-400 mt-1">Akun Terdaftar Resmi di Firebase</p>
+                <!-- TAB: PROFILE (DENGAN 5 FITUR TAMBAHAN & CUSTOM EDIT) -->
+                <div id="tab-content-profile" class="hidden space-y-6">
+                    <!-- Kartu Info Utama & Edit -->
+                    <div class="bg-gemini-surface border border-gemini-border rounded-2xl p-6 shadow-lg space-y-6">
+                        <div class="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                            <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white font-bold text-2xl flex items-center justify-center shadow-lg user-initial shrink-0">U</div>
+                            <div class="space-y-1">
+                                <h2 id="profile-name-display" class="text-xl font-bold">Nama Pengguna</h2>
+                                <p id="profile-email-display" class="text-xs text-gray-400">email@domain.com</p>
+                                <p id="profile-bio-display" class="text-xs text-gray-300 italic mt-1">Bio singkat pengguna...</p>
+                            </div>
+                        </div>
+
+                        <!-- Statistik Pengguna (Fitur 1) -->
+                        <div class="grid grid-cols-2 gap-3 pt-4 border-t border-gemini-border text-center">
+                            <div class="bg-gemini-bg p-3 rounded-xl border border-gemini-border">
+                                <div id="stat-total-posts" class="text-lg font-bold text-gemini-primary">0</div>
+                                <div class="text-[11px] text-gray-400">Total Postingan Publik</div>
+                            </div>
+                            <div class="bg-gemini-bg p-3 rounded-xl border border-gemini-border">
+                                <div class="text-lg font-bold text-emerald-400">Aktif</div>
+                                <div class="text-[11px] text-gray-400">Status Akun (Firebase)</div>
+                            </div>
+                        </div>
+
+                        <!-- Form Edit Profil (Fitur 4 & 3) -->
+                        <div class="pt-4 border-t border-gemini-border space-y-4">
+                            <h3 class="text-sm font-bold flex items-center gap-2">
+                                <i class="fa-solid fa-user-pen text-gemini-primary"></i> Edit Profil Anda
+                            </h3>
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">Nama Tampilan</label>
+                                <input type="text" id="edit-display-name" class="w-full bg-gemini-bg border border-gemini-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-gemini-primary">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">Bio / Status Singkat</label>
+                                <textarea id="edit-bio" rows="2" class="w-full bg-gemini-bg border border-gemini-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-gemini-primary resize-none"></textarea>
+                            </div>
+                            <button onclick="saveProfileChanges()" class="w-full py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl text-xs font-medium transition-all shadow-md">
+                                Simpan Perubahan Profil
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Daftar Postingan Saya (Fitur 2) -->
+                    <div class="bg-gemini-surface border border-gemini-border rounded-2xl p-6 shadow-lg space-y-4">
+                        <h3 class="text-sm font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-newspaper text-purple-400"></i> Postingan Saya
+                        </h3>
+                        <div id="my-posts-container" class="space-y-3">
+                            <!-- Dimuat otomatis via JS -->
+                        </div>
                     </div>
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- MAIN APP CONTROLLER SCRIPT (MODULE) - Path diarahin ke folder code -->
+    <!-- MAIN APP CONTROLLER SCRIPT (MODULE) -->
     <script type="module">
         import { initAuth } from "./code/auth.js";
-        import { loadRealPosts } from "./code/posts.js";
+        import { loadRealPosts, loadMyPosts } from "./code/posts.js";
 
         initAuth(
-            (user) => {
+            (user, profileData) => {
                 document.getElementById('auth-container').classList.add('hidden');
                 document.getElementById('dashboard-container').classList.remove('hidden');
-                const identifier = user.email || user.displayName || 'Pengguna';
-                const initial = identifier.charAt(0).toUpperCase();
+                
+                const displayName = profileData.displayName || user.email.split('@')[0];
+                const bio = profileData.bio || "Anggota Komunitas TIF Social";
+                const initial = displayName.charAt(0).toUpperCase();
+
+                // Set UI Profile data
                 document.querySelectorAll('.user-initial').forEach(el => el.innerText = initial);
                 document.getElementById('user-avatar-badge').innerText = initial;
-                document.getElementById('profile-email-display').innerText = identifier;
+                document.getElementById('profile-name-display').innerText = displayName;
+                document.getElementById('profile-email-display').innerText = user.email;
+                document.getElementById('profile-bio-display').innerText = bio;
+                
+                // Set Form edit values
+                document.getElementById('edit-display-name').value = displayName;
+                document.getElementById('edit-bio').value = bio;
+
                 loadRealPosts();
+                loadMyPosts();
             },
             () => {
                 document.getElementById('auth-container').classList.remove('hidden');
