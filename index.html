@@ -48,17 +48,11 @@
                 <button onclick="switchAuthTab('register')" id="tab-register" class="flex-1 py-2 text-sm font-medium rounded-lg transition-all text-gray-400 hover:text-white">Daftar</button>
             </div>
 
-            <!-- Quick Social Login -->
+            <!-- Quick Google Login -->
             <div class="space-y-3 mb-6">
-                <!-- Google Login -->
                 <button onclick="handleGoogleLogin()" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-gemini-bg hover:bg-gemini-hover border border-gemini-border rounded-xl font-medium text-sm transition-all shadow-sm">
                     <i class="fa-brands fa-google text-red-400 text-lg"></i>
                     <span>Lanjutkan dengan Google</span>
-                </button>
-                <!-- Phone / WhatsApp Number Login -->
-                <button onclick="openPhoneModal()" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-300 rounded-xl font-medium text-sm transition-all shadow-sm">
-                    <i class="fa-brands fa-whatsapp text-emerald-400 text-lg"></i>
-                    <span>Masuk / Daftar via Nomor WhatsApp / HP</span>
                 </button>
             </div>
 
@@ -75,7 +69,10 @@
                     <input type="email" id="auth-email" required placeholder="nama@email.com" class="w-full bg-gemini-bg border border-gemini-border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-gemini-primary transition-all">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5">Kata Sandi</label>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-medium text-gray-400">Kata Sandi</label>
+                        <button type="button" onclick="openResetModal()" class="text-[11px] text-gemini-primary hover:underline">Lupa kata sandi?</button>
+                    </div>
                     <input type="password" id="auth-password" required placeholder="••••••••" class="w-full bg-gemini-bg border border-gemini-border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-gemini-primary transition-all">
                 </div>
                 <button type="submit" id="auth-submit-btn" class="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium rounded-xl text-sm transition-all shadow-lg shadow-purple-500/20">
@@ -85,34 +82,22 @@
         </div>
     </div>
 
-    <!-- Phone / WhatsApp OTP Modal -->
-    <div id="phone-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <!-- Reset Password Modal -->
+    <div id="reset-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-gemini-surface border border-gemini-border w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl relative">
-            <button onclick="closePhoneModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
-                <i class="fa-brands fa-whatsapp"></i>
+            <button onclick="closeResetModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <div class="w-12 h-12 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-key"></i>
             </div>
-            <h3 class="text-lg font-bold mb-1">Masuk via Nomor WhatsApp</h3>
-            <p class="text-xs text-gray-400 mb-4">Masukkan nomor HP Anda (awali dengan +62) untuk menerima kode verifikasi OTP.</p>
+            <h3 class="text-lg font-bold mb-1">Reset Kata Sandi</h3>
+            <p class="text-xs text-gray-400 mb-4">Masukkan email Anda untuk menerima tautan pemulihan kata sandi.</p>
             
-            <!-- Step 1: Input Phone Number -->
-            <div id="phone-step-1" class="space-y-3">
-                <input type="text" id="phone-input" placeholder="+628xxxxxxxxxx" class="w-full bg-gemini-bg border border-gemini-border rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
-                <button onclick="sendOTPCode()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-medium transition-all">
-                    Kirim Kode OTP
+            <div class="space-y-3">
+                <input type="email" id="reset-email" placeholder="nama@email.com" class="w-full bg-gemini-bg border border-gemini-border rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-gemini-primary">
+                <button onclick="handlePasswordReset()" class="w-full py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl text-xs font-medium transition-all">
+                    Kirim Tautan Reset
                 </button>
             </div>
-
-            <!-- Step 2: Input OTP Code -->
-            <div id="phone-step-2" class="space-y-3 hidden">
-                <input type="text" id="otp-input" placeholder="Masukkan 6 digit kode OTP" class="w-full bg-gemini-bg border border-gemini-border rounded-xl px-4 py-2.5 text-xs text-white text-center tracking-widest focus:outline-none focus:border-emerald-500">
-                <button onclick="verifyOTPCode()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-medium transition-all">
-                    Verifikasi & Masuk
-                </button>
-            </div>
-
-            <!-- Recaptcha Container Required by Firebase -->
-            <div id="recaptcha-container" class="mt-3 flex justify-center scale-90"></div>
         </div>
     </div>
 
@@ -216,7 +201,7 @@
                     <div class="bg-gemini-surface border border-gemini-border rounded-2xl p-6 shadow-lg text-center">
                         <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white font-bold text-2xl flex items-center justify-center mx-auto mb-3 shadow-lg user-initial">U</div>
                         <h2 id="profile-email-display" class="text-lg font-bold">pengguna@tif.social</h2>
-                        <p class="text-xs text-gray-400 mt-1">Akun Terdaftar Resmi di Firebase Auth</p>
+                        <p class="text-xs text-gray-400 mt-1">Akun Terdaftar Resmi di Firebase</p>
                     </div>
                 </div>
             </main>
@@ -234,16 +219,14 @@
             GoogleAuthProvider, 
             signOut, 
             onAuthStateChanged,
-            RecaptchaVerifier,
-            signInWithPhoneNumber
+            sendPasswordResetEmail
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { 
             getFirestore, 
             collection, 
             addDoc, 
             getDocs, 
-            query, 
-            orderBy 
+            query 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -262,12 +245,11 @@
 
         let currentAuthMode = 'login';
         let currentUser = null;
-        let confirmationResultGlobal = null;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
-                showDashboard(user.email || user.phoneNumber);
+                showDashboard(user.email || user.displayName);
                 loadRealPosts();
             } else {
                 currentUser = null;
@@ -318,62 +300,35 @@
             }
         };
 
+        // Reset Password Logic
+        window.openResetModal = function() {
+            document.getElementById('reset-modal').classList.remove('hidden');
+            document.getElementById('reset-modal').classList.add('flex');
+        };
+
+        window.closeResetModal = function() {
+            document.getElementById('reset-modal').classList.remove('flex');
+            document.getElementById('reset-modal').classList.add('hidden');
+        };
+
+        window.handlePasswordReset = async function() {
+            const email = document.getElementById('reset-email').value.trim();
+            if (!email) {
+                alert('Masukkan alamat email Anda terlebih dahulu!');
+                return;
+            }
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                alert('Tautan reset kata sandi telah dikirim ke email Anda. Silakan periksa kotak masuk atau spam.');
+                closeResetModal();
+            } catch (error) {
+                alert('Gagal mengirim tautan reset: ' + error.message);
+            }
+        };
+
         window.handleLogout = async function() {
             await signOut(auth);
-        };
-
-        // Phone / WhatsApp OTP Logic Setup
-        window.openPhoneModal = function() {
-            document.getElementById('phone-modal').classList.remove('hidden');
-            document.getElementById('phone-modal').classList.add('flex');
-            
-            // Setup Firebase Invisible Recaptcha
-            if (!window.recaptchaVerifier) {
-                window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                    'size': 'normal'
-                });
-                window.recaptchaVerifier.render();
-            }
-        };
-
-        window.closePhoneModal = function() {
-            document.getElementById('phone-modal').classList.remove('flex');
-            document.getElementById('phone-modal').classList.add('hidden');
-        };
-
-        window.sendOTPCode = async function() {
-            const phoneNumber = document.getElementById('phone-input').value;
-            if (!phoneNumber) {
-                alert('Masukkan nomor HP/WhatsApp dengan benar (contoh: +628123456789)');
-                return;
-            }
-
-            const appVerifier = window.recaptchaVerifier;
-            try {
-                const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-                confirmationResultGlobal = confirmationResult;
-                document.getElementById('phone-step-1').classList.add('hidden');
-                document.getElementById('phone-step-2').classList.remove('hidden');
-                alert('Kode OTP berhasil dikirim via SMS ke nomor Anda!');
-            } catch (error) {
-                alert('Gagal mengirim OTP: ' + error.message);
-            }
-        };
-
-        window.verifyOTPCode = async function() {
-            const code = document.getElementById('otp-input').value;
-            if (!code) {
-                alert('Masukkan kode OTP!');
-                return;
-            }
-
-            try {
-                await confirmationResultGlobal.confirm(code);
-                closePhoneModal();
-                alert('Berhasil masuk via Nomor HP/WhatsApp!');
-            } catch (error) {
-                alert('Kode OTP salah atau kedaluwarsa: ' + error.message);
-            }
         };
 
         function showAuth() {
@@ -412,7 +367,7 @@
 
             try {
                 await addDoc(collection(db, "posts"), {
-                    author: currentUser.email || currentUser.phoneNumber,
+                    author: currentUser.email || currentUser.displayName || 'Pengguna TIF',
                     content: text,
                     createdAt: new Date()
                 });
@@ -445,13 +400,13 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 flex items-center justify-center font-bold text-xs">${post.author ? post.author.charAt(0).toUpperCase() : 'U'}</div>
-                                <div>
-                                    <div class="font-semibold text-xs text-white">${post.author || 'Anonim'}</div>
+                                <div class="overflow-hidden">
+                                    <div class="font-semibold text-xs text-white truncate max-w-[200px]">${post.author || 'Anonim'}</div>
                                     <div class="text-[10px] text-gray-400">Baru saja</div>
                                 </div>
                             </div>
                         </div>
-                        <p class="text-xs text-gray-200 leading-relaxed">${escapeHtml(post.content)}</p>
+                        <p class="text-xs text-gray-200 leading-relaxed break-words">${escapeHtml(post.content)}</p>
                     `;
                     container.appendChild(postEl);
                 });
