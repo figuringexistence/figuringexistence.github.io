@@ -7,40 +7,16 @@ import {
     onAuthStateChanged,
     sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { 
-    doc, 
-    getDoc, 
-    setDoc, 
-    updateDoc 
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { auth, db } from "./firebase-config.js";
+import { auth } from "./firebase-config.js";
 
 let currentAuthMode = 'login';
 export let currentUser = null;
 
 export function initAuth(onUserLoggedIn, onUserLoggedOut) {
-    onAuthStateChanged(auth, async (user) => {
+    onAuthStateChanged(auth, (user) => {
         if (user) {
             currentUser = user;
-            let profileData = { 
-                displayName: user.displayName || user.email.split('@')[0], 
-                bio: "Anggota Komunitas TIF Social" 
-            };
-            
-            // Ambil data profil dari Firestore dengan pengaman try-catch
-            try {
-                const userDocRef = doc(db, "users", user.uid);
-                const userDoc = await getDoc(userDocRef);
-                if (userDoc.exists()) {
-                    profileData = userDoc.data();
-                } else {
-                    await setDoc(userDocRef, profileData);
-                }
-            } catch (err) {
-                console.log("Menggunakan data profil default karena database:", err.message);
-            }
-
-            onUserLoggedIn(user, profileData);
+            onUserLoggedIn(user);
         } else {
             currentUser = null;
             onUserLoggedOut();
@@ -74,15 +50,7 @@ document.getElementById('auth-form').addEventListener('submit', async (e) => {
         if (currentAuthMode === 'login') {
             await signInWithEmailAndPassword(auth, email, password);
         } else {
-            const res = await createUserWithEmailAndPassword(auth, email, password);
-            try {
-                await setDoc(doc(db, "users", res.user.uid), {
-                    displayName: email.split('@')[0],
-                    bio: "Anggota baru TIF Social"
-                });
-            } catch (e) {
-                console.log("Gagal membuat dokumen user awal:", e);
-            }
+            await createUserWithEmailAndPassword(auth, email, password);
             alert('Akun berhasil didaftarkan!');
         }
     } catch (error) {
@@ -96,32 +64,6 @@ window.handleGoogleLogin = async function() {
         await signInWithPopup(auth, provider);
     } catch (error) {
         alert('Gagal login Google: ' + error.message);
-    }
-};
-
-window.saveProfileChanges = async function() {
-    if (!currentUser) return;
-    const newName = document.getElementById('edit-display-name').value.trim();
-    const newBio = document.getElementById('edit-bio').value.trim();
-
-    if (!newName) {
-        alert('Nama tampilan tidak boleh kosong!');
-        return;
-    }
-
-    try {
-        const userRef = doc(db, "users", currentUser.uid);
-        await updateDoc(userRef, {
-            displayName: newName,
-            bio: newBio
-        });
-
-        document.getElementById('profile-name-display').innerText = newName;
-        document.getElementById('profile-bio-display').innerText = newBio;
-        document.querySelectorAll('.user-display-name').forEach(el => el.innerText = newName);
-        alert('Profil berhasil diperbarui!');
-    } catch (error) {
-        alert('Gagal memperbarui profil: ' + error.message);
     }
 };
 
@@ -141,9 +83,10 @@ window.handlePasswordReset = async function() {
         alert('Masukkan alamat email Anda terlebih dahulu!');
         return;
     }
+
     try {
         await sendPasswordResetEmail(auth, email);
-        alert('Tautan reset kata sandi telah dikirim ke email Anda. Cek kotak masuk atau folder spam.');
+        alert('Tautan reset kata sandi telah dikirim ke email Anda.');
         closeResetModal();
     } catch (error) {
         alert('Gagal mengirim tautan reset: ' + error.message);
