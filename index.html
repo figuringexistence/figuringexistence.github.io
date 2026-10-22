@@ -33,7 +33,6 @@
     <!-- ================= AUTHENTICATION CONTAINER ================= -->
     <div id="auth-container" class="flex-1 flex items-center justify-center p-4">
         <div class="w-full max-w-md bg-gemini-surface border border-gemini-border rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-            <!-- Header Logo -->
             <div class="text-center mb-8">
                 <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 mb-3 shadow-lg shadow-purple-500/20">
                     <i class="fa-solid fa-sparkles text-2xl text-white"></i>
@@ -42,13 +41,11 @@
                 <p class="text-sm text-gray-400 mt-1">Masuk untuk terhubung dengan komunitas TIF</p>
             </div>
 
-            <!-- Tab Switcher -->
             <div class="flex bg-gemini-bg p-1 rounded-xl mb-6 border border-gemini-border">
                 <button onclick="switchAuthTab('login')" id="tab-login" class="flex-1 py-2 text-sm font-medium rounded-lg transition-all bg-gemini-surface text-white shadow-sm">Masuk</button>
                 <button onclick="switchAuthTab('register')" id="tab-register" class="flex-1 py-2 text-sm font-medium rounded-lg transition-all text-gray-400 hover:text-white">Daftar</button>
             </div>
 
-            <!-- Quick Google Login -->
             <div class="space-y-3 mb-6">
                 <button onclick="handleGoogleLogin()" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-gemini-bg hover:bg-gemini-hover border border-gemini-border rounded-xl font-medium text-sm transition-all shadow-sm">
                     <i class="fa-brands fa-google text-red-400 text-lg"></i>
@@ -62,7 +59,6 @@
                 <div class="flex-1 border-t border-gemini-border"></div>
             </div>
 
-            <!-- Email & Password Form -->
             <form id="auth-form" class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1.5">Alamat Email</label>
@@ -103,7 +99,6 @@
 
     <!-- ================= DASHBOARD CONTAINER (TIF Social) ================= -->
     <div id="dashboard-container" class="hidden flex-1 flex flex-col">
-        <!-- Top Navbar -->
         <header class="border-b border-gemini-border bg-gemini-surface/80 backdrop-blur sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
@@ -111,16 +106,12 @@
                 </div>
                 <span class="font-bold text-base tracking-tight hidden sm:inline">TIF Social</span>
             </div>
-
-            <!-- Search Bar -->
             <div class="flex-1 max-w-md mx-4">
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                     <input type="text" placeholder="Cari postingan, topik, atau kreator..." class="w-full bg-gemini-bg border border-gemini-border rounded-xl pl-10 pr-4 py-2 text-xs text-white focus:outline-none focus:border-gemini-primary transition-all">
                 </div>
             </div>
-
-            <!-- User Menu / Logout -->
             <div class="flex items-center gap-3">
                 <div id="user-avatar-badge" class="w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold text-xs">U</div>
                 <button onclick="handleLogout()" class="px-3 py-1.5 bg-gemini-bg hover:bg-gemini-hover border border-gemini-border rounded-xl text-xs text-red-400 font-medium transition-all flex items-center gap-1.5">
@@ -130,9 +121,7 @@
             </div>
         </header>
 
-        <!-- Main Layout -->
         <div class="flex-1 max-w-6xl w-full mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 p-4">
-            <!-- Sidebar Navigation -->
             <aside class="md:col-span-1 space-y-1">
                 <button onclick="switchTab('feed')" id="nav-feed" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all bg-gemini-surface text-gemini-primary border border-gemini-border shadow-sm">
                     <i class="fa-solid fa-house text-sm w-5"></i>
@@ -148,24 +137,19 @@
                 </button>
             </aside>
 
-            <!-- Main Content Area -->
             <main class="md:col-span-3 space-y-6">
                 <!-- TAB: FEED -->
                 <div id="tab-content-feed" class="space-y-6">
-                    <!-- Create Post Box -->
                     <div class="bg-gemini-surface border border-gemini-border rounded-2xl p-4 shadow-lg">
                         <div class="flex gap-3 items-start">
                             <div class="w-9 h-9 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold text-xs shrink-0 user-initial">U</div>
                             <div class="flex-1 space-y-3">
                                 <textarea id="post-input" rows="3" placeholder="Apa yang ingin Anda bagikan dengan komunitas TIF hari ini?" class="w-full bg-gemini-bg border border-gemini-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-gemini-primary resize-none transition-all"></textarea>
-                                
                                 <div class="flex items-center justify-between pt-2 border-t border-gemini-border">
-                                    <div class="flex items-center gap-2">
-                                        <button onclick="polishWithAI()" class="px-3 py-1.5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 hover:from-blue-500/30 hover:to-purple-500/30 border border-purple-500/30 text-purple-300 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5">
-                                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                                            <span>TIF AI Polish</span>
-                                        </button>
-                                    </div>
+                                    <button onclick="polishWithAI()" class="px-3 py-1.5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 hover:from-blue-500/30 hover:to-purple-500/30 border border-purple-500/30 text-purple-300 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                        <span>TIF AI Polish</span>
+                                    </button>
                                     <button onclick="createPost()" class="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl text-xs font-medium transition-all shadow-md shadow-purple-500/20">
                                         Posting
                                     </button>
@@ -173,11 +157,7 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Post Feeds Container -->
-                    <div id="posts-feed-container" class="space-y-4">
-                        <!-- Real Firebase posts -->
-                    </div>
+                    <div id="posts-feed-container" class="space-y-4"></div>
                 </div>
 
                 <!-- TAB: EXPLORE -->
@@ -186,12 +166,9 @@
                         <h2 class="text-base font-bold mb-4 flex items-center gap-2">
                             <i class="fa-solid fa-fire text-orange-400"></i> Topik Tren Global
                         </h2>
-                        <div class="space-y-3">
-                            <div class="p-3 bg-gemini-bg rounded-xl border border-gemini-border">
-                                <div class="text-xs text-gray-400">Teknologi • Tren</div>
-                                <div class="font-semibold text-sm mt-0.5">#TIFFlash2.0 & Firebase Cloud</div>
-                                <div class="text-xs text-gray-500 mt-1">Live dari Firestore Database</div>
-                            </div>
+                        <div class="p-3 bg-gemini-bg rounded-xl border border-gemini-border">
+                            <div class="text-xs text-gray-400">Teknologi • Tren</div>
+                            <div class="font-semibold text-sm mt-0.5">#TIFFlash2.0 & Firebase Cloud</div>
                         </div>
                     </div>
                 </div>
@@ -208,143 +185,27 @@
         </div>
     </div>
 
-    <!-- ================= FIREBASE & APP LOGIC ================= -->
+    <!-- MAIN APP CONTROLLER SCRIPT (MODULE) - Path diarahin ke folder code -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { 
-            getAuth, 
-            signInWithEmailAndPassword, 
-            createUserWithEmailAndPassword, 
-            signInWithPopup, 
-            GoogleAuthProvider, 
-            signOut, 
-            onAuthStateChanged,
-            sendPasswordResetEmail
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            addDoc, 
-            getDocs, 
-            query 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initAuth } from "./code/auth.js";
+        import { loadRealPosts } from "./code/posts.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBdsCzOFNpVKSwcQ1SdAulPuYwby_KeFpg",
-            authDomain: "tif-social.firebaseapp.com",
-            projectId: "tif-social",
-            storageBucket: "tif-social.firebasestorage.app",
-            messagingSenderId: "852033430946",
-            appId: "1:852033430946:web:4b48c434427710db34befb",
-            measurementId: "G-GTFD75TYMT"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let currentAuthMode = 'login';
-        let currentUser = null;
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                showDashboard(user.email || user.displayName);
+        initAuth(
+            (user) => {
+                document.getElementById('auth-container').classList.add('hidden');
+                document.getElementById('dashboard-container').classList.remove('hidden');
+                const identifier = user.email || user.displayName || 'Pengguna';
+                const initial = identifier.charAt(0).toUpperCase();
+                document.querySelectorAll('.user-initial').forEach(el => el.innerText = initial);
+                document.getElementById('user-avatar-badge').innerText = initial;
+                document.getElementById('profile-email-display').innerText = identifier;
                 loadRealPosts();
-            } else {
-                currentUser = null;
-                showAuth();
+            },
+            () => {
+                document.getElementById('auth-container').classList.remove('hidden');
+                document.getElementById('dashboard-container').classList.add('hidden');
             }
-        });
-
-        window.switchAuthTab = function(mode) {
-            currentAuthMode = mode;
-            const btnLogin = document.getElementById('tab-login');
-            const btnRegister = document.getElementById('tab-register');
-            const submitBtn = document.getElementById('auth-submit-btn');
-
-            if (mode === 'login') {
-                btnLogin.className = "flex-1 py-2 text-sm font-medium rounded-lg transition-all bg-gemini-surface text-white shadow-sm";
-                btnRegister.className = "flex-1 py-2 text-sm font-medium rounded-lg transition-all text-gray-400 hover:text-white";
-                submitBtn.innerText = "Masuk Sekarang";
-            } else {
-                btnRegister.className = "flex-1 py-2 text-sm font-medium rounded-lg transition-all bg-gemini-surface text-white shadow-sm";
-                btnLogin.className = "flex-1 py-2 text-sm font-medium rounded-lg transition-all text-gray-400 hover:text-white";
-                submitBtn.innerText = "Daftar Akun Baru";
-            }
-        };
-
-        document.getElementById('auth-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-
-            try {
-                if (currentAuthMode === 'login') {
-                    await signInWithEmailAndPassword(auth, email, password);
-                } else {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                    alert('Akun berhasil didaftarkan!');
-                }
-            } catch (error) {
-                alert('Gagal: ' + error.message);
-            }
-        });
-
-        window.handleGoogleLogin = async function() {
-            const provider = new GoogleAuthProvider();
-            try {
-                await signInWithPopup(auth, provider);
-            } catch (error) {
-                alert('Gagal login Google: ' + error.message);
-            }
-        };
-
-        // Reset Password Logic
-        window.openResetModal = function() {
-            document.getElementById('reset-modal').classList.remove('hidden');
-            document.getElementById('reset-modal').classList.add('flex');
-        };
-
-        window.closeResetModal = function() {
-            document.getElementById('reset-modal').classList.remove('flex');
-            document.getElementById('reset-modal').classList.add('hidden');
-        };
-
-        window.handlePasswordReset = async function() {
-            const email = document.getElementById('reset-email').value.trim();
-            if (!email) {
-                alert('Masukkan alamat email Anda terlebih dahulu!');
-                return;
-            }
-
-            try {
-                await sendPasswordResetEmail(auth, email);
-                alert('Tautan reset kata sandi telah dikirim ke email Anda. Silakan periksa kotak masuk atau spam.');
-                closeResetModal();
-            } catch (error) {
-                alert('Gagal mengirim tautan reset: ' + error.message);
-            }
-        };
-
-        window.handleLogout = async function() {
-            await signOut(auth);
-        };
-
-        function showAuth() {
-            document.getElementById('auth-container').classList.remove('hidden');
-            document.getElementById('dashboard-container').classList.add('hidden');
-        }
-
-        function showDashboard(identifier) {
-            document.getElementById('auth-container').classList.add('hidden');
-            document.getElementById('dashboard-container').classList.remove('hidden');
-            
-            const initial = identifier ? identifier.charAt(0).toUpperCase() : 'U';
-            document.querySelectorAll('.user-initial').forEach(el => el.innerText = initial);
-            document.getElementById('user-avatar-badge').innerText = initial;
-            document.getElementById('profile-email-display').innerText = identifier;
-        }
+        );
 
         window.switchTab = function(tabName) {
             ['feed', 'explore', 'profile'].forEach(t => {
@@ -359,75 +220,6 @@
                 }
             });
         };
-
-        window.createPost = async function() {
-            const input = document.getElementById('post-input');
-            const text = input.value.trim();
-            if (!text) return;
-
-            try {
-                await addDoc(collection(db, "posts"), {
-                    author: currentUser.email || currentUser.displayName || 'Pengguna TIF',
-                    content: text,
-                    createdAt: new Date()
-                });
-                input.value = '';
-                loadRealPosts();
-            } catch (error) {
-                alert('Gagal memposting: ' + error.message);
-            }
-        };
-
-        async function loadRealPosts() {
-            const container = document.getElementById('posts-feed-container');
-            container.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">Memuat data dari Cloud Database...</p>';
-
-            try {
-                const q = query(collection(db, "posts"));
-                const querySnapshot = await getDocs(q);
-                container.innerHTML = '';
-
-                if (querySnapshot.empty) {
-                    container.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">Belum ada postingan. Jadilah yang pertama memposting!</p>';
-                    return;
-                }
-
-                querySnapshot.forEach((docSnap) => {
-                    const post = docSnap.data();
-                    const postEl = document.createElement('div');
-                    postEl.className = "bg-gemini-surface border border-gemini-border rounded-2xl p-4 shadow-lg space-y-3";
-                    postEl.innerHTML = `
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 flex items-center justify-center font-bold text-xs">${post.author ? post.author.charAt(0).toUpperCase() : 'U'}</div>
-                                <div class="overflow-hidden">
-                                    <div class="font-semibold text-xs text-white truncate max-w-[200px]">${post.author || 'Anonim'}</div>
-                                    <div class="text-[10px] text-gray-400">Baru saja</div>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="text-xs text-gray-200 leading-relaxed break-words">${escapeHtml(post.content)}</p>
-                    `;
-                    container.appendChild(postEl);
-                });
-            } catch (error) {
-                container.innerHTML = `<p class="text-xs text-red-400 text-center py-4">Gagal memuat postingan: ${error.message}</p>`;
-            }
-        }
-
-        window.polishWithAI = function() {
-            const input = document.getElementById('post-input');
-            const text = input.value.trim();
-            if (!text) {
-                alert('Tuliskan draf teks terlebih dahulu!');
-                return;
-            }
-            input.value = `✨ [TIF AI Polish] ${text} #TIFSocial #CloudFirebase`;
-        };
-
-        function escapeHtml(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        }
     </script>
 </body>
 </html>
