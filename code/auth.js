@@ -5,8 +5,7 @@ import {
     GoogleAuthProvider, 
     signOut, 
     onAuthStateChanged,
-    sendPasswordResetEmail,
-    updateProfile
+    sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     doc, 
@@ -23,16 +22,22 @@ export function initAuth(onUserLoggedIn, onUserLoggedOut) {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
-            // Ambil data tambahan profil dari Firestore
-            const userDocRef = doc(db, "users", user.uid);
-            const userDoc = await getDoc(userDocRef);
-            let profileData = { displayName: user.displayName || user.email.split('@')[0], bio: "Anggota Komunitas TIF Social" };
+            let profileData = { 
+                displayName: user.displayName || user.email.split('@')[0], 
+                bio: "Anggota Komunitas TIF Social" 
+            };
             
-            if (userDoc.exists()) {
-                profileData = userDoc.data();
-            } else {
-                // Buat dokumen profil awal jika belum ada
-                await setDoc(userDocRef, profileData);
+            // Ambil data profil dari Firestore dengan pengaman try-catch
+            try {
+                const userDocRef = doc(db, "users", user.uid);
+                const userDoc = await getDoc(userDocRef);
+                if (userDoc.exists()) {
+                    profileData = userDoc.data();
+                } else {
+                    await setDoc(userDocRef, profileData);
+                }
+            } catch (err) {
+                console.log("Menggunakan data profil default karena database:", err.message);
             }
 
             onUserLoggedIn(user, profileData);
@@ -70,11 +75,14 @@ document.getElementById('auth-form').addEventListener('submit', async (e) => {
             await signInWithEmailAndPassword(auth, email, password);
         } else {
             const res = await createUserWithEmailAndPassword(auth, email, password);
-            // Inisialisasi dokumen profil baru di Firestore
-            await setDoc(doc(db, "users", res.user.uid), {
-                displayName: email.split('@')[0],
-                bio: "Anggota baru TIF Social"
-            });
+            try {
+                await setDoc(doc(db, "users", res.user.uid), {
+                    displayName: email.split('@')[0],
+                    bio: "Anggota baru TIF Social"
+                });
+            } catch (e) {
+                console.log("Gagal membuat dokumen user awal:", e);
+            }
             alert('Akun berhasil didaftarkan!');
         }
     } catch (error) {
@@ -85,21 +93,12 @@ document.getElementById('auth-form').addEventListener('submit', async (e) => {
 window.handleGoogleLogin = async function() {
     const provider = new GoogleAuthProvider();
     try {
-        const result = await signInWithPopup(auth, provider);
-        const userRef = doc(db, "users", result.user.uid);
-        const userSnap = await getDoc(userRef);
-        if (!userSnap.exists()) {
-            await setDoc(userRef, {
-                displayName: result.user.displayName || result.user.email.split('@')[0],
-                bio: "Pengguna Google di TIF Social"
-            });
-        }
+        await signInWithPopup(auth, provider);
     } catch (error) {
         alert('Gagal login Google: ' + error.message);
     }
 };
 
-// Fungsi Menyimpan Perubahan Profil (Nama & Bio)
 window.saveProfileChanges = async function() {
     if (!currentUser) return;
     const newName = document.getElementById('edit-display-name').value.trim();
@@ -144,7 +143,7 @@ window.handlePasswordReset = async function() {
     }
     try {
         await sendPasswordResetEmail(auth, email);
-        alert('Tautan reset kata sandi telah dikirim ke email Anda.');
+        alert('Tautan reset kata sandi telah dikirim ke email Anda. Cek kotak masuk atau folder spam.');
         closeResetModal();
     } catch (error) {
         alert('Gagal mengirim tautan reset: ' + error.message);
