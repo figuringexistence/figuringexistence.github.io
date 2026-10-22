@@ -2,7 +2,8 @@ import {
     collection, 
     addDoc, 
     getDocs, 
-    query 
+    query,
+    where 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { db } from "./firebase-config.js";
 import { currentUser } from "./auth.js";
@@ -13,13 +14,17 @@ window.createPost = async function() {
     if (!text || !currentUser) return;
 
     try {
+        const currentName = document.getElementById('profile-name-display')?.innerText || currentUser.email;
         await addDoc(collection(db, "posts"), {
-            author: currentUser.email || currentUser.displayName || 'Pengguna TIF',
+            uid: currentUser.uid,
+            author: currentName,
+            email: currentUser.email,
             content: text,
             createdAt: new Date()
         });
         input.value = '';
         loadRealPosts();
+        loadMyPosts();
     } catch (error) {
         alert('Gagal memposting: ' + error.message);
     }
@@ -27,6 +32,7 @@ window.createPost = async function() {
 
 export async function loadRealPosts() {
     const container = document.getElementById('posts-feed-container');
+    if (!container) return;
     container.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">Memuat data dari Cloud Database...</p>';
 
     try {
@@ -39,7 +45,9 @@ export async function loadRealPosts() {
             return;
         }
 
+        let count = 0;
         querySnapshot.forEach((docSnap) => {
+            count++;
             const post = docSnap.data();
             const postEl = document.createElement('div');
             postEl.className = "bg-gemini-surface border border-gemini-border rounded-2xl p-4 shadow-lg space-y-3";
@@ -49,7 +57,7 @@ export async function loadRealPosts() {
                         <div class="w-8 h-8 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 flex items-center justify-center font-bold text-xs">${post.author ? post.author.charAt(0).toUpperCase() : 'U'}</div>
                         <div class="overflow-hidden">
                             <div class="font-semibold text-xs text-white truncate max-w-[200px]">${post.author || 'Anonim'}</div>
-                            <div class="text-[10px] text-gray-400">Baru saja</div>
+                            <div class="text-[10px] text-gray-400">Postingan Publik</div>
                         </div>
                     </div>
                 </div>
@@ -57,10 +65,45 @@ export async function loadRealPosts() {
             `;
             container.appendChild(postEl);
         });
+
+        // Update badge jumlah total postingan di profil
+        const statEl = document.getElementById('stat-total-posts');
+        if (statEl) statEl.innerText = count;
+
     } catch (error) {
         container.innerHTML = `<p class="text-xs text-red-400 text-center py-4">Gagal memuat postingan: ${error.message}</p>`;
     }
-};
+}
+
+export async function loadMyPosts() {
+    const container = document.getElementById('my-posts-container');
+    if (!container || !currentUser) return;
+    container.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">Memuat postingan Anda...</p>';
+
+    try {
+        const q = query(collection(db, "posts"), where("uid", "==", currentUser.uid));
+        const querySnapshot = await getDocs(q);
+        container.innerHTML = '';
+
+        if (querySnapshot.empty) {
+            container.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">Anda belum pernah membuat postingan.</p>';
+            return;
+        }
+
+        querySnapshot.forEach((docSnap) => {
+            const post = docSnap.data();
+            const postEl = document.createElement('div');
+            postEl.className = "bg-gemini-bg border border-gemini-border rounded-xl p-3 space-y-2";
+            postEl.innerHTML = `
+                <p class="text-xs text-gray-200 leading-relaxed break-words">${escapeHtml(post.content)}</p>
+                <div class="text-[10px] text-gray-500 text-right">Terkirim ke Cloud</div>
+            `;
+            container.appendChild(postEl);
+        });
+    } catch (error) {
+        container.innerHTML = `<p class="text-xs text-red-400 text-center py-4">Gagal memuat postingan Anda</p>`;
+    }
+}
 
 window.polishWithAI = function() {
     const input = document.getElementById('post-input');
