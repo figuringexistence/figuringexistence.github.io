@@ -3,7 +3,9 @@ import {
     addDoc, 
     getDocs, 
     query,
-    where 
+    where,
+    deleteDoc,
+    doc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { db } from "./firebase-config.js";
 import { currentUser } from "./auth.js";
@@ -49,6 +51,11 @@ export async function loadRealPosts() {
         querySnapshot.forEach((docSnap) => {
             count++;
             const post = docSnap.data();
+            const postId = docSnap.id;
+            
+            // Cek apakah postingan ini milik user yang sedang login
+            const isOwner = currentUser && post.uid === currentUser.uid;
+
             const postEl = document.createElement('div');
             postEl.className = "bg-gemini-surface border border-gemini-border rounded-2xl p-4 shadow-lg space-y-3";
             postEl.innerHTML = `
@@ -60,13 +67,13 @@ export async function loadRealPosts() {
                             <div class="text-[10px] text-gray-400">Postingan Publik</div>
                         </div>
                     </div>
+                    ${isOwner ? `<button onclick="deletePost('${postId}')" class="text-gray-400 hover:text-red-400 text-xs transition-all px-2 py-1 rounded-lg hover:bg-gemini-bg"><i class="fa-solid fa-trash"></i> Hapus</button>` : ''}
                 </div>
                 <p class="text-xs text-gray-200 leading-relaxed break-words">${escapeHtml(post.content)}</p>
             `;
             container.appendChild(postEl);
         });
 
-        // Update badge jumlah total postingan di profil
         const statEl = document.getElementById('stat-total-posts');
         if (statEl) statEl.innerText = count;
 
@@ -92,11 +99,16 @@ export async function loadMyPosts() {
 
         querySnapshot.forEach((docSnap) => {
             const post = docSnap.data();
+            const postId = docSnap.id;
+
             const postEl = document.createElement('div');
             postEl.className = "bg-gemini-bg border border-gemini-border rounded-xl p-3 space-y-2";
             postEl.innerHTML = `
                 <p class="text-xs text-gray-200 leading-relaxed break-words">${escapeHtml(post.content)}</p>
-                <div class="text-[10px] text-gray-500 text-right">Terkirim ke Cloud</div>
+                <div class="flex justify-between items-center pt-1 border-t border-gemini-border">
+                    <span class="text-[10px] text-gray-500">Milik Anda</span>
+                    <button onclick="deletePost('${postId}')" class="text-red-400 hover:text-red-300 text-[11px] transition-all"><i class="fa-solid fa-trash"></i> Hapus Postingan</button>
+                </div>
             `;
             container.appendChild(postEl);
         });
@@ -104,6 +116,20 @@ export async function loadMyPosts() {
         container.innerHTML = `<p class="text-xs text-red-400 text-center py-4">Gagal memuat postingan Anda</p>`;
     }
 }
+
+// Fungsi Global untuk Menghapus Postingan
+window.deletePost = async function(postId) {
+    if (!confirm('Apakah Anda yakin ingin menghapus postingan ini?')) return;
+
+    try {
+        await deleteDoc(doc(db, "posts", postId));
+        alert('Postingan berhasil dihapus!');
+        loadRealPosts();
+        loadMyPosts();
+    } catch (error) {
+        alert('Gagal menghapus postingan: ' + error.message);
+    }
+};
 
 window.polishWithAI = function() {
     const input = document.getElementById('post-input');
