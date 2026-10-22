@@ -5,18 +5,37 @@ import {
     GoogleAuthProvider, 
     signOut, 
     onAuthStateChanged,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+    updateProfile
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { auth } from "./firebase-config.js";
+import { 
+    doc, 
+    getDoc, 
+    setDoc, 
+    updateDoc 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { auth, db } from "./firebase-config.js";
 
 let currentAuthMode = 'login';
 export let currentUser = null;
 
 export function initAuth(onUserLoggedIn, onUserLoggedOut) {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
-            onUserLoggedIn(user);
+            // Ambil data tambahan profil dari Firestore
+            const userDocRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userDocRef);
+            let profileData = { displayName: user.displayName || user.email.split('@')[0], bio: "Anggota Komunitas TIF Social" };
+            
+            if (userDoc.exists()) {
+                profileData = userDoc.data();
+            } else {
+                // Buat dokumen profil awal jika belum ada
+                await setDoc(userDocRef, profileData);
+            }
+
+            onUserLoggedIn(user, profileData);
         } else {
             currentUser = null;
             onUserLoggedOut();
@@ -50,7 +69,12 @@ document.getElementById('auth-form').addEventListener('submit', async (e) => {
         if (currentAuthMode === 'login') {
             await signInWithEmailAndPassword(auth, email, password);
         } else {
-            await createUserWithEmailAndPassword(auth, email, password);
+            const res = await createUserWithEmailAndPassword(auth, email, password);
+            // Inisialisasi dokumen profil baru di Firestore
+            await setDoc(doc(db, "users", res.user.uid), {
+                displayName: email.split('@')[0],
+                bio: "Anggota baru TIF Social"
+            });
             alert('Akun berhasil didaftarkan!');
         }
     } catch (error) {
@@ -61,9 +85,44 @@ document.getElementById('auth-form').addEventListener('submit', async (e) => {
 window.handleGoogleLogin = async function() {
     const provider = new GoogleAuthProvider();
     try {
-        await signInWithPopup(auth, provider);
+        const result = await signInWithPopup(auth, provider);
+        const userRef = doc(db, "users", result.user.uid);
+        const userSnap = await getDoc(userRef);
+        if (!userSnap.exists()) {
+            await setDoc(userRef, {
+                displayName: result.user.displayName || result.user.email.split('@')[0],
+                bio: "Pengguna Google di TIF Social"
+            });
+        }
     } catch (error) {
         alert('Gagal login Google: ' + error.message);
+    }
+};
+
+// Fungsi Menyimpan Perubahan Profil (Nama & Bio)
+window.saveProfileChanges = async function() {
+    if (!currentUser) return;
+    const newName = document.getElementById('edit-display-name').value.trim();
+    const newBio = document.getElementById('edit-bio').value.trim();
+
+    if (!newName) {
+        alert('Nama tampilan tidak boleh kosong!');
+        return;
+    }
+
+    try {
+        const userRef = doc(db, "users", currentUser.uid);
+        await updateDoc(userRef, {
+            displayName: newName,
+            bio: newBio
+        });
+
+        document.getElementById('profile-name-display').innerText = newName;
+        document.getElementById('profile-bio-display').innerText = newBio;
+        document.querySelectorAll('.user-display-name').forEach(el => el.innerText = newName);
+        alert('Profil berhasil diperbarui!');
+    } catch (error) {
+        alert('Gagal memperbarui profil: ' + error.message);
     }
 };
 
@@ -83,7 +142,6 @@ window.handlePasswordReset = async function() {
         alert('Masukkan alamat email Anda terlebih dahulu!');
         return;
     }
-
     try {
         await sendPasswordResetEmail(auth, email);
         alert('Tautan reset kata sandi telah dikirim ke email Anda.');
