@@ -1,0 +1,33 @@
+Berikut adalah kode lengkap untuk file **`css/style.css`** Anda dengan memasukkan gaya tambahan tersebut secara langsung:
+
+```css
+/* Custom Scrollbar & Styling Tambahan */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #131314;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333537;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #44484b;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.2s ease-out forwards;
+}
+
+```
+
