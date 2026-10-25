@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TIF Social</title>
+    <title>Unimugo Space</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -12,7 +12,7 @@
             theme: {
                 extend: {
                     colors: {
-                        gemini: {
+                        yuditif: {
                             bg: '#131314',
                             surface: '#1e1f20',
                             border: '#333537',
@@ -27,60 +27,73 @@
     </script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS di dalam folder css -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-gemini-bg text-gray-100 font-sans antialiased min-h-screen flex flex-col selection:bg-gemini-primary selection:text-black">
+<body class="bg-yuditif-bg text-gray-100 font-sans antialiased min-h-screen flex flex-col selection:bg-yuditif-primary selection:text-black">
 
     <!-- ================= AUTHENTICATION CONTAINER ================= -->
-    <div id="auth-container" class="flex-1 flex items-center justify-center p-4">
-        <div class="w-full max-w-md bg-gemini-surface border border-gemini-border rounded-2xl p-8 shadow-2xl relative overflow-hidden">
+    <div id="auth-container" class="flex-1 flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-md bg-yuditif-surface border border-yuditif-border rounded-2xl p-8 shadow-2xl relative overflow-hidden">
             <div class="text-center mb-8">
                 <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 mb-3 shadow-lg shadow-purple-500/20">
                     <i class="fa-solid fa-sparkles text-2xl text-white"></i>
                 </div>
-                <h1 class="text-2xl font-bold tracking-tight">TIF Social</h1>
-                <p class="text-sm text-gray-400 mt-1">Masuk untuk terhubung dengan komunitas TIF</p>
+                <h1 class="text-2xl font-bold tracking-tight">Unimugo Space</h1>
+                <p class="text-sm text-gray-400 mt-1">Masuk untuk terhubung dengan komunitas Unimugo</p>
             </div>
 
-            <div class="flex bg-gemini-bg p-1 rounded-xl mb-6 border border-gemini-border">
-                <button onclick="switchAuthTab('login')" id="tab-login" class="flex-1 py-2 text-sm font-medium rounded-lg transition-all bg-gemini-surface text-white shadow-sm">Masuk</button>
+            <!-- Tab Switcher -->
+            <div class="flex bg-yuditif-bg p-1 rounded-xl mb-6 border border-yuditif-border">
+                <button onclick="switchAuthTab('login')" id="tab-login" class="flex-1 py-2 text-sm font-medium rounded-lg transition-all bg-yuditif-surface text-white shadow-sm">Masuk</button>
                 <button onclick="switchAuthTab('register')" id="tab-register" class="flex-1 py-2 text-sm font-medium rounded-lg transition-all text-gray-400 hover:text-white">Daftar</button>
             </div>
 
+            <!-- Google Login -->
             <div class="space-y-3 mb-6">
-                <button onclick="handleGoogleLogin()" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-gemini-bg hover:bg-gemini-hover border border-gemini-border rounded-xl font-medium text-sm transition-all shadow-sm">
+                <button onclick="handleGoogleLogin()" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-yuditif-bg hover:bg-yuditif-hover border border-yuditif-border rounded-xl font-medium text-sm transition-all shadow-sm">
                     <i class="fa-brands fa-google text-red-400 text-lg"></i>
                     <span>Lanjutkan dengan Google</span>
                 </button>
             </div>
 
             <div class="flex items-center my-6">
-                <div class="flex-1 border-t border-gemini-border"></div>
+                <div class="flex-1 border-t border-yuditif-border"></div>
                 <span class="px-3 text-xs text-gray-500 uppercase tracking-wider">Atau dengan email</span>
-                <div class="flex-1 border-t border-gemini-border"></div>
+                <div class="flex-1 border-t border-yuditif-border"></div>
             </div>
 
+            <!-- Form Email & Password -->
             <form id="auth-form" class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1.5">Alamat Email</label>
-                    <input type="email" id="auth-email" required placeholder="nama@email.com" class="w-full bg-gemini-bg border border-gemini-border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-gemini-primary transition-all">
+                    <input type="email" id="auth-email" required placeholder="nama@email.com" class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yuditif-primary transition-all">
                 </div>
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
                         <label class="block text-xs font-medium text-gray-400">Kata Sandi</label>
-                        <button type="button" onclick="openResetModal()" class="text-[11px] text-gemini-primary hover:underline">Lupa kata sandi?</button>
+                        <button type="button" onclick="openResetModal()" class="text-[11px] text-yuditif-primary hover:underline">Lupa kata sandi?</button>
                     </div>
-                    <input type="password" id="auth-password" required placeholder="••••••••" class="w-full bg-gemini-bg border border-gemini-border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-gemini-primary transition-all">
+                    <input type="password" id="auth-password" required placeholder="••••••••" class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yuditif-primary transition-all">
                 </div>
                 <button type="submit" id="auth-submit-btn" class="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium rounded-xl text-sm transition-all shadow-lg shadow-purple-500/20">
                     Masuk Sekarang
                 </button>
             </form>
         </div>
+
+        <!-- Tombol Pintasan Akses Jadwal Kuliah Tanpa Login -->
+        <div class="w-full max-w-md mt-4 text-center">
+            <a href="jadwalkuliah/" class="inline-flex items-center justify-center gap-2 w-full py-3 px-4 bg-yuditif-surface hover:bg-yuditif-hover border border-yuditif-border rounded-2xl text-xs font-semibold text-yuditif-primary transition-all shadow-md">
+                <i class="fa-solid fa-calendar-days text-sm"></i>
+                <span>Lihat Jadwal Kuliah </span>
+            </a>
+        </div>
     </div>
 
     <!-- Reset Password Modal -->
     <div id="reset-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-gemini-surface border border-gemini-border w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl relative">
+        <div class="bg-yuditif-surface border border-yuditif-border w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl relative">
             <button onclick="closeResetModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             <div class="w-12 h-12 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
                 <i class="fa-solid fa-key"></i>
@@ -89,7 +102,7 @@
             <p class="text-xs text-gray-400 mb-4">Masukkan email Anda untuk menerima tautan pemulihan kata sandi.</p>
             
             <div class="space-y-3">
-                <input type="email" id="reset-email" placeholder="nama@email.com" class="w-full bg-gemini-bg border border-gemini-border rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-gemini-primary">
+                <input type="email" id="reset-email" placeholder="nama@email.com" class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-yuditif-primary">
                 <button onclick="handlePasswordReset()" class="w-full py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl text-xs font-medium transition-all">
                     Kirim Tautan Reset
                 </button>
@@ -97,58 +110,78 @@
         </div>
     </div>
 
-    <!-- ================= DASHBOARD CONTAINER (TIF Social) ================= -->
+    <!-- ================= DASHBOARD CONTAINER (Unimugo Space) ================= -->
     <div id="dashboard-container" class="hidden flex-1 flex flex-col">
-        <header class="border-b border-gemini-border bg-gemini-surface/80 backdrop-blur sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
+        <!-- Top Navbar dengan Logo yang Bisa Diklik ke Beranda Utama -->
+        <header class="border-b border-yuditif-border bg-yuditif-surface/80 backdrop-blur sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
+            <a href="#" onclick="switchTab('feed')" class="flex items-center gap-3 text-decoration-none group cursor-pointer">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center shadow-md group-hover:scale-105 transition-all">
                     <i class="fa-solid fa-sparkles text-white text-sm"></i>
                 </div>
-                <span class="font-bold text-base tracking-tight hidden sm:inline">TIF Social</span>
-            </div>
+                <span class="font-bold text-base tracking-tight text-white hidden sm:inline">Unimugo Space</span>
+            </a>
+
+            <!-- Search Bar -->
             <div class="flex-1 max-w-md mx-4">
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                    <input type="text" placeholder="Cari postingan, topik, atau kreator..." class="w-full bg-gemini-bg border border-gemini-border rounded-xl pl-10 pr-4 py-2 text-xs text-white focus:outline-none focus:border-gemini-primary transition-all">
+                    <input type="text" id="search-input" placeholder="Cari postingan, topik, atau kreator..." class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl pl-10 pr-4 py-2 text-xs text-white focus:outline-none focus:border-yuditif-primary transition-all">
                 </div>
             </div>
+
+            <!-- User Menu / Logout -->
             <div class="flex items-center gap-3">
                 <div id="user-avatar-badge" class="w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold text-xs">U</div>
-                <button onclick="handleLogout()" class="px-3 py-1.5 bg-gemini-bg hover:bg-gemini-hover border border-gemini-border rounded-xl text-xs text-red-400 font-medium transition-all flex items-center gap-1.5">
+                <button onclick="handleLogout()" class="px-3 py-1.5 bg-yuditif-bg hover:bg-yuditif-hover border border-yuditif-border rounded-xl text-xs text-red-400 font-medium transition-all flex items-center gap-1.5">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span class="hidden sm:inline">Keluar</span>
                 </button>
             </div>
         </header>
 
+        <!-- Main Layout -->
         <div class="flex-1 max-w-6xl w-full mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 p-4">
+            <!-- Sidebar Navigation -->
             <aside class="md:col-span-1 space-y-1">
-                <button onclick="switchTab('feed')" id="nav-feed" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all bg-gemini-surface text-gemini-primary border border-gemini-border shadow-sm">
+                <button onclick="switchTab('feed')" id="nav-feed" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all bg-yuditif-surface text-yuditif-primary border border-yuditif-border shadow-sm">
                     <i class="fa-solid fa-house text-sm w-5"></i>
                     <span>Beranda Feed</span>
                 </button>
-                <button onclick="switchTab('explore')" id="nav-explore" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white hover:bg-gemini-surface">
+                <button onclick="switchTab('explore')" id="nav-explore" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white hover:bg-yuditif-surface">
                     <i class="fa-solid fa-compass text-sm w-5"></i>
                     <span>Jelajahi Tren</span>
                 </button>
-                <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white hover:bg-gemini-surface">
+                <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white hover:bg-yuditif-surface">
                     <i class="fa-solid fa-user text-sm w-5"></i>
                     <span>Profil Saya</span>
                 </button>
+                
+                <!-- MENU 1: LIHAT JADWAL KULIAH -->
+                <a href="jadwalkuliah/" id="nav-jadwalkuliah" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white hover:bg-yuditif-surface">
+                    <i class="fa-solid fa-calendar-days text-sm w-5"></i>
+                    <span>Lihat Jadwal Kuliah</span>
+                </a>
+
+                <!-- MENU 2: ISI / INPUT JADWAL -->
+                <a href="jadwalkuliah/input.html" id="nav-input-schedule" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white hover:bg-yuditif-surface">
+                    <i class="fa-solid fa-circle-plus text-sm w-5"></i>
+                    <span>Isi / Input Jadwal</span>
+                </a>
             </aside>
 
+            <!-- Main Content Area -->
             <main class="md:col-span-3 space-y-6">
                 <!-- TAB: FEED -->
                 <div id="tab-content-feed" class="space-y-6">
-                    <div class="bg-gemini-surface border border-gemini-border rounded-2xl p-4 shadow-lg">
+                    <div class="bg-yuditif-surface border border-yuditif-border rounded-2xl p-4 shadow-lg">
                         <div class="flex gap-3 items-start">
                             <div class="w-9 h-9 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold text-xs shrink-0 user-initial">U</div>
                             <div class="flex-1 space-y-3">
-                                <textarea id="post-input" rows="3" placeholder="Apa yang ingin Anda bagikan dengan komunitas TIF hari ini?" class="w-full bg-gemini-bg border border-gemini-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-gemini-primary resize-none transition-all"></textarea>
-                                <div class="flex items-center justify-between pt-2 border-t border-gemini-border">
+                                <textarea id="post-input" rows="3" placeholder="Apa yang ingin Anda bagikan dengan komunitas Unimugo hari ini?" class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yuditif-primary resize-none transition-all"></textarea>
+                                <div class="flex items-center justify-between pt-2 border-t border-yuditif-border">
                                     <button onclick="polishWithAI()" class="px-3 py-1.5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 hover:from-blue-500/30 hover:to-purple-500/30 border border-purple-500/30 text-purple-300 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5">
                                         <i class="fa-solid fa-wand-magic-sparkles"></i>
-                                        <span>TIF AI Polish</span>
+                                        <span>AI Polish</span>
                                     </button>
                                     <button onclick="createPost()" class="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl text-xs font-medium transition-all shadow-md shadow-purple-500/20">
                                         Posting
@@ -162,64 +195,74 @@
 
                 <!-- TAB: EXPLORE -->
                 <div id="tab-content-explore" class="hidden space-y-4">
-                    <div class="bg-gemini-surface border border-gemini-border rounded-2xl p-6 shadow-lg">
+                    <div class="bg-yuditif-surface border border-yuditif-border rounded-2xl p-6 shadow-lg">
                         <h2 class="text-base font-bold mb-4 flex items-center gap-2">
                             <i class="fa-solid fa-fire text-orange-400"></i> Topik Tren Global
                         </h2>
-                        <div class="p-3 bg-gemini-bg rounded-xl border border-gemini-border">
-                            <div class="text-xs text-gray-400">Teknologi • Tren</div>
-                            <div class="font-semibold text-sm mt-0.5">#TIFFlash2.0 & Firebase Cloud</div>
+                        <div class="p-3 bg-yuditif-bg rounded-xl border border-yuditif-border">
+                            <div class="text-xs text-gray-400">Komunitas • Tren</div>
+                            <div class="font-semibold text-sm mt-0.5">#UnimugoSpace & Firebase Cloud</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- TAB: PROFILE -->
-                <div id="tab-content-profile" class="hidden space-y-4">
-                    <div class="bg-gemini-surface border border-gemini-border rounded-2xl p-6 shadow-lg text-center">
-                        <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white font-bold text-2xl flex items-center justify-center mx-auto mb-3 shadow-lg user-initial">U</div>
-                        <h2 id="profile-email-display" class="text-lg font-bold">pengguna@tif.social</h2>
-                        <p class="text-xs text-gray-400 mt-1">Akun Terdaftar Resmi di Firebase</p>
+                <div id="tab-content-profile" class="hidden space-y-6">
+                    <div class="bg-yuditif-surface border border-yuditif-border rounded-2xl p-6 shadow-lg space-y-6">
+                        <div class="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                            <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white font-bold text-2xl flex items-center justify-center shadow-lg user-initial shrink-0">U</div>
+                            <div class="space-y-1">
+                                <h2 id="profile-name-display" class="text-xl font-bold">Nama Pengguna</h2>
+                                <p id="profile-email-display" class="text-xs text-gray-400">email@domain.com</p>
+                                <p class="text-xs text-yuditif-primary font-mono mt-0.5">ID: <span id="profile-id-display">-</span></p>
+                                <p id="profile-bio-display" class="text-xs text-gray-300 italic mt-1">Bio singkat pengguna...</p>
+                            </div>
+                        </div>
+
+                        <!-- Statistik -->
+                        <div class="grid grid-cols-2 gap-3 pt-4 border-t border-yuditif-border text-center">
+                            <div class="bg-yuditif-bg p-3 rounded-xl border border-yuditif-border">
+                                <div id="stat-total-posts" class="text-lg font-bold text-yuditif-primary">0</div>
+                                <div class="text-[11px] text-gray-400">Total Postingan Publik</div>
+                            </div>
+                            <div class="bg-yuditif-bg p-3 rounded-xl border border-yuditif-border">
+                                <div class="text-lg font-bold text-emerald-400">Aktif</div>
+                                <div class="text-[11px] text-gray-400">Status Akun (Firebase)</div>
+                            </div>
+                        </div>
+
+                        <!-- Edit Profil -->
+                        <div class="pt-4 border-t border-yuditif-border space-y-4">
+                            <h3 class="text-sm font-bold flex items-center gap-2">
+                                <i class="fa-solid fa-user-pen text-yuditif-primary"></i> Edit Profil Anda
+                            </h3>
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">Nama Tampilan</label>
+                                <input type="text" id="edit-display-name" class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-yuditif-primary">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">Bio / Status Singkat</label>
+                                <textarea id="edit-bio" rows="2" class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yuditif-primary resize-none"></textarea>
+                            </div>
+                            <button onclick="saveProfileChanges()" class="w-full py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl text-xs font-medium transition-all shadow-md">
+                                Simpan Perubahan Profil
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Postingan Saya -->
+                    <div class="bg-yuditif-surface border border-yuditif-border rounded-2xl p-6 shadow-lg space-y-4">
+                        <h3 class="text-sm font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-newspaper text-purple-400"></i> Postingan Saya
+                        </h3>
+                        <div id="my-posts-container" class="space-y-3"></div>
                     </div>
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- MAIN APP CONTROLLER SCRIPT (MODULE) - Path diarahin ke folder code -->
-    <script type="module">
-        import { initAuth } from "./code/auth.js";
-        import { loadRealPosts } from "./code/posts.js";
-
-        initAuth(
-            (user) => {
-                document.getElementById('auth-container').classList.add('hidden');
-                document.getElementById('dashboard-container').classList.remove('hidden');
-                const identifier = user.email || user.displayName || 'Pengguna';
-                const initial = identifier.charAt(0).toUpperCase();
-                document.querySelectorAll('.user-initial').forEach(el => el.innerText = initial);
-                document.getElementById('user-avatar-badge').innerText = initial;
-                document.getElementById('profile-email-display').innerText = identifier;
-                loadRealPosts();
-            },
-            () => {
-                document.getElementById('auth-container').classList.remove('hidden');
-                document.getElementById('dashboard-container').classList.add('hidden');
-            }
-        );
-
-        window.switchTab = function(tabName) {
-            ['feed', 'explore', 'profile'].forEach(t => {
-                const content = document.getElementById(`tab-content-${t}`);
-                const nav = document.getElementById(`nav-${t}`);
-                if (t === tabName) {
-                    content.classList.remove('hidden');
-                    nav.className = "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all bg-gemini-surface text-gemini-primary border border-gemini-border shadow-sm";
-                } else {
-                    content.classList.add('hidden');
-                    nav.className = "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white hover:bg-gemini-surface";
-                }
-            });
-        };
-    </script>
+    <!-- Main JS Module File di dalam folder code -->
+    <script type="module" src="code/app.js"></script>
 </body>
 </html>
