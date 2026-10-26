@@ -1,4 +1,4 @@
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { auth, db } from "./firebase-config.js";
 import { setupAuth } from "./auth.js";
@@ -11,6 +11,18 @@ const getCurrentUser = () => currentUser;
 // Inisialisasi modul
 setupAuth(auth, db);
 setupPosts(db, getCurrentUser);
+
+// 1. Definisikan handleGoogleLogin secara global di luar agar bisa dipanggil tombol HTML
+window.handleGoogleLogin = async function() {
+    const provider = new GoogleAuthProvider();
+    try {
+        const result = await signInWithPopup(auth, provider);
+        console.log("Login Google berhasil:", result.user);
+    } catch (error) {
+        console.error("Error Google Login:", error.code, error.message);
+        alert("Gagal login dengan Google: " + error.message);
+    }
+};
 
 // Pantau status login secara real-time
 onAuthStateChanged(auth, async (user) => {
@@ -64,19 +76,6 @@ onAuthStateChanged(auth, async (user) => {
         loadMyPosts(db, getCurrentUser);
         initSearch();
     } else {
-        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-window.handleGoogleLogin = async function() {
-    const auth = getAuth();
-    const provider = new GoogleAuthProvider();
-    try {
-        const result = await signInWithPopup(auth, provider);
-        console.log("Login Google berhasil:", result.user);
-    } catch (error) {
-        console.error("Error Google Login:", error.code, error.message);
-        alert("Gagal login dengan Google: " + error.message);
-    }
-};
         // --- JIKA USER BELUM LOGIN / KELUAR ---
         currentUser = null;
         
