@@ -1,8 +1,11 @@
-// code/search.js
+import { getFirestore, collection, query, getDocs, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"; // kalau firestore pakai import firestore yang benar di bawah
+import { getFirestore, collection, query, getDocs, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
 export function initSearch() {
     const searchInput = document.getElementById('search-input');
     if (!searchInput) return;
 
+    // 1. Fitur Filter Postingan saat mengetik (Input event)
     searchInput.addEventListener('input', (e) => {
         const keyword = e.target.value.toLowerCase().trim();
         const postElements = document.querySelectorAll('#posts-feed-container > div');
@@ -16,13 +19,8 @@ export function initSearch() {
             }
         });
     });
-}
-import { getFirestore, collection, query, getDocs, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-export function initSearch() {
-    const searchInput = document.getElementById('search-input');
-    if (!searchInput) return;
-
+    // 2. Fitur Pencarian User/Username saat menekan Enter (Keypress event)
     searchInput.addEventListener('keypress', async (e) => {
         if (e.key === 'Enter') {
             const keyword = e.target.value.toLowerCase().trim().replace('@', '');
@@ -31,7 +29,7 @@ export function initSearch() {
             const db = getFirestore();
             
             try {
-                // 1. Cari berdasarkan username di koleksi 'users'
+                // Cari berdasarkan username di koleksi 'users'
                 const qUsername = query(collection(db, "users"), where("username", "==", keyword));
                 const snapUsername = await getDocs(qUsername);
 
@@ -41,7 +39,7 @@ export function initSearch() {
                     return;
                 }
 
-                // 2. Jika tidak ketemu berdasarkan username, coba cari berdasarkan displayName
+                // Jika tidak ketemu berdasarkan username, cari berdasarkan displayName
                 const qSnapAll = await getDocs(collection(db, "users"));
                 let foundUsernameByName = null;
 
