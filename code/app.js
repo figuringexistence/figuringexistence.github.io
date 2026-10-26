@@ -64,6 +64,19 @@ onAuthStateChanged(auth, async (user) => {
         loadMyPosts(db, getCurrentUser);
         initSearch();
     } else {
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+window.handleGoogleLogin = async function() {
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+    try {
+        const result = await signInWithPopup(auth, provider);
+        console.log("Login Google berhasil:", result.user);
+    } catch (error) {
+        console.error("Error Google Login:", error.code, error.message);
+        alert("Gagal login dengan Google: " + error.message);
+    }
+};
         // --- JIKA USER BELUM LOGIN / KELUAR ---
         currentUser = null;
         
