@@ -1,5 +1,5 @@
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { doc, getDoc, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { doc, getDoc, setDoc, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 export function setupAuth(auth, db) {
     let currentAuthMode = 'login';
@@ -30,8 +30,12 @@ export function setupAuth(auth, db) {
 
         newForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
+            const emailInput = document.getElementById('auth-email');
+            const passwordInput = document.getElementById('auth-password');
+            if (!emailInput || !passwordInput) return;
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
 
             try {
                 if (currentAuthMode === 'login') {
@@ -138,7 +142,7 @@ async function generateUniqueUserId(db) {
             }
 
             const nextSeq = latestSeq + 1;
-            transaction.set(counterRef, { currentSeq: nextSeq });
+            transaction.set(counterRef, { currentSeq: nextSeq }, { merge: true });
 
             const yearMonth = "202610"; 
             return `${yearMonth}${String(nextSeq).slice(-5)}`;
