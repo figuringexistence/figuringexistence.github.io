@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Pengguna - Unimugo Space</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -47,7 +48,7 @@
         </div>
 
         <a href="index.html" class="px-3 py-1.5 bg-yuditif-bg hover:bg-yuditif-hover border border-yuditif-border rounded-xl text-xs font-medium text-yuditif-primary transition-all">
-            <i class="fa-solid fa-arrow-left mr-1.5">}</i> Kembali ke Beranda
+            <i class="fa-solid fa-arrow-left mr-1.5"></i> Kembali ke Beranda
         </a>
     </header>
 
@@ -56,11 +57,19 @@
         
         <!-- Header / Banner Profil -->
         <div class="bg-yuditif-surface border border-yuditif-border rounded-2xl overflow-hidden shadow-xl">
-            <!-- Foto Sampul (Cover) -->
-            <div class="h-48 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 relative">
-                <button class="absolute bottom-3 right-3 bg-black/60 hover:bg-black/80 text-white px-3 py-1.5 rounded-xl text-xs font-medium backdrop-blur flex items-center gap-1.5 transition-all">
-                    <i class="fa-solid fa-camera"></i> Ubah Sampul
-                </button>
+            <!-- Foto Sampul (Cover) dengan Tombol Ubah & Hapus -->
+            <div id="profile-cover-bg" class="h-48 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 relative bg-cover bg-center">
+                <div class="absolute bottom-3 right-3 flex items-center gap-2">
+                    <!-- Tombol Ganti Sampul -->
+                    <label class="cursor-pointer bg-black/60 hover:bg-black/80 text-white px-3 py-1.5 rounded-xl text-xs font-medium backdrop-blur flex items-center gap-1.5 transition-all shadow">
+                        <i class="fa-solid fa-camera"></i> Ubah Sampul
+                        <input type="file" id="upload-cover-file" accept="image/*" class="hidden">
+                    </label>
+                    <!-- Tombol Hapus Sampul -->
+                    <button id="delete-cover-btn" class="bg-red-600/80 hover:bg-red-700 text-white px-2.5 py-1.5 rounded-xl text-xs font-medium backdrop-blur transition-all shadow" title="Hapus Sampul">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Info Profil Utama -->
@@ -70,7 +79,7 @@
                     <div class="relative group">
                         <img id="profile-avatar-img" src="https://via.placeholder.com/150" alt="Foto Profil" class="w-32 h-32 rounded-full border-4 border-yuditif-surface object-cover shadow-lg bg-gray-700">
                         
-                        <!-- Overlay Ganti/Hapus Foto -->
+                        <!-- Overlay Ganti/Hapus Foto Profil -->
                         <div class="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-2">
                             <label class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full text-xs shadow" title="Ganti Foto">
                                 <i class="fa-solid fa-pen"></i>
@@ -84,18 +93,38 @@
 
                     <div class="space-y-1 pt-2 sm:pt-16">
                         <h1 id="profile-view-name" class="text-2xl font-bold">Memuat Nama...</h1>
-                        <p class="text-xs text-gray-400 font-mono">ID: <span id="profile-view-id">-</span></p>
+                        <p class="text-xs text-yuditif-primary font-mono">Username: <span id="profile-view-username">@username</span></p>
                         <p id="profile-view-bio" class="text-xs text-gray-300 italic">Belum ada bio.</p>
                     </div>
                 </div>
 
-                <!-- Tombol Aksi (Tambah Teman / Edit) -->
-                <div id="profile-action-container" class="flex items-center gap-2">
-                    <button id="btn-add-friend" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium shadow transition-all flex items-center gap-1.5">
-                        <i class="fa-solid fa-user-plus"></i> Tambah Teman
-                    </button>
+                <!-- Tombol Aksi (Tambah Teman / Status) -->
+                <div id="profile-action-container" class="flex items-center gap-2"></div>
+            </div>
+        </div>
+
+        <!-- Form Edit Profil & Pengaturan Username (Khusus Pemilik Akun) -->
+        <div id="edit-profile-section" class="bg-yuditif-surface border border-yuditif-border rounded-2xl p-6 shadow-lg space-y-4">
+            <h3 class="text-sm font-bold flex items-center gap-2 text-yuditif-primary">
+                <i class="fa-solid fa-user-pen"></i> Pengaturan & Kustomisasi Profil
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1">Nama Tampilan</label>
+                    <input type="text" id="edit-display-name" class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-yuditif-primary">
+                </div>
+                <div>
+                    <label class="block text-[11px] text-gray-400 mb-1">Username Unik (@)</label>
+                    <input type="text" id="edit-username" placeholder="Contoh: yudit_tif" class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-yuditif-primary">
                 </div>
             </div>
+            <div>
+                <label class="block text-[11px] text-gray-400 mb-1">Bio / Status Singkat</label>
+                <textarea id="edit-bio" rows="2" class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yuditif-primary resize-none"></textarea>
+            </div>
+            <button id="btn-save-profile" class="w-full py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl text-xs font-medium transition-all shadow-md">
+                Simpan Perubahan Profil
+            </button>
         </div>
 
         <!-- Tab Navigasi Profil -->
@@ -107,137 +136,12 @@
 
         <!-- Daftar Postingan Pengguna Ini -->
         <div id="user-posts-container" class="space-y-4">
-            <!-- Postingan akan dimuat otomatis di sini via JavaScript -->
             <div class="text-center py-10 text-gray-500 text-xs">Memuat postingan...</div>
         </div>
 
     </main>
 
-    <!-- Skrip Logika Profil & Interaksi Firebase -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        // Konfigurasi Firebase Anda yang sudah ada
-        const firebaseConfig = {
-            apiKey: "AIzaSyBdsCzOFNpVKSwcQ1SdAulPuYwby_KeFpg",
-            authDomain: "tif-social.firebaseapp.com",
-            projectId: "tif-social",
-            storageBucket: "tif-social.firebasestorage.app",
-            messagingSenderId: "852033430946",
-            appId: "1:852033430946:web:4b48c434427710db34befb",
-            measurementId: "G-GTFD75TYMT"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // Ambil parameter URL (misal: profil.html?id=USER_UID jika melihat profil orang lain)
-        const urlParams = new URLSearchParams(window.location.search);
-        const targetUserId = urlParams.get('id');
-
-        onAuthStateChanged(auth, async (user) => {
-            if (!user && !targetUserId) {
-                window.location.href = "index.html"; // Lempar ke login jika belum masuk
-                return;
-            }
-
-            const profileId = targetUserId || user.uid;
-            const isMyProfile = !targetUserId || targetUserId === user.uid;
-
-            // Sembunyikan atau sesuaikan tombol aksi jika ini profil sendiri
-            const actionContainer = document.getElementById('profile-action-container');
-            if (isMyProfile) {
-                actionContainer.innerHTML = `<a href="index.html" class="px-4 py-2 bg-yuditif-surface hover:bg-yuditif-hover border border-yuditif-border rounded-xl text-xs font-medium text-white shadow">Edit Profil di Beranda</a>`;
-            }
-
-            // Muat Data Profil dari Firestore
-            try {
-                const userDocRef = doc(db, "users", profileId);
-                const userDoc = await getDoc(userDocRef);
-                
-                if (userDoc.exists()) {
-                    const data = userDoc.data();
-                    document.getElementById('profile-view-name').innerText = data.displayName || "Pengguna Unimugo";
-                    document.getElementById('profile-view-id').innerText = profileId;
-                    document.getElementById('profile-view-bio').innerText = data.bio || "Mahasiswa aktif Unimugo Space";
-                    
-                    if (data.photoURL) {
-                        document.getElementById('profile-avatar-img').src = data.photoURL;
-                    }
-                }
-            } catch (err) {
-                console.error("Gagal memuat profil:", err);
-            }
-
-            // Fitur Ganti Foto Profil (Upload ke Base64 / Langsung simpan string gambar)
-            const uploadInput = document.getElementById('upload-avatar-file');
-            if (uploadInput && isMyProfile) {
-                uploadInput.addEventListener('change', async (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-
-                    const reader = new FileReader();
-                    reader.onload = async function(uploadEvent) {
-                        const base64Image = uploadEvent.target.result;
-                        document.getElementById('profile-avatar-img').src = base64Image;
-
-                        // Simpan ke Firestore
-                        try {
-                            await updateDoc(doc(db, "users", user.uid), { photoURL: base64Image });
-                            alert("Foto profil berhasil diperbarui!");
-                        } catch (error) {
-                            alert("Gagal menyimpan foto profil: " + error.message);
-                        }
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            // Fitur Hapus Foto Profil
-            const deleteBtn = document.getElementById('delete-avatar-btn');
-            if (deleteBtn && isMyProfile) {
-                deleteBtn.addEventListener('click', async () => {
-                    if (confirm("Hapus foto profil Anda?")) {
-                        try {
-                            await updateDoc(doc(db, "users", user.uid), { photoURL: "" });
-                            document.getElementById('profile-avatar-img').src = "https://via.placeholder.com/150";
-                            alert("Foto profil berhasil dihapus!");
-                        } catch (error) {
-                            alert("Gagal menghapus foto: " + error.message);
-                        }
-                    }
-                });
-            }
-        });
-
-        // Fitur Pencarian Pengguna Berdasarkan Username/Nama
-        document.getElementById('search-username-input').addEventListener('keypress', async (e) => {
-            if (e.key === 'Enter') {
-                const keyword = e.target.value.toLowerCase().trim();
-                if (!keyword) return;
-
-                // Cari user di koleksi 'users' berdasarkan nama
-                const q = query(collection(db, "users"));
-                const querySnapshot = await getDocs(q);
-                let foundUid = null;
-
-                querySnapshot.forEach((docSnap) => {
-                    const userData = docSnap.data();
-                    if (userData.displayName && userData.displayName.toLowerCase().includes(keyword)) {
-                        foundUid = docSnap.id;
-                    }
-                });
-
-                if (foundUid) {
-                    window.location.href = `profil.html?id=${foundUid}`;
-                } else {
-                    alert("Pengguna dengan nama/username tersebut tidak ditemukan.");
-                }
-            }
-        });
-    </script>
+    <!-- Menghubungkan ke file profil.js di folder code -->
+    <script type="module" src="code/profil.js"></script>
 </body>
 </html>
