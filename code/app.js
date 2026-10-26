@@ -54,9 +54,13 @@ onAuthStateChanged(auth, async (user) => {
         const bioDisplay = document.getElementById('profile-bio-display');
         if (bioDisplay) bioDisplay.innerText = bio;
 
-        // --- MENAMPILKAN ID PENGGUNA DI PROFIL ---
-        const idDisplay = document.getElementById('profile-id-display');
-        if (idDisplay) idDisplay.innerText = user.uid;
+       // --- MENAMPILKAN ID PENGGUNA DI PROFIL ---
+        setTimeout(() => {
+            const idDisplay = document.getElementById('profile-id-display');
+            if (idDisplay) {
+                idDisplay.innerText = user.uid;
+            }
+        }, 300);
         
         const editName = document.getElementById('edit-display-name');
         if (editName) editName.value = displayName;
