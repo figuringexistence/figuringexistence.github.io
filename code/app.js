@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebase
 import { auth, db } from "./firebase-config.js";
 import { setupAuth } from "./auth.js";
 import { setupPosts, loadRealPosts, loadMyPosts } from "./posts.js";
-import { initSearch } from "./search.js";
+
 
 let currentUser = null;
 const getCurrentUser = () => currentUser;
@@ -74,7 +74,7 @@ onAuthStateChanged(auth, async (user) => {
 
         loadRealPosts(db, getCurrentUser);
         loadMyPosts(db, getCurrentUser);
-        initSearch();
+      
     } else {
         // --- JIKA USER BELUM LOGIN / KELUAR ---
         currentUser = null;
