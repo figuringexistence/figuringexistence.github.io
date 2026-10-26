@@ -1,4 +1,4 @@
-import { getFirestore, collection, query, getDocs, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"; // kalau firestore pakai import firestore yang benar di bawah
+// code/search.js
 import { getFirestore, collection, query, getDocs, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 export function initSearch() {
