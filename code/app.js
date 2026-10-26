@@ -17,6 +17,53 @@ onAuthStateChanged(auth, async (user) => {
     const authContainer = document.getElementById('auth-container');
     const dashboardContainer = document.getElementById('dashboard-container');
 
+let profileData = { 
+            displayName: user.displayName || user.email.split('@')[0], 
+            bio: "Mahasiswa aktif Unimugo Space",
+            customId: "2026" + Math.floor(1000 + Math.random() * 9000) // Contoh: 2026XXXX
+        };
+        try {
+            const userDocRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userDocRef);
+            if (userDoc.exists()) {
+                profileData = userDoc.data();
+                // Jika user lama belum punya customId, buatkan secara otomatis
+                if (!profileData.customId) {
+                    profileData.customId = "2026" + Math.floor(1000 + Math.random() * 9000);
+                    await updateDoc(userDocRef, { customId: profileData.customId });
+                }
+            } else {
+                await setDoc(userDocRef, profileData);
+            }
+        } catch (err) {
+            console.log("Error loading profile:", err);
+        }
+
+        const displayName = profileData.displayName || user.email.split('@')[0];
+        const bio = profileData.bio || "Mahasiswa aktif Unimugo Space";
+        const initial = displayName.charAt(0).toUpperCase();
+
+        document.querySelectorAll('.user-initial').forEach(el => el.innerText = initial);
+        const avatarBadge = document.getElementById('user-avatar-badge');
+        if (avatarBadge) avatarBadge.innerText = initial;
+        
+        const nameDisplay = document.getElementById('profile-name-display');
+        if (nameDisplay) nameDisplay.innerText = displayName;
+        
+        const emailDisplay = document.getElementById('profile-email-display');
+        if (emailDisplay) emailDisplay.innerText = user.email;
+        
+        const bioDisplay = document.getElementById('profile-bio-display');
+        if (bioDisplay) bioDisplay.innerText = bio;
+
+        // --- MENAMPILKAN ID ANGKA DI PROFIL ---
+        setTimeout(() => {
+            const idDisplay = document.getElementById('profile-id-display');
+            if (idDisplay) {
+                idDisplay.innerText = profileData.customId || "20260001";
+            }
+        }, 300);
+    
     if (user) {
         // --- JIKA USER SUDAH LOGIN ---
         currentUser = user;
