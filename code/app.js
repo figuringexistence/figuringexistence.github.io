@@ -1,156 +1,236 @@
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { auth, db } from "./firebase-config.js";
-import { setupAuth } from "./auth.js";
-import { setupPosts, loadRealPosts, loadMyPosts } from "./posts.js";
-import { initSearch } from "./search.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, doc, deleteDoc, serverTimestamp, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-let currentUser = null;
-const getCurrentUser = () => currentUser;
+// Konfigurasi Firebase Anda
+const firebaseConfig = {
+    apiKey: "AIzaSyBdsCzOFNpVKSwcQ1SdAulPuYwby_KeFpg",
+    authDomain: "tif-social.firebaseapp.com",
+    projectId: "tif-social",
+    storageBucket: "tif-social.firebasestorage.app",
+    messagingSenderId: "852033430946",
+    appId: "1:852033430946:web:4b48c434427710db34befb",
+    measurementId: "G-GTFD75TYMT"
+};
 
-// Inisialisasi modul
-setupAuth(auth, db);
-setupPosts(db, getCurrentUser);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-// Pantau status login secara real-time
+let isLoginMode = true;
+
+// 1. Tab Switcher (Masuk / Daftar)
+window.switchAuthTab = function(mode) {
+    isLoginMode = (mode === 'login');
+    const tabLogin = document.getElementById('tab-login');
+    const tabRegister = document.getElementById('tab-register');
+    const submitBtn = document.getElementById('auth-submit-btn');
+
+    if (isLoginMode) {
+        tabLogin.className = "flex-1 py-2 text-sm font-medium rounded-lg transition-all bg-yuditif-surface text-white shadow-sm";
+        tabRegister.className = "flex-1 py-2 text-sm font-medium rounded-lg transition-all text-gray-400 hover:text-white";
+        submitBtn.innerText = "Masuk Sekarang";
+    } else {
+        tabRegister.className = "flex-1 py-2 text-sm font-medium rounded-lg transition-all bg-yuditif-surface text-white shadow-sm";
+        tabLogin.className = "flex-1 py-2 text-sm font-medium rounded-lg transition-all text-gray-400 hover:text-white";
+        submitBtn.innerText = "Daftar Akun Baru";
+    }
+};
+
+// 2. Handle Form Submit (Login & Register Email)
+const authForm = document.getElementById('auth-form');
+if (authForm) {
+    authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('auth-email').value;
+        const password = document.getElementById('auth-password').value;
+
+        try {
+            if (isLoginMode) {
+                await signInWithEmailAndPassword(auth, email, password);
+            } else {
+                await createUserWithEmailAndPassword(auth, email, password);
+                alert("Akun berhasil didaftarkan dan otomatis masuk!");
+            }
+        } catch (error) {
+            alert("Gagal autentikasi: " + error.message);
+        }
+    });
+}
+
+// 3. Google Login
+window.handleGoogleLogin = async function() {
+    const provider = new GoogleAuthProvider();
+    try {
+        await signInWithPopup(auth, provider);
+    } catch (error) {
+        alert("Gagal login dengan Google: " + error.message);
+    }
+};
+
+// 4. Logout
+window.handleLogout = async function() {
+    try {
+        await signOut(auth);
+        window.location.reload();
+    } catch (error) {
+        console.error("Gagal keluar:", error);
+    }
+};
+
+// 5. Modal Reset Password
+window.openResetModal = function() {
+    document.getElementById('reset-modal').style.display = 'flex';
+};
+window.closeResetModal = function() {
+    document.getElementById('reset-modal').style.display = 'none';
+};
+window.handlePasswordReset = async function() {
+    const email = document.getElementById('reset-email').value;
+    if (!email) {
+        alert("Masukkan email Anda terlebih dahulu.");
+        return;
+    }
+    try {
+        await sendPasswordResetEmail(auth, email);
+        alert("Tautan pemulihan kata sandi telah dikirim ke email Anda.");
+        closeResetModal();
+    } catch (error) {
+        alert("Gagal mengirim email reset: " + error.message);
+    }
+};
+
+// 6. Navigasi Tab Dashboard (Feed / Explore)
+window.switchTab = function(tabName) {
+    const feedContent = document.getElementById('tab-content-feed');
+    const exploreContent = document.getElementById('tab-content-explore');
+    const navFeed = document.getElementById('nav-feed');
+    const navExplore = document.getElementById('nav-explore');
+
+    if (tabName === 'feed') {
+        feedContent.style.display = 'block';
+        exploreContent.style.display = 'none';
+        navFeed.className = "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all bg-yuditif-surface text-yuditif-primary border border-yuditif-border shadow-sm";
+        navExplore.className = "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white hover:bg-yuditif-surface";
+    } else if (tabName === 'explore') {
+        feedContent.style.display = 'none';
+        exploreContent.style.display = 'block';
+        navExplore.className = "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all bg-yuditif-surface text-yuditif-primary border border-yuditif-border shadow-sm";
+        navFeed.className = "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white hover:bg-yuditif-surface";
+    }
+};
+
+// 7. Buat Postingan Baru
+window.createPost = async function() {
+    const content = document.getElementById('post-input').value.trim();
+    if (!content) {
+        alert("Postingan tidak boleh kosong!");
+        return;
+    }
+
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+        await addDoc(collection(db, "posts"), {
+            userId: user.uid,
+            userName: user.displayName || user.email.split('@')[0],
+            userUsername: user.email.split('@')[0], // Bisa disesuaikan dengan username kustom
+            userPhoto: user.photoURL || "",
+            content: content,
+            createdAt: serverTimestamp()
+        });
+
+        document.getElementById('post-input').value = "";
+        loadPosts(user);
+    } catch (error) {
+        alert("Gagal membuat postingan: " + error.message);
+    }
+};
+
+// 8. Memuat Postingan & Cek Hak Akses Hapus
+async function loadPosts(currentUser) {
+    const feedContainer = document.getElementById('posts-feed-container');
+    if (!feedContainer) return;
+
+    feedContainer.innerHTML = `<div class="text-center py-6 text-gray-400 text-xs">Memuat postingan...</div>`;
+
+    try {
+        const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+        const querySnapshot = await getDocs(q);
+
+        feedContainer.innerHTML = "";
+
+        if (querySnapshot.empty) {
+            feedContainer.innerHTML = `<div class="text-center py-6 text-gray-500 text-xs">Belum ada postingan di beranda.</div>`;
+            return;
+        }
+
+        querySnapshot.forEach((docSnap) => {
+            const post = docSnap.data();
+            const postId = docSnap.id;
+            
+            const isMyPost = currentUser && (post.userId === currentUser.uid);
+
+            const postCard = document.createElement('div');
+            postCard.className = "bg-yuditif-surface border border-yuditif-border rounded-2xl p-4 space-y-3 shadow-md";
+            
+            postCard.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <img src="${post.userPhoto || 'https://via.placeholder.com/40'}" class="w-9 h-9 rounded-full object-cover bg-gray-700">
+                        <div>
+                            <h4 class="text-xs font-bold text-white">${post.userName || 'Pengguna'}</h4>
+                            <a href="profil.html?username=${post.userUsername || ''}" class="text-[10px] text-yuditif-primary hover:underline">@${post.userUsername || 'user'}</a>
+                        </div>
+                    </div>
+                    ${isMyPost ? `<button onclick="window.hapusPostingan('${postId}')" class="text-red-400 hover:text-red-300 text-xs p-1.5 transition-all" title="Hapus Postingan"><i class="fa-solid fa-trash"></i></button>` : ''}
+                </div>
+                <p class="text-xs text-gray-200 whitespace-pre-line">${post.content}</p>
+            `;
+            feedContainer.appendChild(postCard);
+        });
+    } catch (error) {
+        console.error("Gagal memuat feed:", error);
+    }
+}
+
+// 9. Hapus Postingan (Hanya Milik Sendiri)
+window.hapusPostingan = async function(postId) {
+    if (confirm("Yakin ingin menghapus postingan ini?")) {
+        try {
+            await deleteDoc(doc(db, "posts", postId));
+            alert("Postingan berhasil dihapus!");
+            loadPosts(auth.currentUser);
+        } catch (error) {
+            alert("Gagal menghapus postingan: " + error.message);
+        }
+    }
+};
+
+// 10. Pantau Status Auth
 onAuthStateChanged(auth, async (user) => {
     const authContainer = document.getElementById('auth-container');
     const dashboardContainer = document.getElementById('dashboard-container');
 
     if (user) {
-        // --- JIKA USER SUDAH LOGIN ---
-        currentUser = user;
-        
-        if (authContainer) authContainer.classList.add('hidden');
-        if (dashboardContainer) dashboardContainer.classList.remove('hidden');
-
-        // Default data profil termasuk username otomatis dari email
-        let profileData = { 
-            displayName: user.displayName || user.email.split('@')[0], 
-            username: user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, ''),
-            bio: "Mahasiswa aktif Unimugo Space" 
-        };
-
-        try {
-            const userDocRef = doc(db, "users", user.uid);
-            const userDoc = await getDoc(userDocRef);
-            if (userDoc.exists()) {
-                profileData = userDoc.data();
-                // Jika data lama belum memiliki username, buatkan otomatis
-                if (!profileData.username) {
-                    profileData.username = user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
-                    await updateDoc(userDocRef, { username: profileData.username });
-                }
-            } else {
-                await setDoc(userDocRef, profileData);
-            }
-        } catch (err) {
-            console.log("Error loading profile:", err);
-        }
-
-        const displayName = profileData.displayName || user.email.split('@')[0];
-        const username = profileData.username || user.email.split('@')[0];
-        const bio = profileData.bio || "Mahasiswa aktif Unimugo Space";
-        const initial = displayName.charAt(0).toUpperCase();
-
-        document.querySelectorAll('.user-initial').forEach(el => el.innerText = initial);
-        const avatarBadge = document.getElementById('user-avatar-badge');
-        if (avatarBadge) avatarBadge.innerText = initial;
-        
-        const nameDisplay = document.getElementById('profile-name-display');
-        if (nameDisplay) nameDisplay.innerText = displayName;
-        
-        const emailDisplay = document.getElementById('profile-email-display');
-        if (emailDisplay) emailDisplay.innerText = user.email;
-        
-        const bioDisplay = document.getElementById('profile-bio-display');
-        if (bioDisplay) bioDisplay.innerText = bio;
-
-        // --- MENAMPILKAN USERNAME DI PROFIL ---
-        setTimeout(() => {
-            const idDisplay = document.getElementById('profile-id-display');
-            if (idDisplay) {
-                idDisplay.innerText = "@" + username;
-            }
-        }, 300);
-        
-        const editName = document.getElementById('edit-display-name');
-        if (editName) editName.value = displayName;
-
-        // Jika Anda menambahkan input edit username di HTML, aktifkan baris ini:
-        const editUsername = document.getElementById('edit-username');
-        if (editUsername) editUsername.value = username;
-        
-        const editBio = document.getElementById('edit-bio');
-        if (editBio) editBio.value = bio;
-
-        loadRealPosts(db, getCurrentUser);
-        loadMyPosts(db, getCurrentUser);
-        initSearch();
+        if (authContainer) authContainer.style.display = 'none';
+        if (dashboardContainer) dashboardContainer.style.display = 'flex';
+        loadPosts(user);
     } else {
-        // --- JIKA USER BELUM LOGIN / KELUAR ---
-        currentUser = null;
-        
-        if (authContainer) authContainer.classList.remove('hidden');
-        if (dashboardContainer) dashboardContainer.classList.add('hidden');
+        if (authContainer) authContainer.style.display = 'flex';
+        if (dashboardContainer) dashboardContainer.style.display = 'none';
     }
 });
 
-window.switchTab = function(tabName) {
-    ['feed', 'explore', 'profile', 'jadwalkuliah'].forEach(t => {
-        const content = document.getElementById(`tab-content-${t}`);
-        const nav = document.getElementById(`nav-${t}`);
-        if (!content || !nav) return;
-
-        if (t === tabName) {
-            content.classList.remove('hidden');
-            nav.className = "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all bg-yuditif-surface text-yuditif-primary border border-yuditif-border shadow-sm";
-        } else {
-            content.classList.add('hidden');
-            nav.className = "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white hover:bg-yuditif-surface";
+// 11. Pencarian Berdasarkan Username
+const searchInput = document.getElementById('search-input');
+if (searchInput) {
+    searchInput.addEventListener('keypress', async (e) => {
+        if (e.key === 'Enter') {
+            const keyword = e.target.value.toLowerCase().trim().replace('@', '');
+            if (!keyword) return;
+            window.location.href = `profil.html?username=${keyword}`;
         }
     });
-};
-
-window.saveProfileChanges = async function() {
-    if (!currentUser) return;
-    const nameInput = document.getElementById('edit-display-name');
-    const usernameInput = document.getElementById('edit-username'); // Tangkap input username jika ada
-    const bioInput = document.getElementById('edit-bio');
-    if (!nameInput || !bioInput) return;
-
-    const newName = nameInput.value.trim();
-    const newUsername = usernameInput ? usernameInput.value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '') : null;
-    const newBio = bioInput.value.trim();
-
-    if (!newName) {
-        alert('Nama tampilan tidak boleh kosong!');
-        return;
-    }
-
-    try {
-        const userRef = doc(db, "users", currentUser.uid);
-        const updateData = {
-            displayName: newName,
-            bio: newBio
-        };
-        
-        if (newUsername) {
-            updateData.username = newUsername;
-        }
-
-        await updateDoc(userRef, updateData);
-
-        const nameDisplay = document.getElementById('profile-name-display');
-        const idDisplay = document.getElementById('profile-id-display');
-        const bioDisplay = document.getElementById('profile-bio-display');
-
-        if (nameDisplay) nameDisplay.innerText = newName;
-        if (idDisplay && newUsername) idDisplay.innerText = "@" + newUsername;
-        if (bioDisplay) bioDisplay.innerText = newBio;
-
-        alert('Profil berhasil diperbarui!');
-    } catch (error) {
-        alert('Gagal memperbarui profil: ' + error.message);
-    }
-};
+}
