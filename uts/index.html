@@ -2,34 +2,54 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Tombol Tautan Hastebin</title>
+    <title>Banyak Tombol Tautan</title>
     <style>
-        .btn-hastebin {
+        .container-tombol {
+            display: flex;
+            gap: 10px; /* Jarak antar tombol */
+            flex-wrap: wrap; /* Tombol otomatis turun ke bawah jika layar tidak muat */
+        }
+
+        .btn {
             display: inline-block;
-            padding: 12px 24px;
-            background-color: #2b6cb0; /* Warna biru */
+            padding: 10px 18px;
+            background-color: #007BFF;
             color: white;
             text-decoration: none;
-            border-radius: 6px;
+            border-radius: 5px;
             font-family: Arial, sans-serif;
             font-weight: bold;
             transition: background-color 0.2s ease;
         }
 
-        .btn-hastebin:hover {
-            background-color: #2c5282; /* Warna biru lebih gelap saat kursor di atasnya */
+        .btn:hover {
+            background-color: #0056b3;
         }
+
+        /* Variasi warna tambahan */
+        .btn-success { background-color: #28a745; }
+        .btn-success:hover { background-color: #218838; }
+
+        .btn-danger { background-color: #dc3545; }
+        .btn-danger:hover { background-color: #c82333; }
     </style>
 </head>
 <body>
 
-    <!-- Tombol tautan ke Hastebin -->
-    <a href="https://hastebin.com/share/ufaxulecew.csharp" class="btn-hastebin" target="_blank">
-        Pemdas
-    </a>
-     <a href="https://hastebin.com/share/oqodupewid.yaml" class="btn-hastebin" target="_blank">
-        Pemdas
-    </a>
+    <h2>Daftar Menu / Tautan</h2>
+
+    <!-- Container pembungkus tombol -->
+    <div class="container-tombol">
+        <a href="https://hastebin.com/share/ufaxulecew.csharp" class="btn" target="_blank">pemdas</a>
+        <a href="https://hastebin.com/share/oqodupewid.yaml" class="btn btn-success" target="_blank">proyeksi uts</a>
+        <a href="https://stackoverflow.com" class="btn btn-danger" target="_blank">Stack Overflow</a>
+        <a href="https://hastebin.com/share/ufaxulecew.csharp" class="btn" target="_blank">Catatan UTS C</a>
+        <a href="#" class="btn btn-success">Tombol Lain 5</a>
+        <a href="#" class="btn btn-danger">Tombol Lain 6</a>
+    </div>
 
 </body>
 </html>
+
+ 
+  
