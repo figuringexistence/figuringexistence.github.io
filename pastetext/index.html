@@ -44,10 +44,8 @@
                 return;
             }
 
-            // Jika sedang mengedit file yang sudah ada
             if (currentKey) {
                 const item = allPastes[currentKey];
-                // Jika file terkunci password, verifikasi dulu sebelum menyimpan perubahan
                 if (item && item.password && item.password.length > 0) {
                     const inputPass = prompt("File ini dikunci. Masukkan password untuk menyimpan perubahan:");
                     if (inputPass === null) return;
@@ -68,14 +66,17 @@
                     alert("Gagal memperbarui catatan!");
                 });
             } else {
-                // Buat baru
-                push(ref(db, 'pastes'), {
+                const newRef = push(ref(db, 'pastes'));
+                const newKey = newRef.key;
+
+                update(newRef, {
                     title: title,
                     password: password,
                     content: content,
                     createdAt: Date.now()
                 }).then(() => {
                     alert("Paste berhasil disimpan!");
+                    window.location.hash = newKey; // Set URL hash ke ID baru
                     window.newPasteForm();
                 }).catch((error) => {
                     console.error("Error:", error);
@@ -106,7 +107,7 @@
                     const item = data[key];
                     const hasPass = item.password && item.password.length > 0;
                     listEl.innerHTML += `
-                        <div onclick="openPaste('${key}')" class="bg-[#262626] p-3 rounded-xl border border-slate-800 hover:border-cyan-500 cursor-pointer transition flex justify-between items-center">
+                        <div onclick="selectPaste('${key}')" class="bg-[#262626] p-3 rounded-xl border border-slate-800 hover:border-cyan-500 cursor-pointer transition flex justify-between items-center">
                             <div class="overflow-hidden pr-2">
                                 <div class="font-semibold text-sm text-slate-100 truncate">${item.title}</div>
                                 <div class="text-[11px] text-slate-400 mt-1">
@@ -117,6 +118,12 @@
                         </div>
                     `;
                 });
+
+                // Cek apakah ada Hash di URL saat data pertama kali dimuat
+                const hashKey = window.location.hash.substring(1);
+                if (hashKey && allPastes[hashKey]) {
+                    window.openPaste(hashKey);
+                }
             }, (error) => {
                 statusEl.textContent = "Koneksi Gagal";
                 statusEl.className = "text-xs text-red-400 font-medium";
@@ -124,7 +131,13 @@
             });
         };
 
-        // Buka Paste Langsung Tanpa Password (Password Hanya untuk Hapus/Edit)
+        // Pilih Paste dari Sidebar (Mengubah URL Hash)
+        window.selectPaste = function(key) {
+            window.location.hash = key;
+            window.openPaste(key);
+        };
+
+        // Buka Paste Berdasarkan Key
         window.openPaste = function(key) {
             const item = allPastes[key];
             if (!item) return;
@@ -135,6 +148,7 @@
             document.getElementById('paste-content').value = item.content;
             document.getElementById('btn-delete').classList.remove('hidden');
             document.getElementById('btn-copy').classList.remove('hidden');
+            document.getElementById('btn-share').classList.remove('hidden');
         };
 
         // Hapus Paste (Wajib Password jika terkunci)
@@ -156,6 +170,7 @@
 
             remove(ref(db, 'pastes/' + currentKey)).then(() => {
                 alert("Catatan berhasil dihapus.");
+                window.location.hash = "";
                 window.newPasteForm();
             }).catch((error) => {
                 console.error("Gagal menghapus:", error);
@@ -171,14 +186,25 @@
             });
         };
 
+        // Salin Link Spesifik File
+        window.shareLink = function() {
+            if (!currentKey) return;
+            const shareUrl = window.location.href;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert("Link unik file berhasil disalin! Bagikan link ini ke orang lain.");
+            });
+        };
+
         // Reset Form untuk Buat Baru
         window.newPasteForm = function() {
             currentKey = null;
+            window.location.hash = "";
             document.getElementById('paste-title').value = "";
             document.getElementById('paste-password').value = "";
             document.getElementById('paste-content').value = "";
             document.getElementById('btn-delete').classList.add('hidden');
             document.getElementById('btn-copy').classList.add('hidden');
+            document.getElementById('btn-share').classList.add('hidden');
         };
 
         window.onload = () => {
@@ -241,6 +267,9 @@
                         </button>
                         <button id="btn-copy" onclick="copyContent()" class="hidden bg-gray-700 hover:bg-gray-600 text-white font-semibold px-4 py-2.5 rounded text-sm transition flex items-center gap-2">
                             <i class="fa-solid fa-copy"></i> Salin Teks
+                        </button>
+                        <button id="btn-share" onclick="shareLink()" class="hidden bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-4 py-2.5 rounded text-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-share-nodes"></i> Salin Link
                         </button>
                     </div>
                     <button onclick="savePaste()" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-semibold px-6 py-2.5 rounded text-sm transition shadow-lg flex items-center gap-2 ml-auto">
