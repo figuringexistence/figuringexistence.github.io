@@ -1,268 +1,204 @@
 <!DOCTYPE html>
-<html lang="id" class="dark">
+<html lang="id" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unimugo Space</title>
+    <title>Yudi | Portofolio & CV Interaktif</title>
+    <!-- Google AdSense Account Tag -->
+    <meta name="google-adsense-account" content="ca-pub-7225836198965940">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        yuditif: {
-                            bg: '#131314',
-                            surface: '#1e1f20',
-                            border: '#333537',
-                            primary: '#8ab4f8',
-                            accent: '#c4b5fd',
-                            hover: '#2d2f31'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- FontAwesome Icons -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS di dalam folder css -->
-    <link rel="stylesheet" href="css/style.css">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
 </head>
-<body class="bg-yuditif-bg text-gray-100 font-sans antialiased min-h-screen flex flex-col selection:bg-yuditif-primary selection:text-black">
+<body class="bg-slate-950 text-slate-100 min-h-screen selection:bg-indigo-500 selection:text-white">
 
-    <!-- ================= AUTHENTICATION CONTAINER ================= -->
-    <div id="auth-container" class="flex-1 flex flex-col items-center justify-center p-4">
-        <div class="w-full max-w-md bg-yuditif-surface border border-yuditif-border rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 mb-3 shadow-lg shadow-purple-500/20">
-                    <i class="fa-solid fa-sparkles text-2xl text-white"></i>
-                </div>
-                <h1 class="text-2xl font-bold tracking-tight">Unimugo Space</h1>
-                <p class="text-sm text-gray-400 mt-1">Masuk untuk terhubung dengan komunitas Unimugo</p>
-            </div>
-
-            <!-- Tab Switcher -->
-            <div class="flex bg-yuditif-bg p-1 rounded-xl mb-6 border border-yuditif-border">
-                <button onclick="switchAuthTab('login')" id="tab-login" class="flex-1 py-2 text-sm font-medium rounded-lg transition-all bg-yuditif-surface text-white shadow-sm">Masuk</button>
-                <button onclick="switchAuthTab('register')" id="tab-register" class="flex-1 py-2 text-sm font-medium rounded-lg transition-all text-gray-400 hover:text-white">Daftar</button>
-            </div>
-
-            <!-- Google Login -->
-            <div class="space-y-3 mb-6">
-                <button onclick="handleGoogleLogin()" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-yuditif-bg hover:bg-yuditif-hover border border-yuditif-border rounded-xl font-medium text-sm transition-all shadow-sm">
-                    <i class="fa-brands fa-google text-red-400 text-lg"></i>
-                    <span>Lanjutkan dengan Google</span>
-                </button>
-            </div>
-
-            <div class="flex items-center my-6">
-                <div class="flex-1 border-t border-yuditif-border"></div>
-                <span class="px-3 text-xs text-gray-500 uppercase tracking-wider">Atau dengan email</span>
-                <div class="flex-1 border-t border-yuditif-border"></div>
-            </div>
-
-            <!-- Form Email & Password -->
-            <form id="auth-form" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5">Alamat Email</label>
-                    <input type="email" id="auth-email" required placeholder="nama@email.com" class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yuditif-primary transition-all">
-                </div>
-                <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <label class="block text-xs font-medium text-gray-400">Kata Sandi</label>
-                        <button type="button" onclick="openResetModal()" class="text-[11px] text-yuditif-primary hover:underline">Lupa kata sandi?</button>
-                    </div>
-                    <input type="password" id="auth-password" required placeholder="••••••••" class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-yuditif-primary transition-all">
-                </div>
-                <button type="submit" id="auth-submit-btn" class="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium rounded-xl text-sm transition-all shadow-lg shadow-purple-500/20">
-                    Masuk Sekarang
-                </button>
-            </form>
-        </div>
-
-        <!-- Tombol Pintasan Akses Jadwal Kuliah Tanpa Login -->
-        <div class="w-full max-w-md mt-4 text-center">
-            <a href="jadwalkuliah/" class="inline-flex items-center justify-center gap-2 w-full py-3 px-4 bg-yuditif-surface hover:bg-yuditif-hover border border-yuditif-border rounded-2xl text-xs font-semibold text-yuditif-primary transition-all shadow-md">
-                <i class="fa-solid fa-calendar-days text-sm"></i>
-                <span>Lihat Jadwal Kuliah </span>
+    <!-- Header / Navbar -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-900">
+        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="#" class="font-bold text-lg tracking-wider bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                YUDI.DEV
+            </a>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-400">
+                <a href="#about" class="hover:text-indigo-400 transition">Tentang</a>
+                <a href="#skills" class="hover:text-indigo-400 transition">Keahlian</a>
+                <a href="#projects" class="hover:text-indigo-400 transition">Proyek</a>
+                <a href="#education" class="hover:text-indigo-400 transition">Pendidikan</a>
+                <a href="#contact" class="hover:text-indigo-400 transition">Kontak</a>
+            </nav>
+            <a href="#contact" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-4 py-2 rounded-full transition shadow-lg shadow-indigo-500/20">
+                Hubungi Saya
             </a>
         </div>
-    </div>
+    </header>
 
-    <!-- Reset Password Modal -->
-    <div id="reset-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-yuditif-surface border border-yuditif-border w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl relative">
-            <button onclick="closeResetModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            <div class="w-12 h-12 bg-blue-500/20 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
-                <i class="fa-solid fa-key"></i>
+    <!-- Hero Section -->
+    <section class="pt-36 pb-20 px-6 max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
+        <div class="flex-1 space-y-6 text-center md:text-left">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold">
+                <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+                Mahasiswa Teknologi Informasi
             </div>
-            <h3 class="text-lg font-bold mb-1">Reset Kata Sandi</h3>
-            <p class="text-xs text-gray-400 mb-4">Masukkan email Anda untuk menerima tautan pemulihan kata sandi.</p>
-            
-            <div class="space-y-3">
-                <input type="email" id="reset-email" placeholder="nama@email.com" class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-yuditif-primary">
-                <button onclick="handlePasswordReset()" class="w-full py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl text-xs font-medium transition-all">
-                    Kirim Tautan Reset
-                </button>
+            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight">
+                Halo, Saya <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Yudi</span>
+            </h1>
+            <p class="text-slate-400 text-base md:text-lg leading-relaxed max-w-xl">
+                Mahasiswa Teknologi Informasi di Universitas Muhammadiyah Gombong. Berfokus pada pengembangan aplikasi web interaktif, pemrograman, dan eksplorasi solusi digital kreatif.
+            </p>
+            <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
+                <a href="#projects" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 py-3 rounded-xl transition flex items-center gap-2 shadow-lg shadow-indigo-600/30">
+                    <i class="fa-solid fa-code"></i> Lihat Proyek
+                </a>
+                <a href="https://github.com/figuringexistence" target="_blank" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-medium px-6 py-3 rounded-xl transition flex items-center gap-2">
+                    <i class="fa-brands fa-github"></i> GitHub
+                </a>
             </div>
         </div>
-    </div>
-
-    <!-- ================= DASHBOARD CONTAINER (Unimugo Space) ================= -->
-    <div id="dashboard-container" class="hidden flex-1 flex flex-col">
-        <!-- Top Navbar dengan Logo yang Bisa Diklik ke Beranda Utama -->
-        <header class="border-b border-yuditif-border bg-yuditif-surface/80 backdrop-blur sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
-            <a href="#" onclick="switchTab('feed')" class="flex items-center gap-3 text-decoration-none group cursor-pointer">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center shadow-md group-hover:scale-105 transition-all">
-                    <i class="fa-solid fa-sparkles text-white text-sm"></i>
-                </div>
-                <span class="font-bold text-base tracking-tight text-white hidden sm:inline">Unimugo Space</span>
-            </a>
-
-            <!-- Search Bar -->
-            <div class="flex-1 max-w-md mx-4">
-                <div class="relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                    <input type="text" id="search-input" placeholder="Cari postingan, topik, atau kreator..." class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl pl-10 pr-4 py-2 text-xs text-white focus:outline-none focus:border-yuditif-primary transition-all">
+        <div class="relative">
+            <div class="w-48 h-48 md:w-64 md:h-64 rounded-3xl bg-gradient-to-tr from-indigo-600 to-cyan-500 p-1 shadow-2xl shadow-indigo-500/20">
+                <div class="w-full h-full bg-slate-900 rounded-[22px] flex items-center justify-center text-6xl font-bold text-indigo-400">
+                    <i class="fa-solid fa-terminal"></i>
                 </div>
             </div>
-
-            <!-- User Menu / Logout -->
-            <div class="flex items-center gap-3">
-                <div id="user-avatar-badge" class="w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold text-xs">U</div>
-                <button onclick="handleLogout()" class="px-3 py-1.5 bg-yuditif-bg hover:bg-yuditif-hover border border-yuditif-border rounded-xl text-xs text-red-400 font-medium transition-all flex items-center gap-1.5">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span class="hidden sm:inline">Keluar</span>
-                </button>
-            </div>
-        </header>
-
-        <!-- Main Layout -->
-        <div class="flex-1 max-w-6xl w-full mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 p-4">
-            <!-- Sidebar Navigation -->
-            <aside class="md:col-span-1 space-y-1">
-                <button onclick="switchTab('feed')" id="nav-feed" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all bg-yuditif-surface text-yuditif-primary border border-yuditif-border shadow-sm">
-                    <i class="fa-solid fa-house text-sm w-5"></i>
-                    <span>Beranda Feed</span>
-                </button>
-                <button onclick="switchTab('explore')" id="nav-explore" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white hover:bg-yuditif-surface">
-                    <i class="fa-solid fa-compass text-sm w-5"></i>
-                    <span>Jelajahi Tren</span>
-                </button>
-                <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white hover:bg-yuditif-surface">
-                    <i class="fa-solid fa-user text-sm w-5"></i>
-                    <span>Profil Saya</span>
-                </button>
-                
-                <!-- MENU 1: LIHAT JADWAL KULIAH -->
-                <a href="jadwalkuliah/" id="nav-jadwalkuliah" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white hover:bg-yuditif-surface">
-                    <i class="fa-solid fa-calendar-days text-sm w-5"></i>
-                    <span>Lihat Jadwal Kuliah</span>
-                </a>
-
-                <!-- MENU 2: ISI / INPUT JADWAL -->
-                <a href="jadwalkuliah/input.html" id="nav-input-schedule" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium transition-all text-gray-400 hover:text-white hover:bg-yuditif-surface">
-                    <i class="fa-solid fa-circle-plus text-sm w-5"></i>
-                    <span>Isi / Input Jadwal</span>
-                </a>
-            </aside>
-
-            <!-- Main Content Area -->
-            <main class="md:col-span-3 space-y-6">
-                <!-- TAB: FEED -->
-                <div id="tab-content-feed" class="space-y-6">
-                    <div class="bg-yuditif-surface border border-yuditif-border rounded-2xl p-4 shadow-lg">
-                        <div class="flex gap-3 items-start">
-                            <div class="w-9 h-9 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold text-xs shrink-0 user-initial">U</div>
-                            <div class="flex-1 space-y-3">
-                                <textarea id="post-input" rows="3" placeholder="Apa yang ingin Anda bagikan dengan komunitas Unimugo hari ini?" class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yuditif-primary resize-none transition-all"></textarea>
-                                <div class="flex items-center justify-between pt-2 border-t border-yuditif-border">
-                                    <button onclick="polishWithAI()" class="px-3 py-1.5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 hover:from-blue-500/30 hover:to-purple-500/30 border border-purple-500/30 text-purple-300 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5">
-                                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                                        <span>AI Polish</span>
-                                    </button>
-                                    <button onclick="createPost()" class="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl text-xs font-medium transition-all shadow-md shadow-purple-500/20">
-                                        Posting
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="posts-feed-container" class="space-y-4"></div>
-                </div>
-
-                <!-- TAB: EXPLORE -->
-                <div id="tab-content-explore" class="hidden space-y-4">
-                    <div class="bg-yuditif-surface border border-yuditif-border rounded-2xl p-6 shadow-lg">
-                        <h2 class="text-base font-bold mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-fire text-orange-400"></i> Topik Tren Global
-                        </h2>
-                        <div class="p-3 bg-yuditif-bg rounded-xl border border-yuditif-border">
-                            <div class="text-xs text-gray-400">Komunitas • Tren</div>
-                            <div class="font-semibold text-sm mt-0.5">#UnimugoSpace & Firebase Cloud</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB: PROFILE -->
-                <div id="tab-content-profile" class="hidden space-y-6">
-                    <div class="bg-yuditif-surface border border-yuditif-border rounded-2xl p-6 shadow-lg space-y-6">
-                        <div class="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-                            <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 text-white font-bold text-2xl flex items-center justify-center shadow-lg user-initial shrink-0">U</div>
-                            <div class="space-y-1">
-                                <h2 id="profile-name-display" class="text-xl font-bold">Nama Pengguna</h2>
-                                <p id="profile-email-display" class="text-xs text-gray-400">email@domain.com</p>
-                                <p class="text-xs text-yuditif-primary font-mono mt-0.5">ID: <span id="profile-id-display">-</span></p>
-                                <p id="profile-bio-display" class="text-xs text-gray-300 italic mt-1">Bio singkat pengguna...</p>
-                            </div>
-                        </div>
-
-                        <!-- Statistik -->
-                        <div class="grid grid-cols-2 gap-3 pt-4 border-t border-yuditif-border text-center">
-                            <div class="bg-yuditif-bg p-3 rounded-xl border border-yuditif-border">
-                                <div id="stat-total-posts" class="text-lg font-bold text-yuditif-primary">0</div>
-                                <div class="text-[11px] text-gray-400">Total Postingan Publik</div>
-                            </div>
-                            <div class="bg-yuditif-bg p-3 rounded-xl border border-yuditif-border">
-                                <div class="text-lg font-bold text-emerald-400">Aktif</div>
-                                <div class="text-[11px] text-gray-400">Status Akun (Firebase)</div>
-                            </div>
-                        </div>
-
-                        <!-- Edit Profil -->
-                        <div class="pt-4 border-t border-yuditif-border space-y-4">
-                            <h3 class="text-sm font-bold flex items-center gap-2">
-                                <i class="fa-solid fa-user-pen text-yuditif-primary"></i> Edit Profil Anda
-                            </h3>
-                            <div>
-                                <label class="block text-[11px] text-gray-400 mb-1">Nama Tampilan</label>
-                                <input type="text" id="edit-display-name" class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-yuditif-primary">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] text-gray-400 mb-1">Bio / Status Singkat</label>
-                                <textarea id="edit-bio" rows="2" class="w-full bg-yuditif-bg border border-yuditif-border rounded-xl p-3 text-xs text-white focus:outline-none focus:border-yuditif-primary resize-none"></textarea>
-                            </div>
-                            <button onclick="saveProfileChanges()" class="w-full py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-xl text-xs font-medium transition-all shadow-md">
-                                Simpan Perubahan Profil
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Postingan Saya -->
-                    <div class="bg-yuditif-surface border border-yuditif-border rounded-2xl p-6 shadow-lg space-y-4">
-                        <h3 class="text-sm font-bold flex items-center gap-2">
-                            <i class="fa-solid fa-newspaper text-purple-400"></i> Postingan Saya
-                        </h3>
-                        <div id="my-posts-container" class="space-y-3"></div>
-                    </div>
-                </div>
-            </main>
         </div>
-    </div>
+    </section>
 
-    <!-- Main JS Module File di dalam folder code -->
-    <script type="module" src="code/app.js"></script>
+    <!-- About Section -->
+    <section id="about" class="py-20 px-6 max-w-5xl mx-auto border-t border-slate-900">
+        <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
+            <i class="fa-solid fa-user text-indigo-400"></i> Tentang Saya
+        </h2>
+        <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 md:p-8 space-y-4 text-slate-300 leading-relaxed">
+            <p>
+                Saya adalah seorang mahasiswa program studi Teknologi Informasi dengan ketertarikan mendalam pada pembuatan aplikasi web, pengelolaan basis data, dan pengembangan perangkat lunak mandiri di bawah brand pengembangan <strong class="text-white">Figuring Existence</strong>.
+            </p>
+            <p>
+                Terbiasa bekerja dengan teknologi web modern, konfigurasi server lokal/cloud (Termux, Firebase, GitHub Pages), serta aktif menyelesaikan berbagai studi kasus pemrograman dasar maupun terapan.
+            </p>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-20 px-6 max-w-5xl mx-auto border-t border-slate-900">
+        <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
+            <i class="fa-solid fa-brain text-indigo-400"></i> Keahlian & Teknologi
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-slate-900/50 border border-slate-800/80 p-5 rounded-xl text-center hover:border-indigo-500/50 transition transform hover:-translate-y-1">
+                <i class="fa-solid fa-code text-3xl text-indigo-400 mb-3"></i>
+                <h3 class="font-semibold text-white">C Programming</h3>
+                <p class="text-xs text-slate-400 mt-1">Algoritma & Logika</p>
+            </div>
+            <div class="bg-slate-900/50 border border-slate-800/80 p-5 rounded-xl text-center hover:border-indigo-500/50 transition transform hover:-translate-y-1">
+                <i class="fa-brands fa-html5 text-3xl text-orange-400 mb-3"></i>
+                <h3 class="font-semibold text-white">HTML / CSS / JS</h3>
+                <p class="text-xs text-slate-400 mt-1">Web Frontend</p>
+            </div>
+            <div class="bg-slate-900/50 border border-slate-800/80 p-5 rounded-xl text-center hover:border-indigo-500/50 transition transform hover:-translate-y-1">
+                <i class="fa-solid fa-fire text-3xl text-amber-400 mb-3"></i>
+                <h3 class="font-semibold text-white">Firebase</h3>
+                <p class="text-xs text-slate-400 mt-1">Auth & Firestore DB</p>
+            </div>
+            <div class="bg-slate-900/50 border border-slate-800/80 p-5 rounded-xl text-center hover:border-indigo-500/50 transition transform hover:-translate-y-1">
+                <i class="fa-brands fa-git-alt text-3xl text-red-400 mb-3"></i>
+                <h3 class="font-semibold text-white">Git & GitHub</h3>
+                <p class="text-xs text-slate-400 mt-1">Version Control & Pages</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-20 px-6 max-w-5xl mx-auto border-t border-slate-900">
+        <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
+            <i class="fa-solid fa-laptop-code text-indigo-400"></i> Proyek Pilihan
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Project 1 -->
+            <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs font-semibold px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20">Web App</span>
+                        <i class="fa-solid fa-folder-open text-slate-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Unimugo Space</h3>
+                    <p class="text-slate-400 text-sm mb-4 leading-relaxed">
+                        Aplikasi web interaktif jadwal kuliah mahasiswa Universitas Muhammadiyah Gombong lengkap dengan sistem autentikasi Firebase dan pencarian jadwal terintegrasi.
+                    </p>
+                </div>
+                <div class="flex items-center justify-between pt-4 border-t border-slate-800/60">
+                    <span class="text-xs text-slate-500">HTML, Tailwind, Firebase</span>
+                    <a href="https://figuringexistence.github.io/" target="_blank" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1">
+                        Kunjungi <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                    </a>
+                </div>
+            </div>
+            <!-- Project 2 -->
+            <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs font-semibold px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full border border-cyan-500/20">Academic & Open Source</span>
+                        <i class="fa-solid fa-code text-slate-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Pemrograman Dasar Repositories</h3>
+                    <p class="text-slate-400 text-sm mb-4 leading-relaxed">
+                        Kumpulan kode sumber dan latihan praktikum Bahasa C untuk mendukung perkuliahan Pemrograman Dasar, mencakup pola logika, array, dan fungsi modular.
+                    </p>
+                </div>
+                <div class="flex items-center justify-between pt-4 border-t border-slate-800/60">
+                    <span class="text-xs text-slate-500">C Language</span>
+                    <a href="https://github.com/figuringexistence" target="_blank" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1">
+                        GitHub <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Education Section -->
+    <section id="education" class="py-20 px-6 max-w-5xl mx-auto border-t border-slate-900">
+        <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
+            <i class="fa-solid fa-graduation-cap text-indigo-400"></i> Pendidikan
+        </h2>
+        <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 md:p-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-3">
+                <h3 class="text-lg font-bold text-white">S1 - Teknologi Informasi</h3>
+                <span class="text-xs font-semibold px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full w-fit">2026 - Sekarang</span>
+            </div>
+            <p class="text-indigo-300 text-sm font-medium mb-2">Universitas Muhammadiyah Gombong (UNIMUGO)</p>
+            <p class="text-slate-400 text-sm">NIM: 202614013 | Aktif mengikuti perkuliahan dan pengembangan proyek pemrograman berbasis web.</p>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 px-6 max-w-5xl mx-auto border-t border-slate-900">
+        <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
+            <i class="fa-solid fa-envelope text-indigo-400"></i> Hubungi Saya
+        </h2>
+        <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+                <h3 class="text-lg font-bold text-white mb-2">Tertarik berkolaborasi atau berdiskusi?</h3>
+                <p class="text-slate-400 text-sm">Jangan ragu untuk terhubung melalui WhatsApp atau kunjungi profil GitHub saya.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="https://wa.me/6287715079335" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-5 py-3 rounded-xl transition flex items-center gap-2 shadow-lg shadow-emerald-600/20 text-sm">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp
+                </a>
+                <a href="https://github.com/figuringexistence" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-white font-medium px-5 py-3 rounded-xl transition flex items-center gap-2 text-sm">
+                    <i class="fa-brands fa-github text-lg"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-slate-900 text-center text-slate-500 text-xs">
+        <p>&copy; 2026 Yudi (Figuring Existence). Dibuat dengan semangat dan GitHub Pages.</p>
+    </footer>
+
 </body>
 </html>
