@@ -4,38 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyPaste - Secure with Password</title>
+    
+    <!-- Google AdSense Account Tag -->
+    <meta name="google-adsense-account" content="ca-pub-7225836198965940">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK & Logika Aplikasi -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, doc, getDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-       const firebaseConfig = {
-  apiKey: "AIzaSyBu5FA5d0YvZs5yKigUpwxJMPHlEMzk3VM",
-  authDomain: "pastetext-c8c02.firebaseapp.com",
-  projectId: "pastetext-c8c02",
-  storageBucket: "pastetext-c8c02.firebasestorage.app",
-  messagingSenderId: "954135576596",
-  appId: "1:954135576596:web:51dbed9b5d4aca8f80e701",
-  measurementId: "G-QSQM4WZN4Y"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyBu5FA5d0YvZs5yKigUpwxJMPHlEMzk3VM",
+            authDomain: "pastetext-c8c02.firebaseapp.com",
+            projectId: "pastetext-c8c02",
+            storageBucket: "pastetext-c8c02.firebasestorage.app",
+            messagingSenderId: "954135576596",
+            appId: "1:954135576596:web:51dbed9b5d4aca8f80e701",
+            measurementId: "G-QSQM4WZN4Y"
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        window.db = db;
-        window.collection = collection;
-        window.addDoc = addDoc;
-        window.getDocs = getDocs;
-        window.doc = doc;
-        window.getDoc = getDoc;
-        window.deleteDoc = deleteDoc;
-        window.serverTimestamp = serverTimestamp;
+        // Fungsi untuk Menyimpan Paste ke Firestore
+        window.savePaste = async function() {
+            const title = document.getElementById('paste-title').value;
+            const password = document.getElementById('paste-password').value;
+            const content = document.getElementById('paste-content').value;
 
-        window.loadPastes();
+            if (!title || !content) {
+                alert("Judul dan konten tidak boleh kosong!");
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "pastes"), {
+                    title: title,
+                    password: password,
+                    content: content,
+                    createdAt: serverTimestamp()
+                });
+                alert("Paste berhasil disimpan!");
+                window.newPasteForm();
+                window.loadPastes();
+            } catch (e) {
+                console.error("Gagal menyimpan: ", e);
+                alert("Terjadi kesalahan saat menyimpan ke database.");
+            }
+        };
+
+        // Fungsi untuk Memuat Daftar Paste ke Sidebar
+        window.loadPastes = async function() {
+            const listEl = document.getElementById('paste-list');
+            const statusEl = document.getElementById('status-conn');
+            try {
+                const querySnapshot = await getDocs(collection(db, "pastes"));
+                statusEl.textContent = "Terhubung";
+                statusEl.className = "text-xs text-emerald-400";
+                
+                if (querySnapshot.empty) {
+                    listEl.innerHTML = '<div class="text-xs text-gray-500 text-center py-4">Belum ada data paste.</div>';
+                    return;
+                }
+
+                listEl.innerHTML = "";
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    listEl.innerHTML += `
+                        <div class="bg-[#262626] p-3 rounded border border-gray-700/60 hover:border-cyan-500 cursor-pointer transition">
+                            <div class="font-semibold text-sm text-white truncate">${data.title}</div>
+                            <div class="text-[10px] text-gray-400 mt-1"><i class="fa-solid fa-lock text-cyan-400 mr-1"></i> Terlindungi</div>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                statusEl.textContent = "Koneksi Gagal";
+                statusEl.className = "text-xs text-red-400";
+                console.error("Error loading pastes: ", e);
+            }
+        };
+
+        // Fungsi untuk Mengosongkan Form (Membuat Baru)
+        window.newPasteForm = function() {
+            document.getElementById('paste-title').value = "";
+            document.getElementById('paste-password').value = "";
+            document.getElementById('paste-content').value = "";
+        };
+
+        // Jalankan saat halaman pertama kali dibuka
+        window.onload = () => {
+            window.loadPastes();
+        };
     </script>
 </head>
 <body class="bg-[#1a1a1a] text-gray-200 h-screen flex flex-col font-sans">
@@ -80,7 +143,15 @@
 
                 <textarea id="paste-content" placeholder="Tulis atau tempel teks/kode di sini..." 
                     class="w-full flex-1 bg-[#1e1e1e] border border-gray-700 p-4 rounded text-sm font-mono text-gray-100 focus:outline-none focus:border-cyan-500 resize-none"></textarea>
-                
+               
                 <div class="flex justify-end">
-                    <button onclick="savePaste()" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-semibold px-6 py-2.5 rounded text-sm transition shadow-lg">
-                        <i class
+                    <button onclick="savePaste()" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-semibold px-6 py-2.5 rounded text-sm transition shadow-lg flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan Paste
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>
