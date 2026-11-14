@@ -3,139 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Web Offline - Figuring Existence</title>
-    <!-- Tailwind CSS untuk styling modern -->
+    <title>MyPaste - Sederhana & Cepat</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-[#131314] text-[#e3e3e3] h-screen flex flex-col font-sans">
+<body class="bg-[#1a1a1a] text-gray-200 h-screen flex flex-col font-sans">
 
-    <!-- Header / Top Bar -->
-    <header class="flex items-center justify-between px-6 py-4 border-b border-[#2d2e30]">
-        <div class="flex items-center space-x-3">
-            <i class="fa-solid fa-sparkles text-cyan-400 text-xl"></i>
-            <span class="font-semibold text-lg tracking-wide text-white">Gemini Web UI</span>
+    <!-- Top Navigation -->
+    <header class="bg-[#242424] border-b border-gray-700 px-6 py-3 flex justify-between items-center shadow-md">
+        <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-code text-cyan-400 text-xl"></i>
+            <span class="font-bold text-lg text-white tracking-wide">MyPasteBin</span>
         </div>
-        <div class="flex items-center space-x-4">
-            <span class="text-xs bg-[#2d2e30] px-3 py-1 rounded-full text-cyan-300">GitHub Pages Ready</span>
-        </div>
+        <div class="text-xs text-gray-400">GitHub Pages & Firebase Ready</div>
     </header>
 
-    <!-- Main Container -->
-    <main class="flex-1 overflow-y-auto px-4 py-6 flex flex-col items-center justify-start">
-        <!-- Welcome Screen / Chat Container -->
-        <div id="chat-container" class="w-full max-w-3xl space-y-6 pb-24">
-            <!-- Initial Greeting -->
-            <div class="flex items-start space-x-4">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white flex-shrink-0">
-                    <i class="fa-solid fa-robot text-sm"></i>
+    <!-- Main Workspace -->
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- Sidebar: Daftar File / Paste Sebelumnya -->
+        <aside class="w-80 bg-[#1f1f1f] border-r border-gray-700 flex flex-col">
+            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+                <span class="font-semibold text-sm text-gray-300"><i class="fa-solid fa-list mr-2"></i>Daftar Paste</span>
+                <button onclick="newPasteForm()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-3 py-1.5 rounded transition">
+                    <i class="fa-solid fa-plus mr-1"></i> Baru
+                </button>
+            </div>
+            <div id="paste-list" class="flex-1 overflow-y-auto p-3 space-y-2">
+                <!-- Daftar item akan dimuat di sini secara dinamis -->
+                <div class="text-xs text-gray-500 text-center py-4">Memuat daftar...</div>
+            </div>
+        </aside>
+
+        <!-- Content Area / Editor & Viewer -->
+        <main class="flex-1 flex flex-col bg-[#141414] p-6 overflow-y-auto">
+            <div id="editor-view" class="max-w-4xl w-full mx-auto flex flex-col h-full space-y-4">
+                <div class="flex space-x-4">
+                    <input id="paste-title" type="text" placeholder="Judul Paste / Nama File..." 
+                        class="flex-1 bg-[#222] border border-gray-700 px-4 py-2.5 rounded text-sm text-white focus:outline-none focus:border-cyan-500">
                 </div>
-                <div class="bg-[#1e1f20] px-5 py-4 rounded-2xl max-w-[85%] text-sm leading-relaxed border border-[#2d2e30]">
-                    Halo Yudi! Ada yang bisa saya bantu hari ini? Ketik pesan Anda di bawah atau gunakan tombol mikrofon.
+                <div class="flex-1 flex flex-col">
+                    <textarea id="paste-content" placeholder="Tulis atau tempel (paste) teks/kode Anda di sini..." 
+                        class="w-full flex-1 bg-[#1e1e1e] border border-gray-700 p-4 rounded text-sm font-mono text-gray-100 focus:outline-none focus:border-cyan-500 resize-none"></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button onclick="savePaste()" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-semibold px-6 py-2.5 rounded text-sm transition shadow-lg">
+                        <i class="fa-solid fa-floppy-disk mr-2"></i> Simpan Paste
+                    </button>
                 </div>
             </div>
-        </div>
-    </main>
 
-    <!-- Input Footer Area -->
-    <footer class="w-full bg-[#131314] py-4 px-4 flex justify-center border-t border-[#2d2e30]">
-        <div class="w-full max-w-3xl relative flex items-center bg-[#1e1f20] rounded-full border border-[#2d2e30] focus-within:border-cyan-500 transition shadow-lg">
-            <input id="user-input" type="text" placeholder="Ketik pesan atau tanyakan sesuatu..." 
-                class="w-full bg-transparent px-6 py-4 text-sm focus:outline-none text-white placeholder-gray-400">
-            
-            <!-- Voice Search Button -->
-            <button id="mic-btn" onclick="toggleVoiceSearch()" title="Cari dengan Suara" class="text-gray-400 hover:text-cyan-400 px-3 transition">
-                <i id="mic-icon" class="fa-solid fa-microphone text-lg"></i>
-            </button>
+            <!-- Viewer View (Saat salah satu item di sidebar diklik) -->
+            <div id="viewer-view" class="max-w-4xl w-full mx-auto hidden flex flex-col h-full space-y-4">
+                <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+                    <h2 id="view-title" class="text-lg font-bold text-white"></h2>
+                    <button onclick="newPasteForm()" class="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded text-gray-300">Kembali ke Editor</button>
+                </div>
+                <pre id="view-content" class="flex-1 bg-[#1e1e1e] border border-gray-700 p-4 rounded text-sm font-mono text-gray-200 overflow-auto whitespace-pre-wrap"></pre>
+            </div>
+        </main>
+    </div>
 
-            <!-- Send Button -->
-            <button onclick="sendMessage()" class="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-semibold px-5 py-2.5 rounded-full mr-2 transition flex items-center justify-center">
-                <i class="fa-solid fa-paper-plane"></i>
-            </button>
-        </div>
-    </footer>
-
-    <!-- JavaScript Interaksi & Voice Search -->
+    <!-- Script Integrasi Firebase (Contoh Menggunakan localStorage / Firebase) -->
     <script>
-        const chatContainer = document.getElementById('chat-container');
-        const userInput = document.getElementById('user-input');
+        // Simulasi Penyimpanan menggunakan LocalStorage (Agar langsung bisa dicoba offline/GitHub Pages tanpa ribet setup database dulu)
+        // Untuk production online antar pengguna, ganti bagian ini dengan Firebase Firestore SDK.
+        
+        let pastes = JSON.parse(localStorage.getItem('mypastes')) || [
+            { id: '1', title: 'Contoh Kode C - Halo Dunia', content: '#include <stdio.h>\n\nint main() {\n    printf("Halo Unimugo!\\n");\n    return 0;\n}', date: '2026-11-14' }
+        ];
 
-        userInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        function sendMessage() {
-            const text = userInput.value.trim();
-            if (!text) return;
-
-            // Tambahkan pesan user
-            appendMessage(text, 'user');
-            userInput.value = '';
-
-            // Simulasi respon AI (bisa dihubungkan ke API backend lokal atau LLM nanti)
-            setTimeout(() => {
-                appendMessage("Pesan diterima! Ini adalah simulasi respons antarmuka web statis Anda di GitHub Pages.", 'ai');
-            }, 600);
-        }
-
-        function appendMessage(text, sender) {
-            const isUser = sender === 'user';
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `flex items-start space-x-4 ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`;
+        function renderList() {
+            const listContainer = document.getElementById('paste-list');
+            listContainer.innerHTML = '';
             
-            messageDiv.innerHTML = `
-                <div class="w-8 h-8 rounded-full ${isUser ? 'bg-cyan-600' : 'bg-gradient-to-r from-blue-500 to-purple-500'} flex items-center justify-center text-white flex-shrink-0">
-                    <i class="fa-solid ${isUser ? 'fa-user' : 'fa-robot'} text-sm"></i>
-                </div>
-                <div class="${isUser ? 'bg-[#2b2d31] text-white' : 'bg-[#1e1f20] border border-[#2d2e30] text-[#e3e3e3]'} px-5 py-4 rounded-2xl max-w-[85%] text-sm leading-relaxed">
-                    ${escapeHtml(text)}
-                </div>
-            `;
-            chatContainer.appendChild(messageDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        function escapeHtml(text) {
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-
-        // Fitur Web Speech API untuk Input Suara (Bahasa Indonesia)
-        function toggleVoiceSearch() {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                alert('Maaf, browser Anda tidak mendukung fitur pengenalan suara.');
+            if (pastes.length === 0) {
+                listContainer.innerHTML = '<div class="text-xs text-gray-500 text-center py-4">Belum ada paste.</div>';
                 return;
             }
 
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'id-ID';
-            recognition.interimResults = false;
-
-            const micIcon = document.getElementById('mic-icon');
-            micIcon.classList.remove('fa-microphone');
-            micIcon.classList.add('fa-spinner', 'fa-spin', 'text-cyan-400');
-
-            recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript;
-                userInput.value = transcript;
-                micIcon.classList.remove('fa-spinner', 'fa-spin', 'text-cyan-400');
-                micIcon.classList.add('fa-microphone');
-            };
-
-            recognition.onerror = function() {
-                micIcon.classList.remove('fa-spinner', 'fa-spin', 'text-cyan-400');
-                micIcon.classList.add('fa-microphone');
-            };
-
-            recognition.onend = function() {
-                micIcon.classList.remove('fa-spinner', 'fa-spin', 'text-cyan-400');
-                micIcon.classList.add('fa-microphone');
-            };
-
-            recognition.start();
+            pastes.forEach(p => {
+                const item = document.createElement('div');
+                item.className = "bg-[#252525] hover:bg-[#2d2d2d] p-3 rounded cursor-pointer transition border border-gray-800 flex flex-col space-y-1";
+                item.onclick = () => viewPaste(p.id);
+                item.innerHTML = `
+                    <div class="font-semibold text-sm text-cyan-400 truncate">${escapeHtml(p.title || 'Tanpa Judul')}</div>
+                    <div class="text-[10px] text-gray-400">${p.date}</div>
+                `;
+                listContainer.appendChild(item);
+            });
         }
-    </script>
-</body>
-</html>
+
+        function savePaste() {
+            const title = document.getElementById('paste-title').value.trim();
+            const content = document.getElementById('paste-content').value.trim();
+
+            if (!content) {
+                alert('Konten paste tidak boleh kosong!');
+                return;
+            }
+
+            const newEntry = {
+                id: Date.now().toString(),
+                title: title || 'Untitled Paste',
+                content: content,
+                date: new Date().toLocaleDateString()
+            };
+
+            pastes.unshift(newEntry);
+            localStorage.setItem('mypastes', JSON.stringify(pastes));
+            
+            document.getElementById('paste-title').value = '';
+            document.getElementById('paste-content').value = '';
+            
+            renderList();
+            viewPaste(newEntry.id);
+        }
+
+        function viewPaste(id) {
+            const paste = pastes.find(p => p.id === id);
+            if (!paste) return;
+
+            document.getElementById('editor-view').classList.add
