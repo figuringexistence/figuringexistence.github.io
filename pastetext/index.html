@@ -15,7 +15,7 @@
     <!-- Firebase SDK (Realtime Database) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBu5FA5d0YvZs5yKigUpwxJMPHlEMzk3VM",
@@ -33,7 +33,7 @@
         let allPastes = {};
         let currentKey = null;
 
-        // Simpan Paste ke Realtime Database
+        // Simpan / Perbarui Paste ke Realtime Database
         window.savePaste = function() {
             const title = document.getElementById('paste-title').value.trim();
             const password = document.getElementById('paste-password').value;
@@ -44,18 +44,44 @@
                 return;
             }
 
-            push(ref(db, 'pastes'), {
-                title: title,
-                password: password,
-                content: content,
-                createdAt: Date.now()
-            }).then(() => {
-                alert("Paste berhasil disimpan!");
-                window.newPasteForm();
-            }).catch((error) => {
-                console.error("Error:", error);
-                alert("Gagal menyimpan! Pastikan Rules Realtime Database sudah diatur ke true.");
-            });
+            // Jika sedang mengedit file yang sudah ada
+            if (currentKey) {
+                const item = allPastes[currentKey];
+                // Jika file terkunci password, verifikasi dulu sebelum menyimpan perubahan
+                if (item && item.password && item.password.length > 0) {
+                    const inputPass = prompt("File ini dikunci. Masukkan password untuk menyimpan perubahan:");
+                    if (inputPass === null) return;
+                    if (inputPass !== item.password) {
+                        alert("Password salah! Perubahan tidak disimpan.");
+                        return;
+                    }
+                }
+
+                update(ref(db, 'pastes/' + currentKey), {
+                    title: title,
+                    password: password,
+                    content: content
+                }).then(() => {
+                    alert("Paste berhasil diperbarui!");
+                }).catch((error) => {
+                    console.error("Error:", error);
+                    alert("Gagal memperbarui catatan!");
+                });
+            } else {
+                // Buat baru
+                push(ref(db, 'pastes'), {
+                    title: title,
+                    password: password,
+                    content: content,
+                    createdAt: Date.now()
+                }).then(() => {
+                    alert("Paste berhasil disimpan!");
+                    window.newPasteForm();
+                }).catch((error) => {
+                    console.error("Error:", error);
+                    alert("Gagal menyimpan! Pastikan Rules Realtime Database sudah diatur ke true.");
+                });
+            }
         };
 
         // Muat Daftar Paste secara Real-time
@@ -85,7 +111,7 @@
                                 <div class="font-semibold text-sm text-slate-100 truncate">${item.title}</div>
                                 <div class="text-[11px] text-slate-400 mt-1">
                                     <i class="fa-solid ${hasPass ? 'fa-lock text-cyan-400' : 'fa-lock-open text-slate-500'} mr-1"></i>
-                                    ${hasPass ? 'Terkunci Password' : 'Publik'}
+                                    ${hasPass ? 'Terkunci (Pembuat Saja)' : 'Publik'}
                                 </div>
                             </div>
                         </div>
@@ -98,19 +124,10 @@
             });
         };
 
-        // Buka Paste yang Dipilih (Minta Password jika Terkunci)
+        // Buka Paste Langsung Tanpa Password (Password Hanya untuk Hapus/Edit)
         window.openPaste = function(key) {
             const item = allPastes[key];
             if (!item) return;
-
-            if (item.password && item.password.length > 0) {
-                const inputPass = prompt("Masukkan password untuk membuka catatan ini:");
-                if (inputPass === null) return;
-                if (inputPass !== item.password) {
-                    alert("Password salah!");
-                    return;
-                }
-            }
 
             currentKey = key;
             document.getElementById('paste-title').value = item.title;
@@ -120,14 +137,14 @@
             document.getElementById('btn-copy').classList.remove('hidden');
         };
 
-        // Hapus Paste (Wajib Password jika terkunci, konfirmasi biasa jika tanpa password)
+        // Hapus Paste (Wajib Password jika terkunci)
         window.deleteCurrentPaste = function() {
             if (!currentKey) return;
             const item = allPastes[currentKey];
             if (!item) return;
 
             if (item.password && item.password.length > 0) {
-                const inputPass = prompt("Catatan ini dilindungi. Masukkan password untuk menghapus:");
+                const inputPass = prompt("File ini dikunci. Masukkan password untuk menghapus:");
                 if (inputPass === null) return;
                 if (inputPass !== item.password) {
                     alert("Password salah! Catatan gagal dihapus.");
@@ -174,9 +191,11 @@
     <!-- Top Navigation -->
     <header class="bg-[#242424] border-b border-gray-700 px-6 py-3 flex justify-between items-center shadow-md">
         <div class="flex items-center space-x-3">
-            <a href="index.html" class="text-slate-400 hover:text-white transition text-sm" title="Kembali ke Portofolio">
+            <a href="../" class="text-slate-400 hover:text-white transition text-sm flex items-center gap-1.5 bg-[#2a2a2a] px-3 py-1.5 rounded-lg border border-gray-700" title="Kembali ke Parent Directory">
                 <i class="fa-solid fa-arrow-left"></i>
+                <span class="text-xs font-medium">Parent Directory</span>
             </a>
+            <div class="h-4 w-[1px] bg-gray-700"></div>
             <div class="flex items-center space-x-2">
                 <i class="fa-solid fa-lock text-cyan-400 text-xl"></i>
                 <span class="font-bold text-lg text-white tracking-wide">Paste Text</span>
@@ -208,8 +227,8 @@
                     <input id="paste-title" type="text" placeholder="Judul Paste / Nama File..." 
                         class="flex-1 bg-[#222] border border-gray-700 px-4 py-2.5 rounded text-sm text-white focus:outline-none focus:border-cyan-500">
                     
-                    <input id="paste-password" type="password" placeholder="Password (Opsional)..." 
-                        class="w-52 bg-[#222] border border-gray-700 px-4 py-2.5 rounded text-sm text-white focus:outline-none focus:border-cyan-500">
+                    <input id="paste-password" type="password" placeholder="Kunci Password (Opsional)..." 
+                        class="w-56 bg-[#222] border border-gray-700 px-4 py-2.5 rounded text-sm text-white focus:outline-none focus:border-cyan-500" title="Jika diisi, file hanya bisa dihapus/diperbarui oleh yang memegang password">
                 </div>
 
                 <textarea id="paste-content" placeholder="Tulis atau tempel teks/kode di sini..." 
