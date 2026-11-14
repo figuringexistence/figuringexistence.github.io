@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Web Offline - Figuring Existence</title>
+    <!-- Tailwind CSS untuk styling modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-[#131314] text-[#e3e3e3] h-screen flex flex-col font-sans">
+
+    <!-- Header / Top Bar -->
+    <header class="flex items-center justify-between px-6 py-4 border-b border-[#2d2e30]">
+        <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-sparkles text-cyan-400 text-xl"></i>
+            <span class="font-semibold text-lg tracking-wide text-white">Gemini Web UI</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span class="text-xs bg-[#2d2e30] px-3 py-1 rounded-full text-cyan-300">GitHub Pages Ready</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 overflow-y-auto px-4 py-6 flex flex-col items-center justify-start">
+        <!-- Welcome Screen / Chat Container -->
+        <div id="chat-container" class="w-full max-w-3xl space-y-6 pb-24">
+            <!-- Initial Greeting -->
+            <div class="flex items-start space-x-4">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white flex-shrink-0">
+                    <i class="fa-solid fa-robot text-sm"></i>
+                </div>
+                <div class="bg-[#1e1f20] px-5 py-4 rounded-2xl max-w-[85%] text-sm leading-relaxed border border-[#2d2e30]">
+                    Halo Yudi! Ada yang bisa saya bantu hari ini? Ketik pesan Anda di bawah atau gunakan tombol mikrofon.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Input Footer Area -->
+    <footer class="w-full bg-[#131314] py-4 px-4 flex justify-center border-t border-[#2d2e30]">
+        <div class="w-full max-w-3xl relative flex items-center bg-[#1e1f20] rounded-full border border-[#2d2e30] focus-within:border-cyan-500 transition shadow-lg">
+            <input id="user-input" type="text" placeholder="Ketik pesan atau tanyakan sesuatu..." 
+                class="w-full bg-transparent px-6 py-4 text-sm focus:outline-none text-white placeholder-gray-400">
+            
+            <!-- Voice Search Button -->
+            <button id="mic-btn" onclick="toggleVoiceSearch()" title="Cari dengan Suara" class="text-gray-400 hover:text-cyan-400 px-3 transition">
+                <i id="mic-icon" class="fa-solid fa-microphone text-lg"></i>
+            </button>
+
+            <!-- Send Button -->
+            <button onclick="sendMessage()" class="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-semibold px-5 py-2.5 rounded-full mr-2 transition flex items-center justify-center">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </footer>
+
+    <!-- JavaScript Interaksi & Voice Search -->
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+
+        userInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // Tambahkan pesan user
+            appendMessage(text, 'user');
+            userInput.value = '';
+
+            // Simulasi respon AI (bisa dihubungkan ke API backend lokal atau LLM nanti)
+            setTimeout(() => {
+                appendMessage("Pesan diterima! Ini adalah simulasi respons antarmuka web statis Anda di GitHub Pages.", 'ai');
+            }, 600);
+        }
+
+        function appendMessage(text, sender) {
+            const isUser = sender === 'user';
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex items-start space-x-4 ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`;
+            
+            messageDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full ${isUser ? 'bg-cyan-600' : 'bg-gradient-to-r from-blue-500 to-purple-500'} flex items-center justify-center text-white flex-shrink-0">
+                    <i class="fa-solid ${isUser ? 'fa-user' : 'fa-robot'} text-sm"></i>
+                </div>
+                <div class="${isUser ? 'bg-[#2b2d31] text-white' : 'bg-[#1e1f20] border border-[#2d2e30] text-[#e3e3e3]'} px-5 py-4 rounded-2xl max-w-[85%] text-sm leading-relaxed">
+                    ${escapeHtml(text)}
+                </div>
+            `;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // Fitur Web Speech API untuk Input Suara (Bahasa Indonesia)
+        function toggleVoiceSearch() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('Maaf, browser Anda tidak mendukung fitur pengenalan suara.');
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'id-ID';
+            recognition.interimResults = false;
+
+            const micIcon = document.getElementById('mic-icon');
+            micIcon.classList.remove('fa-microphone');
+            micIcon.classList.add('fa-spinner', 'fa-spin', 'text-cyan-400');
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                userInput.value = transcript;
+                micIcon.classList.remove('fa-spinner', 'fa-spin', 'text-cyan-400');
+                micIcon.classList.add('fa-microphone');
+            };
+
+            recognition.onerror = function() {
+                micIcon.classList.remove('fa-spinner', 'fa-spin', 'text-cyan-400');
+                micIcon.classList.add('fa-microphone');
+            };
+
+            recognition.onend = function() {
+                micIcon.classList.remove('fa-spinner', 'fa-spin', 'text-cyan-400');
+                micIcon.classList.add('fa-microphone');
+            };
+
+            recognition.start();
+        }
+    </script>
+</body>
+</html>
