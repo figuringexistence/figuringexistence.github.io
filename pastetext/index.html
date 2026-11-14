@@ -53,7 +53,7 @@
                 window.loadPastes();
             } catch (e) {
                 console.error("Gagal menyimpan: ", e);
-                alert("Terjadi kesalahan saat menyimpan ke database.");
+                alert("Terjadi kesalahan saat menyimpan ke database. Pastikan Firestore Rules sudah diatur ke mode test.");
             }
         };
 
