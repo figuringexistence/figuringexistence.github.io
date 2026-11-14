@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyPaste - Secure with Password</title>
+    <title>Paste Text - Yudi.dev</title>
     
     <!-- Google AdSense Account Tag -->
     <meta name="google-adsense-account" content="ca-pub-7225836198965940">
 
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS & Font Awesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Firebase SDK & Logika Aplikasi -->
+    <!-- Firebase SDK (Realtime Database) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, getDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBu5FA5d0YvZs5yKigUpwxJMPHlEMzk3VM",
             authDomain: "pastetext-c8c02.firebaseapp.com",
+            databaseURL: "https://pastetext-c8c02-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "pastetext-c8c02",
             storageBucket: "pastetext-c8c02.firebasestorage.app",
             messagingSenderId: "954135576596",
@@ -28,74 +29,141 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const db = getDatabase(app);
+        let allPastes = {};
+        let currentKey = null;
 
-        // Fungsi untuk Menyimpan Paste ke Firestore
-        window.savePaste = async function() {
-            const title = document.getElementById('paste-title').value;
+        // Simpan Paste ke Realtime Database
+        window.savePaste = function() {
+            const title = document.getElementById('paste-title').value.trim();
             const password = document.getElementById('paste-password').value;
             const content = document.getElementById('paste-content').value;
 
             if (!title || !content) {
-                alert("Judul dan konten tidak boleh kosong!");
+                alert("Judul dan isi teks tidak boleh kosong!");
                 return;
             }
 
-            try {
-                await addDoc(collection(db, "pastes"), {
-                    title: title,
-                    password: password,
-                    content: content,
-                    createdAt: serverTimestamp()
-                });
+            push(ref(db, 'pastes'), {
+                title: title,
+                password: password,
+                content: content,
+                createdAt: Date.now()
+            }).then(() => {
                 alert("Paste berhasil disimpan!");
                 window.newPasteForm();
-                window.loadPastes();
-            } catch (e) {
-                console.error("Gagal menyimpan: ", e);
-                alert("Terjadi kesalahan saat menyimpan ke database. Pastikan Firestore Rules sudah diatur ke mode test.");
-            }
+            }).catch((error) => {
+                console.error("Error:", error);
+                alert("Gagal menyimpan! Pastikan Rules Realtime Database sudah diatur ke true.");
+            });
         };
 
-        // Fungsi untuk Memuat Daftar Paste ke Sidebar
-        window.loadPastes = async function() {
+        // Muat Daftar Paste secara Real-time
+        window.loadPastes = function() {
             const listEl = document.getElementById('paste-list');
             const statusEl = document.getElementById('status-conn');
-            try {
-                const querySnapshot = await getDocs(collection(db, "pastes"));
+
+            onValue(ref(db, 'pastes'), (snapshot) => {
                 statusEl.textContent = "Terhubung";
-                statusEl.className = "text-xs text-emerald-400";
-                
-                if (querySnapshot.empty) {
-                    listEl.innerHTML = '<div class="text-xs text-gray-500 text-center py-4">Belum ada data paste.</div>';
+                statusEl.className = "text-xs text-emerald-400 font-medium";
+
+                const data = snapshot.val();
+                allPastes = data || {};
+
+                if (!data) {
+                    listEl.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Belum ada data paste.</div>';
                     return;
                 }
 
                 listEl.innerHTML = "";
-                querySnapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
+                Object.keys(data).reverse().forEach((key) => {
+                    const item = data[key];
+                    const hasPass = item.password && item.password.length > 0;
                     listEl.innerHTML += `
-                        <div class="bg-[#262626] p-3 rounded border border-gray-700/60 hover:border-cyan-500 cursor-pointer transition">
-                            <div class="font-semibold text-sm text-white truncate">${data.title}</div>
-                            <div class="text-[10px] text-gray-400 mt-1"><i class="fa-solid fa-lock text-cyan-400 mr-1"></i> Terlindungi</div>
+                        <div onclick="openPaste('${key}')" class="bg-[#262626] p-3 rounded-xl border border-slate-800 hover:border-cyan-500 cursor-pointer transition flex justify-between items-center">
+                            <div class="overflow-hidden pr-2">
+                                <div class="font-semibold text-sm text-slate-100 truncate">${item.title}</div>
+                                <div class="text-[11px] text-slate-400 mt-1">
+                                    <i class="fa-solid ${hasPass ? 'fa-lock text-cyan-400' : 'fa-lock-open text-slate-500'} mr-1"></i>
+                                    ${hasPass ? 'Terkunci Password' : 'Publik'}
+                                </div>
+                            </div>
                         </div>
                     `;
                 });
-            } catch (e) {
+            }, (error) => {
                 statusEl.textContent = "Koneksi Gagal";
-                statusEl.className = "text-xs text-red-400";
-                console.error("Error loading pastes: ", e);
-            }
+                statusEl.className = "text-xs text-red-400 font-medium";
+                console.error(error);
+            });
         };
 
-        // Fungsi untuk Mengosongkan Form (Membuat Baru)
+        // Buka Paste yang Dipilih (Minta Password jika Terkunci)
+        window.openPaste = function(key) {
+            const item = allPastes[key];
+            if (!item) return;
+
+            if (item.password && item.password.length > 0) {
+                const inputPass = prompt("Masukkan password untuk membuka catatan ini:");
+                if (inputPass === null) return;
+                if (inputPass !== item.password) {
+                    alert("Password salah!");
+                    return;
+                }
+            }
+
+            currentKey = key;
+            document.getElementById('paste-title').value = item.title;
+            document.getElementById('paste-password').value = item.password || "";
+            document.getElementById('paste-content').value = item.content;
+            document.getElementById('btn-delete').classList.remove('hidden');
+            document.getElementById('btn-copy').classList.remove('hidden');
+        };
+
+        // Hapus Paste (Wajib Password jika terkunci, konfirmasi biasa jika tanpa password)
+        window.deleteCurrentPaste = function() {
+            if (!currentKey) return;
+            const item = allPastes[currentKey];
+            if (!item) return;
+
+            if (item.password && item.password.length > 0) {
+                const inputPass = prompt("Catatan ini dilindungi. Masukkan password untuk menghapus:");
+                if (inputPass === null) return;
+                if (inputPass !== item.password) {
+                    alert("Password salah! Catatan gagal dihapus.");
+                    return;
+                }
+            } else {
+                if (!confirm("Yakin ingin menghapus catatan publik ini?")) return;
+            }
+
+            remove(ref(db, 'pastes/' + currentKey)).then(() => {
+                alert("Catatan berhasil dihapus.");
+                window.newPasteForm();
+            }).catch((error) => {
+                console.error("Gagal menghapus:", error);
+                alert("Terjadi kesalahan saat menghapus catatan.");
+            });
+        };
+
+        // Salin Isi Teks
+        window.copyContent = function() {
+            const content = document.getElementById('paste-content').value;
+            navigator.clipboard.writeText(content).then(() => {
+                alert("Teks berhasil disalin ke clipboard!");
+            });
+        };
+
+        // Reset Form untuk Buat Baru
         window.newPasteForm = function() {
+            currentKey = null;
             document.getElementById('paste-title').value = "";
             document.getElementById('paste-password').value = "";
             document.getElementById('paste-content').value = "";
+            document.getElementById('btn-delete').classList.add('hidden');
+            document.getElementById('btn-copy').classList.add('hidden');
         };
 
-        // Jalankan saat halaman pertama kali dibuka
         window.onload = () => {
             window.loadPastes();
         };
@@ -105,9 +173,14 @@
 
     <!-- Top Navigation -->
     <header class="bg-[#242424] border-b border-gray-700 px-6 py-3 flex justify-between items-center shadow-md">
-        <div class="flex items-center space-x-2">
-            <i class="fa-solid fa-lock text-cyan-400 text-xl"></i>
-            <span class="font-bold text-lg text-white tracking-wide">MyPaste Secure</span>
+        <div class="flex items-center space-x-3">
+            <a href="index.html" class="text-slate-400 hover:text-white transition text-sm" title="Kembali ke Portofolio">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-lock text-cyan-400 text-xl"></i>
+                <span class="font-bold text-lg text-white tracking-wide">Paste Text</span>
+            </div>
         </div>
         <div id="status-conn" class="text-xs text-yellow-400">Menghubungkan...</div>
     </header>
@@ -130,22 +203,28 @@
 
         <!-- Content Area -->
         <main class="flex-1 flex flex-col bg-[#141414] p-6 overflow-y-auto">
-            <!-- Editor View -->
             <div id="editor-view" class="max-w-4xl w-full mx-auto flex flex-col h-full space-y-4">
                 <div class="flex space-x-3">
                     <input id="paste-title" type="text" placeholder="Judul Paste / Nama File..." 
                         class="flex-1 bg-[#222] border border-gray-700 px-4 py-2.5 rounded text-sm text-white focus:outline-none focus:border-cyan-500">
                     
-                    <!-- Input Password Pengaman Sebelum Save -->
-                    <input id="paste-password" type="password" placeholder="Password Pengaman..." 
-                        class="w-48 bg-[#222] border border-gray-700 px-4 py-2.5 rounded text-sm text-white focus:outline-none focus:border-cyan-500">
+                    <input id="paste-password" type="password" placeholder="Password (Opsional)..." 
+                        class="w-52 bg-[#222] border border-gray-700 px-4 py-2.5 rounded text-sm text-white focus:outline-none focus:border-cyan-500">
                 </div>
 
                 <textarea id="paste-content" placeholder="Tulis atau tempel teks/kode di sini..." 
                     class="w-full flex-1 bg-[#1e1e1e] border border-gray-700 p-4 rounded text-sm font-mono text-gray-100 focus:outline-none focus:border-cyan-500 resize-none"></textarea>
                
-                <div class="flex justify-end">
-                    <button onclick="savePaste()" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-semibold px-6 py-2.5 rounded text-sm transition shadow-lg flex items-center gap-2">
+                <div class="flex justify-between items-center">
+                    <div class="flex space-x-2">
+                        <button id="btn-delete" onclick="deleteCurrentPaste()" class="hidden bg-red-600/80 hover:bg-red-500 text-white font-semibold px-4 py-2.5 rounded text-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-trash"></i> Hapus
+                        </button>
+                        <button id="btn-copy" onclick="copyContent()" class="hidden bg-gray-700 hover:bg-gray-600 text-white font-semibold px-4 py-2.5 rounded text-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-copy"></i> Salin Teks
+                        </button>
+                    </div>
+                    <button onclick="savePaste()" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-semibold px-6 py-2.5 rounded text-sm transition shadow-lg flex items-center gap-2 ml-auto">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan Paste
                     </button>
                 </div>
