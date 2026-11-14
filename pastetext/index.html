@@ -1,3 +1,10 @@
+Agar tampilan aplikasi Anda menjadi sepenuhnya responsif dan otomatis menyesuaikan (*auto-resize*) dengan layar perangkat seluler (HP), kita perlu menambahkan penyesuaian tata letak (layout) menggunakan kelas grid/flexbox Tailwind.
+
+Pada versi sebelumnya, bagian utama menggunakan `h-screen flex overflow-hidden` yang terkadang membuat sidebar atau area editor terpotong di layar HP. Kita bisa memperbaikinya agar di HP sidebar bisa disembunyikan/menumpuk di atas atau menyesuaikan tinggi fleksibel dengan dukungan `min-h-screen` dan orientasi vertikal.
+
+Berikut adalah kode lengkap yang sudah disesuaikan agar **responsif dan optimal di HP**:
+
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -238,10 +245,10 @@
         };
     </script>
 </head>
-<body class="bg-[#1a1a1a] text-gray-200 h-screen flex flex-col font-sans">
+<body class="bg-[#1a1a1a] text-gray-200 min-h-screen flex flex-col font-sans">
 
     <!-- Top Navigation -->
-    <header class="bg-[#242424] border-b border-gray-700 px-6 py-3 flex justify-between items-center shadow-md">
+    <header class="bg-[#242424] border-b border-gray-700 px-4 sm:px-6 py-3 flex justify-between items-center shadow-md shrink-0">
         <div class="flex items-center space-x-3">
             <a href="../" class="text-slate-400 hover:text-white transition text-sm flex items-center gap-1.5 bg-[#2a2a2a] px-3 py-1.5 rounded-lg border border-gray-700" title="Kembali ke Parent Directory">
                 <i class="fa-solid fa-arrow-left"></i>
@@ -249,18 +256,18 @@
             </a>
             <div class="h-4 w-[1px] bg-gray-700"></div>
             <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-lock text-cyan-400 text-xl"></i>
-                <span class="font-bold text-lg text-white tracking-wide">Paste Text</span>
+                <i class="fa-solid fa-lock text-cyan-400 text-lg sm:text-xl"></i>
+                <span class="font-bold text-base sm:text-lg text-white tracking-wide">Paste Text</span>
             </div>
         </div>
         <div id="status-conn" class="text-xs text-yellow-400">Menghubungkan...</div>
     </header>
 
     <!-- Main Workspace -->
-    <div class="flex-1 flex overflow-hidden">
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
         
         <!-- Sidebar -->
-        <aside class="w-80 bg-[#1f1f1f] border-r border-gray-700 flex flex-col">
+        <aside class="w-full md:w-80 bg-[#1f1f1f] border-b md:border-b-0 md:border-r border-gray-700 flex flex-col h-64 md:h-auto shrink-0">
             <div class="p-4 border-b border-gray-700 flex justify-between items-center">
                 <span class="font-semibold text-sm text-gray-300"><i class="fa-solid fa-list mr-2"></i>Daftar Paste</span>
                 <button onclick="newPasteForm()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-3 py-1.5 rounded transition">
@@ -281,32 +288,32 @@
         </aside>
 
         <!-- Content Area -->
-        <main class="flex-1 flex flex-col bg-[#141414] p-6 overflow-y-auto">
+        <main class="flex-1 flex flex-col bg-[#141414] p-4 sm:p-6 overflow-y-auto">
             <div id="editor-view" class="max-w-4xl w-full mx-auto flex flex-col h-full space-y-4">
-                <div class="flex space-x-3">
+                <div class="flex flex-col sm:flex-row gap-3">
                     <input id="paste-title" type="text" placeholder="Judul Paste / Nama File..." 
                         class="flex-1 bg-[#222] border border-gray-700 px-4 py-2.5 rounded text-sm text-white focus:outline-none focus:border-cyan-500">
                     
                     <input id="paste-password" type="password" placeholder="Kunci Password (Opsional)..." 
-                        class="w-56 bg-[#222] border border-gray-700 px-4 py-2.5 rounded text-sm text-white focus:outline-none focus:border-cyan-500" title="Jika diisi, file hanya bisa dihapus/diperbarui oleh yang memegang password">
+                        class="w-full sm:w-56 bg-[#222] border border-gray-700 px-4 py-2.5 rounded text-sm text-white focus:outline-none focus:border-cyan-500" title="Jika diisi, file hanya bisa dihapus/diperbarui oleh yang memegang password">
                 </div>
 
                 <textarea id="paste-content" placeholder="Tulis atau tempel teks/kode di sini..." 
-                    class="w-full flex-1 bg-[#1e1e1e] border border-gray-700 p-4 rounded text-sm font-mono text-gray-100 focus:outline-none focus:border-cyan-500 resize-none"></textarea>
+                    class="w-full flex-1 min-h-[250px] sm:min-h-0 bg-[#1e1e1e] border border-gray-700 p-4 rounded text-sm font-mono text-gray-100 focus:outline-none focus:border-cyan-500 resize-none"></textarea>
                
-                <div class="flex justify-between items-center">
-                    <div class="flex space-x-2">
-                        <button id="btn-delete" onclick="deleteCurrentPaste()" class="hidden bg-red-600/80 hover:bg-red-500 text-white font-semibold px-4 py-2.5 rounded text-sm transition flex items-center gap-2">
+                <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-2">
+                    <div class="flex flex-wrap gap-2">
+                        <button id="btn-delete" onclick="deleteCurrentPaste()" class="hidden bg-red-600/80 hover:bg-red-500 text-white font-semibold px-4 py-2.5 rounded text-sm transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-trash"></i> Hapus
                         </button>
-                        <button id="btn-copy" onclick="copyContent()" class="hidden bg-gray-700 hover:bg-gray-600 text-white font-semibold px-4 py-2.5 rounded text-sm transition flex items-center gap-2">
+                        <button id="btn-copy" onclick="copyContent()" class="hidden bg-gray-700 hover:bg-gray-600 text-white font-semibold px-4 py-2.5 rounded text-sm transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-copy"></i> Salin Teks
                         </button>
-                        <button id="btn-share" onclick="shareLink()" class="hidden bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-4 py-2.5 rounded text-sm transition flex items-center gap-2">
+                        <button id="btn-share" onclick="shareLink()" class="hidden bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-4 py-2.5 rounded text-sm transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-share-nodes"></i> Salin Link
                         </button>
                     </div>
-                    <button onclick="savePaste()" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-semibold px-6 py-2.5 rounded text-sm transition shadow-lg flex items-center gap-2 ml-auto">
+                    <button onclick="savePaste()" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-semibold px-6 py-2.5 rounded text-sm transition shadow-lg flex items-center justify-center gap-2 sm:ml-auto">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan Paste
                     </button>
                 </div>
@@ -316,3 +323,5 @@
 
 </body>
 </html>
+
+```
