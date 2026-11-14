@@ -76,7 +76,7 @@
                     createdAt: Date.now()
                 }).then(() => {
                     alert("Paste berhasil disimpan!");
-                    window.location.hash = newKey; // Set URL hash ke ID baru
+                    window.location.hash = newKey;
                     window.newPasteForm();
                 }).catch((error) => {
                     console.error("Error:", error);
@@ -85,9 +85,46 @@
             }
         };
 
-        // Muat Daftar Paste secara Real-time
-        window.loadPastes = function() {
+        // Render Daftar Paste ke Sidebar (Mendukung Filter Pencarian)
+        window.renderPasteList = function(filterText = "") {
             const listEl = document.getElementById('paste-list');
+            const data = allPastes;
+
+            if (!data || Object.keys(data).length === 0) {
+                listEl.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Belum ada data paste.</div>';
+                return;
+            }
+
+            listEl.innerHTML = "";
+            const filteredKeys = Object.keys(data).reverse().filter(key => {
+                const item = data[key];
+                return item.title.toLowerCase().includes(filterText.toLowerCase());
+            });
+
+            if (filteredKeys.length === 0) {
+                listEl.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Pencarian tidak ditemukan.</div>';
+                return;
+            }
+
+            filteredKeys.forEach((key) => {
+                const item = data[key];
+                const hasPass = item.password && item.password.length > 0;
+                listEl.innerHTML += `
+                    <div onclick="selectPaste('${key}')" class="bg-[#262626] p-3 rounded-xl border border-slate-800 hover:border-cyan-500 cursor-pointer transition flex justify-between items-center">
+                        <div class="overflow-hidden pr-2">
+                            <div class="font-semibold text-sm text-slate-100 truncate">${item.title}</div>
+                            <div class="text-[11px] text-slate-400 mt-1">
+                                <i class="fa-solid ${hasPass ? 'fa-lock text-cyan-400' : 'fa-lock-open text-slate-500'} mr-1"></i>
+                                ${hasPass ? 'Terkunci (Pembuat Saja)' : 'Publik'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        };
+
+        // Muat Data dari Firebase secara Real-time
+        window.loadPastes = function() {
             const statusEl = document.getElementById('status-conn');
 
             onValue(ref(db, 'pastes'), (snapshot) => {
@@ -97,29 +134,9 @@
                 const data = snapshot.val();
                 allPastes = data || {};
 
-                if (!data) {
-                    listEl.innerHTML = '<div class="text-xs text-slate-500 text-center py-6">Belum ada data paste.</div>';
-                    return;
-                }
+                const searchKeyword = document.getElementById('search-box').value;
+                window.renderPasteList(searchKeyword);
 
-                listEl.innerHTML = "";
-                Object.keys(data).reverse().forEach((key) => {
-                    const item = data[key];
-                    const hasPass = item.password && item.password.length > 0;
-                    listEl.innerHTML += `
-                        <div onclick="selectPaste('${key}')" class="bg-[#262626] p-3 rounded-xl border border-slate-800 hover:border-cyan-500 cursor-pointer transition flex justify-between items-center">
-                            <div class="overflow-hidden pr-2">
-                                <div class="font-semibold text-sm text-slate-100 truncate">${item.title}</div>
-                                <div class="text-[11px] text-slate-400 mt-1">
-                                    <i class="fa-solid ${hasPass ? 'fa-lock text-cyan-400' : 'fa-lock-open text-slate-500'} mr-1"></i>
-                                    ${hasPass ? 'Terkunci (Pembuat Saja)' : 'Publik'}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                // Cek apakah ada Hash di URL saat data pertama kali dimuat
                 const hashKey = window.location.hash.substring(1);
                 if (hashKey && allPastes[hashKey]) {
                     window.openPaste(hashKey);
@@ -128,6 +145,14 @@
                 statusEl.textContent = "Koneksi Gagal";
                 statusEl.className = "text-xs text-red-400 font-medium";
                 console.error(error);
+            });
+        };
+
+        // Event Listener untuk Kolom Pencarian
+        window.setupSearch = function() {
+            const searchBox = document.getElementById('search-box');
+            searchBox.addEventListener('input', (e) => {
+                window.renderPasteList(e.target.value);
             });
         };
 
@@ -208,6 +233,7 @@
         };
 
         window.onload = () => {
+            window.setupSearch();
             window.loadPastes();
         };
     </script>
@@ -240,6 +266,14 @@
                 <button onclick="newPasteForm()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-3 py-1.5 rounded transition">
                     <i class="fa-solid fa-plus mr-1"></i> Baru
                 </button>
+            </div>
+            <!-- Kolom Pencarian di Bawah Daftar Paste -->
+            <div class="p-3 border-b border-gray-800 bg-[#222]">
+                <div class="relative">
+                    <i class="fa-solid fa-search absolute left-3 top-3 text-xs text-gray-400"></i>
+                    <input id="search-box" type="text" placeholder="Cari judul paste..." 
+                        class="w-full bg-[#1a1a1a] border border-gray-700 pl-8 pr-3 py-2 rounded text-xs text-white focus:outline-none focus:border-cyan-500">
+                </div>
             </div>
             <div id="paste-list" class="flex-1 overflow-y-auto p-3 space-y-2">
                 <div class="text-xs text-gray-500 text-center py-4">Memuat data...</div>
