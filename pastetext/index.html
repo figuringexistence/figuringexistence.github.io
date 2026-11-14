@@ -1,4 +1,8 @@
+Berikut adalah kode lengkap terbaru dengan kode iklan AdSense (`<!-- iklan1 -->`) yang sudah diletakkan tepat di area kosong di sebelah kiri tombol **Simpan Paste** (di bawah textarea editor).
 
+Tata letaknya sudah disesuaikan agar responsif di HP maupun komputer:
+
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -6,11 +10,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paste Text - Yudi.TIF</title>
     
-    <!-- Google AdSense Account Tag -->
+    <!-- Google AdSense Account Tag & Script -->
     <meta name="google-adsense-account" content="ca-pub-7225836198965940">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7225836198965940" crossorigin="anonymous"></script>
 
     <!-- Tailwind CSS & Font Awesome -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Menonaktifkan warning CDN Tailwind di console browser
+        tailwind.config = { corePlugins: { preflight: true } }
+        console.warn = (function(oldWarn) {
+            return function(msg) {
+                if (typeof msg === 'string' && msg.includes('cdn.tailwindcss.com')) return;
+                oldWarn.apply(console, arguments);
+            };
+        })(console.warn);
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Firebase SDK (Realtime Database) -->
@@ -295,8 +310,9 @@
                 <textarea id="paste-content" placeholder="Tulis atau tempel teks/kode di sini..." 
                     class="w-full flex-1 min-h-[250px] sm:min-h-0 bg-[#1e1e1e] border border-gray-700 p-4 rounded text-sm font-mono text-gray-100 focus:outline-none focus:border-cyan-500 resize-none"></textarea>
                
-                <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-2">
-                    <div class="flex flex-wrap gap-2">
+                <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-3 pt-2">
+                    <!-- Kiri: Tombol Aksi & Slot Iklan -->
+                    <div class="flex flex-wrap items-center gap-2 flex-1">
                         <button id="btn-delete" onclick="deleteCurrentPaste()" class="hidden bg-red-600/80 hover:bg-red-500 text-white font-semibold px-4 py-2.5 rounded text-sm transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-trash"></i> Hapus
                         </button>
@@ -306,18 +322,32 @@
                         <button id="btn-share" onclick="shareLink()" class="hidden bg-cyan-600 hover:bg-cyan-500 text-white font-semibold px-4 py-2.5 rounded text-sm transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-share-nodes"></i> Salin Link
                         </button>
+
+                        <!-- Kotak Iklan1 di Bagian Bawah Sebelah Tombol -->
+                        <div class="flex-1 min-w-[200px] overflow-hidden rounded bg-[#1e1e1e] border border-gray-800 p-1">
+                            <!-- iklan1 -->
+                            <ins class="adsbygoogle"
+                                 style="display:block"
+                                 data-ad-client="ca-pub-7225836198965940"
+                                 data-ad-slot="2094647340"
+                                 data-ad-format="auto"
+                                 data-full-width-responsive="true"></ins>
+                            <script>
+                                 (adsbygoogle = window.adsbygoogle || []).push({});
+                            </script>
+                        </div>
                     </div>
-                    <button onclick="savePaste()" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-semibold px-6 py-2.5 rounded text-sm transition shadow-lg flex items-center justify-center gap-2 sm:ml-auto">
+
+                    <!-- Kanan: Tombol Simpan Paste -->
+                    <button onclick="savePaste()" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-semibold px-6 py-2.5 rounded text-sm transition shadow-lg flex items-center justify-center gap-2 shrink-0">
                         <i class="fa-solid fa-floppy-disk"></i> Simpan Paste
                     </button>
                 </div>
             </div>
         </main>
     </div>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7225836198965940"
-     crossorigin="anonymous"></script>
-    
 
-    
 </body>
 </html>
+
+```
