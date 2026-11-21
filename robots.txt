@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://figuringexistence.github.io/sitemap.xml
