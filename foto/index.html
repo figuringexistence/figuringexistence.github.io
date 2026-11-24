@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -14,47 +13,55 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            padding: 20px;
+            background-color: #050814;
+            background-image: radial-gradient(circle at 80% 15%, rgba(56, 189, 248, 0.08), transparent 40%),
+                              radial-gradient(circle at 20% 80%, rgba(124, 58, 237, 0.08), transparent 45%);
+            color: #f1f5f9;
+            min-height: 100vh;
+            padding: 32px 20px;
         }
 
         header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 32px;
         }
 
         header h1 {
             font-size: 2rem;
-            color: #222;
+            font-weight: 700;
+            background: linear-gradient(90deg, #ffffff, #a78bfa, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         header p {
-            color: #666;
-            margin-top: 5px;
+            color: #94a3b8;
+            margin-top: 6px;
+            font-size: 0.95rem;
         }
 
-        /* Grid Galeri Responsif */
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 18px;
             max-width: 1200px;
             margin: 0 auto;
         }
 
         .gallery-item {
             overflow: hidden;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            background: #fff;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
         }
 
         .gallery-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-4px);
+            border-color: rgba(124, 58, 237, 0.6);
+            box-shadow: 0 14px 30px rgba(76, 29, 149, 0.28);
         }
 
         .gallery-item img {
@@ -66,29 +73,28 @@
         }
 
         .gallery-item:hover img {
-            transform: scale(1.05);
+            transform: scale(1.04);
         }
 
         .caption {
-            padding: 10px;
+            padding: 12px;
             text-align: center;
             font-size: 0.9rem;
-            color: #555;
+            color: #cbd5e1;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
         }
 
-        /* Lightbox */
         .lightbox {
             display: none;
             position: fixed;
             z-index: 999;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
+            inset: 0;
+            background-color: rgba(3, 6, 16, 0.92);
+            backdrop-filter: blur(6px);
             justify-content: center;
             align-items: center;
             flex-direction: column;
+            padding: 20px;
         }
 
         .lightbox.active {
@@ -96,26 +102,32 @@
         }
 
         .lightbox img {
-            max-width: 90%;
+            max-width: 92%;
             max-height: 80vh;
-            border-radius: 5px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            box-shadow: 0 0 35px rgba(0, 0, 0, 0.7);
         }
 
         .lightbox-caption {
-            color: #fff;
-            margin-top: 15px;
-            font-size: 1.1rem;
+            color: #e2e8f0;
+            margin-top: 14px;
+            font-size: 1rem;
         }
 
         .close-btn {
             position: absolute;
-            top: 20px;
-            right: 35px;
-            color: #fff;
-            font-size: 40px;
+            top: 18px;
+            right: 28px;
+            color: #cbd5e1;
+            font-size: 38px;
             font-weight: bold;
             cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #ffffff;
         }
     </style>
 </head>
@@ -127,25 +139,12 @@
     </header>
 
     <div class="gallery">
-        <!-- Foto Utama: 1.jpg -->
         <div class="gallery-item" onclick="openLightbox('1.jpg', 'Foto 1')">
-            <img src="1.jpg" alt="Foto 1" loading="lazy">
+            <img src="1.jpg" alt="Foto 1" loading="lazy" onerror="this.closest('.gallery-item').style.display='none'">
             <div class="caption">Foto 1</div>
-        </div>
-
-        <!-- Contoh tambahan jika nanti ada 2.jpg dan 3.jpg -->
-        <div class="gallery-item" onclick="openLightbox('2.jpg', 'Foto 2')">
-            <img src="2.jpg" alt="Foto 2" loading="lazy">
-            <div class="caption">Foto 2</div>
-        </div>
-
-        <div class="gallery-item" onclick="openLightbox('3.jpg', 'Foto 3')">
-            <img src="3.jpg" alt="Foto 3" loading="lazy">
-            <div class="caption">Foto 3</div>
         </div>
     </div>
 
-    <!-- Modal Lightbox -->
     <div class="lightbox" id="lightbox" onclick="closeLightbox()">
         <span class="close-btn">&times;</span>
         <img id="lightbox-img" src="" alt="">
