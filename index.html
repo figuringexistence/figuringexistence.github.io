@@ -76,17 +76,40 @@
     
 <!-- Blog Section (Otomatis dari logtif.blogspot.com) -->
     <section id="blog" class="py-20 px-6 max-w-5xl mx-auto border-t border-slate-900">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <h2 class="text-2xl font-bold flex items-center gap-3">
                 <i class="fa-solid fa-newspaper text-indigo-400"></i> Tulisan & Catatan Terbaru
             </h2>
-            <a href="https://logtif.blogspot.com/" target="_blank" class="text-sm text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1.5 w-fit">
-                Kunjungi Blog <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-            </a>
+            <div class="flex items-center gap-4">
+                <div class="hidden sm:flex items-center gap-2">
+                    <button id="blog-prev-btn" type="button" aria-label="Geser ke kiri"
+                        class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                    <button id="blog-next-btn" type="button" aria-label="Geser ke kanan"
+                        class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center transition">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+                <a href="https://logtif.blogspot.com/" target="_blank" class="text-sm text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1.5 w-fit">
+                    Kunjungi Blog <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                </a>
+            </div>
         </div>
 
-        <div id="blog-posts-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 animate-pulse space-y-4">
+        <!-- Search Bar Postingan Blog -->
+        <div class="relative mb-6">
+            <i class="fa-solid fa-magnifying-glass text-slate-500 absolute left-4 top-1/2 -translate-y-1/2 text-sm"></i>
+            <input id="blog-search-input" type="text" placeholder="Cari judul, isi, atau label postingan blog..."
+                class="w-full bg-slate-900/70 border border-slate-800 focus:border-indigo-500 focus:outline-none rounded-xl pl-11 pr-10 py-3 text-sm text-slate-100 placeholder-slate-500 transition">
+            <button id="blog-search-clear" type="button" aria-label="Hapus pencarian"
+                class="hidden text-slate-400 hover:text-white absolute right-3.5 top-1/2 -translate-y-1/2 text-sm">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div id="blog-posts-container" class="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div class="w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] shrink-0 snap-start bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 animate-pulse space-y-4">
                 <div class="h-4 bg-slate-800 rounded w-1/3"></div>
                 <div class="h-6 bg-slate-800 rounded w-3/4"></div>
                 <div class="space-y-2">
@@ -98,53 +121,114 @@
     </section>
 
     <script>
-        function renderBloggerPosts(data) {
-            const container = document.getElementById('blog-posts-container');
-            const entries = data.feed.entry;
+        let allBlogPosts = [];
 
-            if (!entries || entries.length === 0) {
-                container.innerHTML = `<div class="col-span-full bg-slate-900/50 border border-slate-800 rounded-2xl p-6 text-center text-slate-400 text-sm">Belum ada artikel yang dipublikasikan di blog.</div>`;
+        function parseBloggerEntries(data) {
+            const entries = (data.feed && data.feed.entry) ? data.feed.entry : [];
+            return entries.map(entry => {
+                const title = entry.title && entry.title.$t ? entry.title.$t : 'Tanpa Judul';
+                const linkObj = entry.link ? entry.link.find(l => l.rel === 'alternate') : null;
+                const link = linkObj ? linkObj.href : 'https://logtif.blogspot.com/';
+                const pubDate = entry.published && entry.published.$t ? new Date(entry.published.$t) : null;
+                const formattedDate = pubDate ? pubDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+                const rawContent = entry.summary ? entry.summary.$t : (entry.content ? entry.content.$t : '');
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = rawContent;
+                const cleanText = (tempDiv.textContent || tempDiv.innerText || '').trim();
+                const snippet = cleanText.length > 115 ? cleanText.substring(0, 115).trim() + '...' : cleanText;
+                const category = (entry.category && entry.category.length > 0 && entry.category[0].term) ? entry.category[0].term : 'Artikel';
+
+                return { title, link, formattedDate, cleanText, snippet, category };
+            });
+        }
+
+        function renderBlogCards(posts) {
+            const container = document.getElementById('blog-posts-container');
+
+            if (!posts || posts.length === 0) {
+                container.innerHTML = `<div class="w-full bg-slate-900/50 border border-slate-800 rounded-2xl p-6 text-center text-slate-400 text-sm">Tidak ada postingan blog yang cocok dengan pencarian.</div>`;
                 return;
             }
 
             let html = '';
-            entries.forEach(entry => {
-                const title = entry.title.$t;
-                const linkObj = entry.link.find(l => l.rel === 'alternate');
-                const link = linkObj ? linkObj.href : 'https://logtif.blogspot.com/';
-                const pubDate = new Date(entry.published.$t);
-                const formattedDate = pubDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-                const rawContent = entry.summary ? entry.summary.$t : (entry.content ? entry.content.$t : '');
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = rawContent;
-                const cleanText = tempDiv.textContent || tempDiv.innerText || '';
-                const snippet = cleanText.length > 115 ? cleanText.substring(0, 115).trim() + '...' : cleanText;
-                const category = entry.category && entry.category.length > 0 ? entry.category[0].term : 'Artikel';
-
+            posts.forEach(post => {
                 html += `
-                <article class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition group">
+                <article class="w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] shrink-0 snap-start bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition group">
                     <div>
                         <div class="flex items-center justify-between gap-2 mb-3">
-                            <span class="text-xs font-semibold px-2.5 py-0.5 bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20 truncate max-w-[140px]">${category}</span>
-                            <span class="text-xs text-slate-500 flex items-center gap-1 shrink-0"><i class="fa-regular fa-calendar"></i> ${formattedDate}</span>
+                            <span class="text-xs font-semibold px-2.5 py-0.5 bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20 truncate max-w-[140px]">${post.category}</span>
+                            <span class="text-xs text-slate-500 flex items-center gap-1 shrink-0"><i class="fa-regular fa-calendar"></i> ${post.formattedDate}</span>
                         </div>
                         <h3 class="text-base font-bold text-white mb-2 line-clamp-2 group-hover:text-indigo-400 transition">
-                            <a href="${link}" target="_blank">${title}</a>
+                            <a href="${post.link}" target="_blank">${post.title}</a>
                         </h3>
-                        <p class="text-slate-400 text-sm mb-4 leading-relaxed line-clamp-3">${snippet}</p>
+                        <p class="text-slate-400 text-sm mb-4 leading-relaxed line-clamp-3">${post.snippet}</p>
                     </div>
                     <div class="pt-4 border-t border-slate-800/60 flex items-center justify-between">
                         <span class="text-xs text-slate-500">Blog</span>
-                        <a href="${link}" target="_blank" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1">Baca <i class="fa-solid fa-arrow-right text-xs"></i></a>
+                        <a href="${post.link}" target="_blank" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1">Baca <i class="fa-solid fa-arrow-right text-xs"></i></a>
                     </div>
                 </article>`;
             });
 
             container.innerHTML = html;
         }
-    </script>
-    <script src="https://logtif.blogspot.com/feeds/posts/default?alt=json-in-script&max-results=3&callback=renderBloggerPosts"></script>
 
+        function renderBloggerPosts(data) {
+            allBlogPosts = parseBloggerEntries(data);
+            renderBlogCards(allBlogPosts);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('blog-posts-container');
+            const searchInput = document.getElementById('blog-search-input');
+            const clearBtn = document.getElementById('blog-search-clear');
+            const prevBtn = document.getElementById('blog-prev-btn');
+            const nextBtn = document.getElementById('blog-next-btn');
+
+            searchInput.addEventListener('input', () => {
+                const keyword = searchInput.value.trim().toLowerCase();
+                clearBtn.classList.toggle('hidden', keyword.length === 0);
+
+                if (!keyword) {
+                    renderBlogCards(allBlogPosts);
+                    container.scrollLeft = 0;
+                    return;
+                }
+
+                const filtered = allBlogPosts.filter(post =>
+                    post.title.toLowerCase().includes(keyword) ||
+                    post.cleanText.toLowerCase().includes(keyword) ||
+                    post.category.toLowerCase().includes(keyword)
+                );
+
+                renderBlogCards(filtered);
+                container.scrollLeft = 0;
+            });
+
+            clearBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                clearBtn.classList.add('hidden');
+                renderBlogCards(allBlogPosts);
+                container.scrollLeft = 0;
+                searchInput.focus();
+            });
+
+            const getScrollStep = () => {
+                const card = container.querySelector('article');
+                return card ? card.offsetWidth + 24 : 340;
+            };
+
+            prevBtn.addEventListener('click', () => {
+                container.scrollBy({ left: -getScrollStep(), behavior: 'smooth' });
+            });
+
+            nextBtn.addEventListener('click', () => {
+                container.scrollBy({ left: getScrollStep(), behavior: 'smooth' });
+            });
+        });
+    </script>
+    <script src="https://logtif.blogspot.com/feeds/posts/default?alt=json-in-script&max-results=15&callback=renderBloggerPosts"></script>
     
     <!-- About Section -->
     <section id="about" class="py-20 px-6 max-w-5xl mx-auto border-t border-slate-900">
