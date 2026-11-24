@@ -148,22 +148,31 @@
 
     <script>
         const galleryContainer = document.getElementById('gallery');
-        const maksimalFoto = 100; // Mengecek otomatis dari 1.jpg sampai 100.jpg
+        const maksimalFoto = 100;
+        const ekstensiList = ['jpg', 'jpeg', 'png', 'JPG'];
 
         for (let i = 1; i <= maksimalFoto; i++) {
-            const fileName = `${i}.jpg`;
             const captionText = `Foto ${i}`;
 
             const item = document.createElement('div');
             item.className = 'gallery-item';
-            item.onclick = () => openLightbox(fileName, captionText);
 
             const img = document.createElement('img');
-            img.src = fileName;
             img.alt = captionText;
             img.loading = 'lazy';
-            // Jika file belum ada (misal baru upload 1.jpg s.d. 15.jpg), kartu otomatis dihapus
-            img.onerror = () => item.remove();
+
+            let extIndex = 0;
+            img.src = `./${i}.${ekstensiList[extIndex]}`;
+            item.onclick = () => openLightbox(img.src, captionText);
+
+            img.onerror = () => {
+                extIndex++;
+                if (extIndex < ekstensiList.length) {
+                    img.src = `./${i}.${ekstensiList[extIndex]}`;
+                } else {
+                    item.remove();
+                }
+            };
 
             const caption = document.createElement('div');
             caption.className = 'caption';
