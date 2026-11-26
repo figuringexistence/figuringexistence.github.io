@@ -1,0 +1,50 @@
+name: Compiler Bridge
+
+on:
+  workflow_dispatch:
+    inputs:
+      language:
+        required: true
+      code_base64:
+        required: true
+      stdin_base64:
+        required: false
+        default: ''
+      job_id:
+        required: true
+
+jobs:
+  forward:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Jalankan Script dari Folder /compiler
+        run: |
+          echo "${{ github.event.inputs.code_base64 }}" | base64 -d > source_code
+          echo "${{ github.event.inputs.stdin_base64 }}" | base64 -d > input.txt
+          LANG="${{ github.event.inputs.language }}"
+          set +e
+          case "$LANG" in
+            python) python3 source_code < input.txt > output.txt 2>&1 ;;
+            c) mv source_code main.c && gcc main.c -o main && ./main < input.txt > output.txt 2>&1 ;;
+            cpp) mv source_code main.cpp && g++ main.cpp -o main && ./main < input.txt > output.txt 2>&1 ;;
+            java) mv source_code Main.java && javac Main.java && java Main < input.txt > output.txt 2>&1 ;;
+            go) mv source_code main.go && go run main.go < input.txt > output.txt 2>&1 ;;
+            rust) mv source_code main.rs && rustc main.rs && ./main < input.txt > output.txt 2>&1 ;;
+            js) mv source_code main.js && node main.js < input.txt > output.txt 2>&1 ;;
+            ts) mv source_code main.ts && npx -y ts-node main.ts < input.txt > output.txt 2>&1 ;;
+            csharp) mv source_code Program.cs && mcs Program.cs && mono Program.exe < input.txt > output.txt 2>&1 ;;
+            r) mv source_code main.r && Rscript main.r < input.txt > output.txt 2>&1 ;;
+            sql) sqlite3 < source_code > output.txt 2>&1 ;;
+            kotlin) mv source_code Main.kt && kotlinc Main.kt -include-runtime -d Main.jar && java -jar Main.jar < input.txt > output.txt 2>&1 ;;
+          esac
+          EXIT_CODE=$?
+          mkdir -p results
+          echo "EXIT_CODE:$EXIT_CODE" > "results/${{ github.event.inputs.job_id }}.txt"
+          cat output.txt >> "results/${{ github.event.inputs.job_id }}.txt"
+
+      - name: Upload Hasil Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-${{ github.event.inputs.job_id }}
+          path: results/${{ github.event.inputs.job_id }}.txt
+          retention-days: 1
