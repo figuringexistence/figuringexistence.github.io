@@ -1,9 +1,12 @@
+Berikut kode lengkap **`/compiler/index.html`** yang sudah diperbaiki—mencakup perbaikan typo CSS (`* { box-sizing...`), pemuatan addon `simple.js` sebelum `rust.js` di CodeMirror, fitur split-pane resizer, penanda versi (`COMPILER_VERSION`), export dengan rename, serta dukungan runner dinamis dari folder `/compiler/runners/` (`runner: 'external'` dengan `runnerUrl` atau `./runners/${lang.id}-runner/runner.js`).
+
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Code Compiler (v1.1) - Figuring Existence</title>
+  <title>Code Compiler (v1.2) - Figuring Existence</title>
   
   <!-- CodeMirror CSS & Tema Dracula -->
   <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.16/lib/codemirror.css">
@@ -163,7 +166,7 @@
     <div class="pane" id="outputPane">
       <div class="header">
         <div class="file-tab" style="border-color: transparent;">
-          Output <span class="ver-tag" id="versionBadge">v1.1</span>
+          Output <span class="ver-tag" id="versionBadge">v1.2</span>
         </div>
         <div class="actions">
           <button class="btn btn-secondary" id="copyOutBtn" onclick="copyOutput()">Copy</button>
@@ -178,6 +181,7 @@
 
   <!-- CodeMirror JS -->
   <script src="https://unpkg.com/codemirror@5.65.16/lib/codemirror.js"></script>
+  <script src="https://unpkg.com/codemirror@5.65.16/addon/mode/simple.js"></script>
   <script src="https://unpkg.com/codemirror@5.65.16/mode/python/python.js"></script>
   <script src="https://unpkg.com/codemirror@5.65.16/mode/clike/clike.js"></script>
   <script src="https://unpkg.com/codemirror@5.65.16/mode/javascript/javascript.js"></script>
@@ -196,7 +200,7 @@
 
   <script>
     // === [FITUR: VERSIONING & GLOBAL ERROR HANDLER] ===
-    const COMPILER_VERSION = "v1.1";
+    const COMPILER_VERSION = "v1.2";
 
     function applyVersionTag() {
       const badge = document.getElementById("versionBadge");
@@ -266,6 +270,7 @@
     let sqlReady = null;
     let csharpModule = null;
     let rRunnerModule = null;
+    const externalRunnerCache = new Map();
 
     const sidebar = document.getElementById('sidebar');
     languages.forEach((lang, index) => {
@@ -507,6 +512,23 @@
       return await rRunnerModule.run(code, stdin);
     }
 
+    async function runExternalRunner(lang, code, stdin) {
+      const moduleUrl = lang.runnerUrl || `./runners/${lang.id}-runner/runner.js`;
+      let mod = externalRunnerCache.get(moduleUrl);
+      if (!mod) {
+        try {
+          mod = await import(moduleUrl);
+        } catch {
+          throw new Error(`File runner ${moduleUrl} belum tersedia.`);
+        }
+        externalRunnerCache.set(moduleUrl, mod);
+      }
+      if (typeof mod.run !== 'function') {
+        throw new Error(`Fungsi run(code, stdin) belum ditemukan di ${moduleUrl}.`);
+      }
+      return await mod.run(code, stdin);
+    }
+
     async function runCode() {
       const code = getCodeValue();
       const stdin = document.getElementById('stdinInput').value;
@@ -579,6 +601,10 @@
           const out = await runRWebR(code, stdin);
           outputBox.style.color = '#9ece6a';
           outputBox.textContent = out || '(Program selesai tanpa output)';
+        } else if (currentLang.runner === 'external') {
+          const out = await runExternalRunner(currentLang, code, stdin);
+          outputBox.style.color = '#9ece6a';
+          outputBox.textContent = out || '(Program selesai tanpa output)';
         } else {
           outputBox.style.color = '#f7768e';
           outputBox.textContent = `[${COMPILER_VERSION}] ${currentLang.name} belum memiliki compiler/runtime browser di mode statis GitHub.`;
@@ -621,3 +647,7 @@
   </script>
 </body>
 </html>
+
+```
+
+Setelah di-*paste* ke `/compiler/index.html`, kamu bisa langsung lanjut membuat file runner di dalam folder `/compiler/runners/` untuk bahasa yang ingin diaktifkan. Mau mulai dari bahasa mana?
