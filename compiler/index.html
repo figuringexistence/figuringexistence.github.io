@@ -11,38 +11,39 @@
   
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
-    body { background-color: #1c2130; color: #f8f8f2; display: flex; height: 100vh; overflow: hidden; }
+    body { background-color: #1c2130; color: #f8f8f2; display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
+    body:fullscreen, body:-webkit-full-screen { width: 100vw; height: 100vh; height: 100dvh; }
     
     /* Sidebar Kiri */
     .sidebar {
       width: 55px; background-color: #161a25; border-right: 1px solid #2d3348;
-      display: flex; flex-direction: column; align-items: center; padding-top: 10px; gap: 8px; overflow-y: auto;
+      display: flex; flex-direction: column; align-items: center; padding-top: 10px; gap: 8px; overflow-y: auto; flex-shrink: 0;
     }
     .lang-btn {
       width: 40px; height: 40px; border-radius: 6px; border: 1px solid #2d3348;
       background: #1f2436; color: #cbd5e1; font-size: 11px; font-weight: 700; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; transition: 0.2s;
+      display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0;
     }
     .lang-btn svg { width: 22px; height: 22px; display: block; }
     .lang-btn:hover { background: #2c334a; color: #fff; }
     .lang-btn.active { background: #1d63ed; color: #fff; border-color: #1d63ed; }
 
     /* Area Utama */
-    .main-container { flex: 1; display: flex; }
-    .pane { flex: 1; display: flex; flex-direction: column; height: 100%; border-right: 1px solid #2d3348; }
+    .main-container { flex: 1; display: flex; min-width: 0; min-height: 0; }
+    .pane { flex: 1; display: flex; flex-direction: column; height: 100%; border-right: 1px solid #2d3348; min-width: 0; min-height: 0; }
     
     .header {
-      height: 48px; background-color: #1f2436; border-bottom: 1px solid #2d3348;
-      display: flex; align-items: center; justify-content: space-between; padding: 0 15px;
+      min-height: 48px; background-color: #1f2436; border-bottom: 1px solid #2d3348;
+      display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; gap: 8px; flex-wrap: wrap;
     }
     .file-tab {
-      background: #1c2130; padding: 8px 16px; border-top: 2px solid #1d63ed;
-      font-size: 14px; font-weight: 600; color: #fff;
+      background: #1c2130; padding: 6px 14px; border-top: 2px solid #1d63ed;
+      font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap;
     }
-    .actions { display: flex; gap: 8px; align-items: center; }
+    .actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .btn {
-      padding: 6px 12px; border-radius: 4px; border: none; font-size: 13px;
-      font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: 0.15s;
+      padding: 6px 10px; border-radius: 4px; border: none; font-size: 12px;
+      font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.15s; white-space: nowrap;
     }
     .btn-secondary { background: #2d3348; color: #f8f8f2; border: 1px solid #414868; }
     .btn-secondary:hover { background: #3b4261; }
@@ -51,7 +52,7 @@
     .btn-run:disabled { background: #414868; cursor: not-allowed; }
 
     /* Editor & Output */
-    .editor-wrapper { flex: 1; position: relative; overflow: hidden; display: flex; }
+    .editor-wrapper { flex: 1; position: relative; overflow: hidden; display: flex; min-height: 160px; }
     textarea#codeEditor {
       width: 100%; height: 100%; background: #1c2130; color: #f8f8f2;
       border: none; outline: none; padding: 15px; font-family: 'Consolas', monospace;
@@ -61,18 +62,58 @@
     
     .output-area {
       flex: 1; background-color: #181a1f; padding: 15px; font-family: 'Consolas', monospace;
-      font-size: 14px; white-space: pre-wrap; overflow-y: auto; color: #e2e8f0;
+      font-size: 14px; white-space: pre-wrap; overflow-y: auto; color: #e2e8f0; min-height: 140px;
     }
-    iframe.preview-frame { width: 100%; height: 100%; border: none; background: #fff; display: none; }
+    iframe.preview-frame { width: 100%; height: 100%; border: none; background: #fff; display: none; flex: 1; min-height: 140px; }
     
     .stdin-box {
-      background: #1f2436; border-top: 1px solid #2d3348; padding: 8px 15px;
-      display: flex; flex-direction: column; gap: 4px;
+      background: #1f2436; border-top: 1px solid #2d3348; padding: 8px 12px;
+      display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;
     }
     .stdin-box label { font-size: 11px; color: #8c96b5; text-transform: uppercase; }
     .stdin-box textarea {
       background: #161a25; border: 1px solid #2d3348; color: #fff; padding: 6px;
-      font-family: monospace; font-size: 13px; resize: none; height: 45px; border-radius: 4px;
+      font-family: monospace; font-size: 13px; resize: none; height: 42px; border-radius: 4px;
+    }
+
+    /* Modal Password Inspect */
+    .inspect-modal {
+      position: fixed; inset: 0; background: rgba(10, 13, 22, 0.8);
+      display: none; align-items: center; justify-content: center; padding: 16px; z-index: 9999;
+    }
+    .inspect-modal.show { display: flex; }
+    .inspect-card {
+      width: 100%; max-width: 360px; background: #1f2436; border: 1px solid #414868;
+      border-radius: 8px; padding: 18px; display: flex; flex-direction: column; gap: 12px;
+    }
+    .inspect-card h3 { font-size: 16px; color: #fff; }
+    .inspect-card p { font-size: 12px; color: #cbd5e1; line-height: 1.45; }
+    .inspect-card input {
+      width: 100%; padding: 8px 10px; border-radius: 4px; border: 1px solid #414868;
+      background: #161a25; color: #fff; font-size: 13px; outline: none;
+    }
+    .inspect-card input:focus { border-color: #1d63ed; }
+    .inspect-error { font-size: 12px; color: #f7768e; min-height: 16px; }
+    .inspect-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+    /* Responsif Tablet & HP */
+    @media (max-width: 900px) {
+      .main-container { flex-direction: column; overflow-y: auto; }
+      .pane { flex: none; height: auto; min-height: 46vh; border-right: none; border-bottom: 1px solid #2d3348; }
+      .pane:last-child { border-bottom: none; min-height: 36vh; }
+    }
+
+    @media (max-width: 600px) {
+      body { flex-direction: column; }
+      .sidebar {
+        width: 100%; height: 50px; flex-direction: row; border-right: none;
+        border-bottom: 1px solid #2d3348; padding: 0 8px; gap: 6px; overflow-x: auto; overflow-y: hidden;
+      }
+      .lang-btn { width: 36px; height: 36px; }
+      .lang-btn svg { width: 19px; height: 19px; }
+      .header { padding: 6px 10px; }
+      .btn { padding: 5px 8px; font-size: 11px; }
+      .CodeMirror, textarea#codeEditor, .output-area { font-size: 13px; }
     }
   </style>
 </head>
@@ -89,6 +130,7 @@
           <button class="btn btn-secondary" id="copyCodeBtn" onclick="copyCode()" title="Salin kode">Copy</button>
           <button class="btn btn-secondary" onclick="resetCode()" title="Kembalikan ke template awal">Reset</button>
           <button class="btn btn-secondary" onclick="downloadCode()" title="Unduh file kode">⬇ Export</button>
+          <button class="btn btn-secondary" id="fullscreenBtn" onclick="toggleFullscreen()" title="Mode layar penuh">⛶ Fullscreen</button>
           <button class="btn btn-run" id="runBtn" onclick="runCode()">Run ▶</button>
         </div>
       </div>
@@ -106,12 +148,27 @@
       <div class="header">
         <div class="file-tab" style="border-color: transparent;">Output</div>
         <div class="actions">
+          <button class="btn btn-secondary" id="inspectLockBtn" onclick="handleInspectButton()" title="Akses Inspect dengan password">🔒 Inspect</button>
           <button class="btn btn-secondary" id="copyOutBtn" onclick="copyOutput()">Copy</button>
           <button class="btn btn-secondary" onclick="clearOutput()">Clear</button>
         </div>
       </div>
       <div class="output-area" id="outputBox">Klik "Run ▶" untuk menjalankan kode...</div>
       <iframe id="htmlPreview" class="preview-frame"></iframe>
+    </div>
+  </div>
+
+  <!-- Modal Password Inspect -->
+  <div class="inspect-modal" id="inspectModal" role="dialog" aria-modal="true" aria-labelledby="inspectTitle">
+    <div class="inspect-card">
+      <h3 id="inspectTitle">Akses Inspect Element</h3>
+      <p>Inspect element dikunci. Masukkan password untuk membuka akses pada sesi browser ini.</p>
+      <input type="password" id="inspectPasswordInput" placeholder="Masukkan password..." autocomplete="off">
+      <div class="inspect-error" id="inspectError"></div>
+      <div class="inspect-actions">
+        <button class="btn btn-secondary" onclick="closeInspectModal()">Batal</button>
+        <button class="btn btn-run" onclick="submitInspectPassword()">Buka Akses</button>
+      </div>
     </div>
   </div>
 
@@ -127,16 +184,96 @@
   <script src="https://unpkg.com/codemirror@5.65.16/mode/r/r.js"></script>
   <script src="https://unpkg.com/codemirror@5.65.16/mode/sql/sql.js"></script>
 
-  <!-- JSCPP untuk C/C++ di browser -->
+  <!-- Runtime Browser -->
   <script src="https://cdn.jsdelivr.net/npm/JSCPP@0.0.10-2/dist/jscpp.min.js"></script>
-  <!-- Pyodide untuk Python di browser -->
+  <script src="https://cdn.jsdelivr.net/npm/typescript@5.6.3/lib/typescript.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
-  <!-- sql.js untuk SQLite di browser -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
 
   <script>
-    // Arahkan ke modul runner .NET WASM / Roslyn milikmu jika sudah di-host di repo/CDN
-    const CSHARP_WASM_MODULE_URL = "./csharp-wasm/runner.js";
+    const CSHARP_WASM_MODULE_URL = "/compiler/csharp-wasm/runner.js";
+    const INSPECT_PASSWORD = "yudi";
+    const INSPECT_STORAGE_KEY = "compiler_inspect_unlocked";
+
+    function isInspectUnlocked() {
+      return sessionStorage.getItem(INSPECT_STORAGE_KEY) === "1";
+    }
+
+    function updateInspectButton() {
+      const btn = document.getElementById("inspectLockBtn");
+      if (!btn) return;
+      if (isInspectUnlocked()) {
+        btn.textContent = "🔓 Inspect Aktif";
+        btn.title = "Klik untuk mengunci kembali Inspect Element";
+      } else {
+        btn.textContent = "🔒 Inspect";
+        btn.title = "Akses Inspect dengan password";
+      }
+    }
+
+    function openInspectModal() {
+      const modal = document.getElementById("inspectModal");
+      const input = document.getElementById("inspectPasswordInput");
+      const err = document.getElementById("inspectError");
+      err.textContent = "";
+      input.value = "";
+      modal.classList.add("show");
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function closeInspectModal() {
+      document.getElementById("inspectModal").classList.remove("show");
+    }
+
+    function submitInspectPassword() {
+      const input = document.getElementById("inspectPasswordInput");
+      const err = document.getElementById("inspectError");
+      if (input.value === INSPECT_PASSWORD) {
+        sessionStorage.setItem(INSPECT_STORAGE_KEY, "1");
+        updateInspectButton();
+        closeInspectModal();
+      } else {
+        err.textContent = "Password salah.";
+        input.focus();
+      }
+    }
+
+    function handleInspectButton() {
+      if (isInspectUnlocked()) {
+        sessionStorage.removeItem(INSPECT_STORAGE_KEY);
+        updateInspectButton();
+      } else {
+        openInspectModal();
+      }
+    }
+
+    document.getElementById("inspectPasswordInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") submitInspectPassword();
+      if (e.key === "Escape") closeInspectModal();
+    });
+
+    document.addEventListener("contextmenu", (e) => {
+      if (!isInspectUnlocked()) {
+        e.preventDefault();
+        openInspectModal();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (isInspectUnlocked()) return;
+      const key = (e.key || "").toLowerCase();
+      const isDevToolsShortcut =
+        key === "f12" ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && ["i", "j", "c"].includes(key)) ||
+        ((e.ctrlKey || e.metaKey) && key === "u");
+
+      if (isDevToolsShortcut) {
+        e.preventDefault();
+        openInspectModal();
+      }
+    });
+
+    updateInspectButton();
 
     const icons = {
       python: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-3.5 0-3.3 1.5-3.3 1.5v1.6h3.4v.5H7.3S5 5.3 5 8.8s2 3.4 2 3.4h1.2v-1.6s-.1-1.9 1.9-1.9h3.2s1.8 0 1.8-1.8V4.2S15.3 2 12 2zm-1.8 1.3a.6.6 0 1 1 0 1.2.6.6 0 0 1 0-1.2zM12 22c3.5 0 3.3-1.5 3.3-1.5v-1.6h-3.4v-.5h4.8s2.3.3 2.3-3.2-2-3.4-2-3.4h-1.2v1.6s.1 1.9-1.9 1.9h-3.2s-1.8 0-1.8 1.8v2.7S8.7 22 12 22zm1.8-1.3a.6.6 0 1 1 0-1.2.6.6 0 0 1 0 1.2z"/></svg>`,
@@ -165,7 +302,7 @@
       { id: 'cpp', name: 'C++', file: 'main.cpp', mode: 'text/x-c++src', runner: 'jscpp', template: '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Halo dari C++!" << endl;\n    return 0;\n}' },
       { id: 'csharp', name: 'C#', file: 'Program.cs', mode: 'text/x-csharp', runner: 'csharp_wasm', template: 'using System;\nclass Program {\n    static void Main() {\n        Console.WriteLine("Halo dari C#!");\n    }\n}' },
       { id: 'js', name: 'JavaScript', file: 'main.js', mode: 'javascript', runner: 'js', template: 'console.log("Halo dari JavaScript!");' },
-      { id: 'ts', name: 'TypeScript', file: 'main.ts', mode: 'text/typescript', runner: 'unsupported', template: 'const pesan: string = "Halo dari TypeScript!";\nconsole.log(pesan);' },
+      { id: 'ts', name: 'TypeScript', file: 'main.ts', mode: 'text/typescript', runner: 'ts', template: 'const pesan: string = "Halo dari TypeScript!";\nconsole.log(pesan);' },
       { id: 'go', name: 'Go', file: 'main.go', mode: 'go', runner: 'unsupported', template: 'package main\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Halo dari Go!")\n}' },
       { id: 'rust', name: 'Rust', file: 'main.rs', mode: 'rust', runner: 'unsupported', template: 'fn main() {\n    println!("Halo dari Rust!");\n}' }
     ];
@@ -247,6 +384,55 @@
       });
     }
 
+    async function toggleFullscreen() {
+      const target = document.documentElement;
+      const isFull = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+      try {
+        if (!isFull) {
+          if (target.requestFullscreen) {
+            await target.requestFullscreen();
+          } else if (target.webkitRequestFullscreen) {
+            target.webkitRequestFullscreen();
+          }
+        } else {
+          if (document.exitFullscreen) {
+            await document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
+        }
+      } catch (err) {
+        const outputBox = document.getElementById('outputBox');
+        outputBox.style.display = 'block';
+        outputBox.style.color = '#f7768e';
+        outputBox.textContent = 'Gagal mengubah mode fullscreen: ' + (err && err.message ? err.message : String(err));
+      }
+    }
+
+    function updateFullscreenButton() {
+      const btn = document.getElementById('fullscreenBtn');
+      if (!btn) return;
+      const isFull = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+      btn.textContent = isFull ? '✕ Exit Fullscreen' : '⛶ Fullscreen';
+      if (editor) editor.refresh();
+    }
+
+    document.addEventListener('fullscreenchange', updateFullscreenButton);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+
+    function runJsSnippet(jsCode) {
+      const logs = [];
+      const origLog = console.log;
+      console.log = (...args) => logs.push(args.join(' '));
+      try {
+        const result = new Function(jsCode)();
+        if (result !== undefined) logs.push(String(result));
+      } finally {
+        console.log = origLog;
+      }
+      return logs.length ? logs.join('\n') : '(Program selesai tanpa output)';
+    }
+
     async function getPyodide() {
       if (!pyodideReady) {
         pyodideReady = loadPyodide();
@@ -265,10 +451,14 @@
 
     async function runCSharpWasm(code, stdin) {
       if (!csharpModule) {
-        csharpModule = await import(CSHARP_WASM_MODULE_URL);
+        try {
+          csharpModule = await import(CSHARP_WASM_MODULE_URL);
+        } catch {
+          throw new Error('File /compiler/csharp-wasm/runner.js belum tersedia di folder /compiler.');
+        }
       }
       if (typeof csharpModule.compileAndRunCSharp !== 'function') {
-        throw new Error('Modul C# WASM ditemukan, tetapi fungsi compileAndRunCSharp(code, stdin) belum tersedia.');
+        throw new Error('Fungsi compileAndRunCSharp(code, stdin) belum ditemukan di /compiler/csharp-wasm/runner.js.');
       }
       return await csharpModule.compileAndRunCSharp(code, stdin);
     }
@@ -295,6 +485,9 @@
 
       try {
         if (currentLang.runner === 'jscpp') {
+          if (typeof JSCPP === 'undefined') {
+            throw new Error('JSCPP belum termuat di halaman (/compiler). Cek koneksi CDN JSCPP.');
+          }
           let out = '';
           const exitCode = JSCPP.run(code, stdin, {
             stdio: {
@@ -304,14 +497,17 @@
           outputBox.style.color = '#9ece6a';
           outputBox.textContent = (out || '(Program selesai tanpa output)') + `\n\n[Exit code: ${exitCode}]`;
         } else if (currentLang.runner === 'js') {
-          let logs = [];
-          const origLog = console.log;
-          console.log = (...args) => logs.push(args.join(' '));
-          const result = new Function(code)();
-          console.log = origLog;
-          if (result !== undefined) logs.push(String(result));
           outputBox.style.color = '#9ece6a';
-          outputBox.textContent = logs.length ? logs.join('\n') : '(Program selesai tanpa output)';
+          outputBox.textContent = runJsSnippet(code);
+        } else if (currentLang.runner === 'ts') {
+          if (typeof ts === 'undefined') {
+            throw new Error('TypeScript compiler belum termuat di halaman (/compiler).');
+          }
+          const compiled = ts.transpileModule(code, {
+            compilerOptions: { module: ts.ModuleKind.None, target: ts.ScriptTarget.ES2020 }
+          });
+          outputBox.style.color = '#9ece6a';
+          outputBox.textContent = runJsSnippet(compiled.outputText);
         } else if (currentLang.runner === 'pyodide') {
           const pyodide = await getPyodide();
           let out = '';
