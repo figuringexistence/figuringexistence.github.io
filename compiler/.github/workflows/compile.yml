@@ -7,10 +7,10 @@ on:
         description: 'Bahasa pemrograman'
         required: true
       code_base64:
-        description: 'Kode program dalam format Base64'
+        description: 'Kode program (Base64)'
         required: true
       stdin_base64:
-        description: 'Input stdin dalam format Base64'
+        description: 'Input stdin (Base64)'
         required: false
         default: ''
       job_id:
@@ -22,7 +22,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Decode & Jalankan Kode
-        id: run_code
         run: |
           echo "${{ github.event.inputs.code_base64 }}" | base64 -d > source_code
           echo "${{ github.event.inputs.stdin_base64 }}" | base64 -d > input.txt
@@ -80,12 +79,11 @@ jobs:
           esac
           EXIT_CODE=$?
           
-          # Simpan hasil ke file dengan nama sesuai job_id
           mkdir -p results
           echo "EXIT_CODE:$EXIT_CODE" > "results/${{ github.event.inputs.job_id }}.txt"
           cat output.txt >> "results/${{ github.event.inputs.job_id }}.txt"
 
-      - name: Upload Hasil Output sebagai Artifact
+      - name: Upload Hasil Output
         uses: actions/upload-artifact@v4
         with:
           name: result-${{ github.event.inputs.job_id }}
