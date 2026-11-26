@@ -283,109 +283,115 @@
             <i class="fa-solid fa-laptop-code text-indigo-400"></i> Proyek Pilihan
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Project 1 -->
-            <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition">
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="text-xs font-semibold px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20">Web App</span>
-                        <i class="fa-solid fa-folder-open text-slate-600 text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-2">Unimugo Space</h3>
-                    <p class="text-slate-400 text-sm mb-4 leading-relaxed">
-                        Aplikasi web interaktif jadwal kuliah mahasiswa Universitas Muhammadiyah Gombong lengkap dengan sistem autentikasi Firebase dan pencarian jadwal terintegrasi.
-                    </p>
-                </div>
-                <div class="flex items-center justify-between pt-4 border-t border-slate-800/60">
-                    <span class="text-xs text-slate-500">HTML, Tailwind, Firebase</span>
-                    <a href="https://figuringexistence.github.io/" target="_blank" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1">
-                        Kunjungi <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                    </a>
-                </div>
-            </div>
-            <!-- Project 2 -->
-            <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition">
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="text-xs font-semibold px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full border border-cyan-500/20">Academic & Open Source</span>
-                        <i class="fa-solid fa-code text-slate-600 text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-2">Pemrograman Dasar Repositories</h3>
-                    <p class="text-slate-400 text-sm mb-4 leading-relaxed">
-                        Kumpulan kode sumber dan latihan praktikum Bahasa C untuk mendukung perkuliahan Pemrograman Dasar, mencakup pola logika, array, dan fungsi modular.
-                    </p>
-                </div>
-                <div class="flex items-center justify-between pt-4 border-t border-slate-800/60">
-                    <span class="text-xs text-slate-500">C Language</span>
-                    <a href="https://github.com/figuringexistence" target="_blank" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1">
-                        GitHub <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                    </a>
-                       </div>
-                   </div>
+            
         
-         <!-- Project 3 -->
-            <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition">
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="text-xs font-semibold px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full border border-cyan-500/20">Web Tools</span>
-                        <i class="fa-solid fa-code text-slate-600 text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-2">Paste Text</h3>
-                    <p class="text-slate-400 text-sm mb-4 leading-relaxed">
-                      Solusi praktis untuk mengelola, menyunting, dan mentransfer potongan teks atau kode mentah dengan cepat tanpa memerlukan tambahan aplikasi
-                    </p>
-                </div>
-                <div class="flex items-center justify-between pt-4 border-t border-slate-800/60">
-                    <span class="text-xs text-slate-500">Utility App, Productivity</span>
-                    <a href="/pastetext" target="_blank" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1">
-                        Paste Text <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                    </a>
-                </div>
-            </div>
 
-<!-- Project 4 -->
-            <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition">
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="text-xs font-semibold px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full border border-cyan-500/20">Web Tools</span>
-                        <i class="fa-solid fa-code text-slate-600 text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-2">Logtif</h3>
-                    <p class="text-slate-400 text-sm mb-4 leading-relaxed">
-                      Kumpulan catatan perkuliahan, panduan teknis, dan trik seputar dunia TI yang ditulis ringkas agar mudah dipahami dan dipraktikkan kembali.
-                    </p>
-                </div>
-                <div class="flex items-center justify-between pt-4 border-t border-slate-800/60">
-                    <span class="text-xs text-slate-500">Artikel</span>
-                    <a href="https://logtif.blogspot.com/" target="_blank" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1">
-                       Blog <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                    </a>
-                </div>
+```html
+<div class="flex overflow-x-auto gap-6 pb-4 snap-x">
+
+    <!-- Project 1 -->
+    <div class="flex-none w-[320px] md:w-[380px] snap-start bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition">
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-semibold px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20">Web App</span>
+                <i class="fa-solid fa-folder-open text-slate-600 text-xl"></i>
             </div>
-          </div>
-    </section>
+            <h3 class="text-lg font-bold text-white mb-2">Unimugo Space</h3>
+            <p class="text-slate-400 text-sm mb-4 leading-relaxed">
+                Aplikasi web interaktif jadwal kuliah mahasiswa Universitas Muhammadiyah Gombong lengkap dengan sistem autentikasi Firebase dan pencarian jadwal terintegrasi.
+            </p>
+        </div>
+        <div class="flex items-center justify-between pt-4 border-t border-slate-800/60">
+            <span class="text-xs text-slate-500">HTML, Tailwind, Firebase</span>
+            <a href="https://figuringexistence.github.io/" target="_blank" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1">
+                Kunjungi <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Project 2 -->
+    <div class="flex-none w-[320px] md:w-[380px] snap-start bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition">
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-semibold px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full border border-cyan-500/20">Academic & Open Source</span>
+                <i class="fa-solid fa-code text-slate-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Pemrograman Dasar Repositories</h3>
+            <p class="text-slate-400 text-sm mb-4 leading-relaxed">
+                Kumpulan kode sumber dan latihan praktikum Bahasa C untuk mendukung perkuliahan Pemrograman Dasar, mencakup pola logika, array, dan fungsi modular.
+            </p>
+        </div>
+        <div class="flex items-center justify-between pt-4 border-t border-slate-800/60">
+            <span class="text-xs text-slate-500">C Language</span>
+            <a href="https://github.com/figuringexistence" target="_blank" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1">
+                GitHub <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Project 3 -->
+    <div class="flex-none w-[320px] md:w-[380px] snap-start bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition">
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-semibold px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full border border-cyan-500/20">Web Tools</span>
+                <i class="fa-solid fa-code text-slate-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Paste Text</h3>
+            <p class="text-slate-400 text-sm mb-4 leading-relaxed">
+                Solusi praktis untuk mengelola, menyunting, dan mentransfer potongan teks atau kode mentah dengan cepat tanpa memerlukan tambahan aplikasi
+            </p>
+        </div>
+        <div class="flex items-center justify-between pt-4 border-t border-slate-800/60">
+            <span class="text-xs text-slate-500">Utility App, Productivity</span>
+            <a href="/pastetext" target="_blank" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1">
+                Paste Text <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Project 4 -->
+    <div class="flex-none w-[320px] md:w-[380px] snap-start bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition">
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-semibold px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full border border-cyan-500/20">Web Tools</span>
+                <i class="fa-solid fa-code text-slate-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Logtif</h3>
+            <p class="text-slate-400 text-sm mb-4 leading-relaxed">
+                Kumpulan catatan perkuliahan, panduan teknis, dan trik seputar dunia TI yang ditulis ringkas agar mudah dipahami dan dipraktikkan kembali.
+            </p>
+        </div>
+        <div class="flex items-center justify-between pt-4 border-t border-slate-800/60">
+            <span class="text-xs text-slate-500">Artikel</span>
+            <a href="https://logtif.blogspot.com/" target="_blank" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1">
+                Blog <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+            </a>
+        </div>
+    </div>
 
     <!-- Project 5 -->
-            <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition">
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="text-xs font-semibold px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full border border-cyan-500/20">Web Tools</span>
-                        <i class="fa-solid fa-code text-slate-600 text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-2">Compiler</h3>
-                    <p class="text-slate-400 text-sm mb-4 leading-relaxed">
-                      Ruang latihan koding berbasis web menjalankan, dan menguji berbagai bahasa pemrograman langsung dari browser tanpa instalasi tambahan.
-                    </p>
-                </div>
-                <div class="flex items-center justify-between pt-4 border-t border-slate-800/60">
-                    <span class="text-xs text-slate-500">Compile code</span>
-                    <a href="/compiler" target="_blank" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1">
-                       Blog <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                    </a>
-                </div>
+    <div class="flex-none w-[320px] md:w-[380px] snap-start bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition">
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-semibold px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full border border-cyan-500/20">Web Tools</span>
+                <i class="fa-solid fa-code text-slate-600 text-xl"></i>
             </div>
-        
+            <h3 class="text-lg font-bold text-white mb-2">Compiler</h3>
+            <p class="text-slate-400 text-sm mb-4 leading-relaxed">
+                Ruang latihan koding berbasis web untuk menulis, menjalankan, dan menguji berbagai bahasa pemrograman langsung dari browser tanpa instalasi tambahan.
+            </p>
+        </div>
+        <div class="flex items-center justify-between pt-4 border-t border-slate-800/60">
+            <span class="text-xs text-slate-500">Compile code</span>
+            <a href="/compiler" target="_blank" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium flex items-center gap-1">
+                Compiler <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+            </a>
+        </div>
+    </div>
 
+</div>
 
+```
 
     
     <!-- Education Section -->
