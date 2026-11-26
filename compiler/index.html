@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Online Compiler - Figuring Existence</title>
+  <title>Code Compiler - Figuring Existence</title>
   
   <!-- CodeMirror CSS & Tema Dracula -->
   <link rel="stylesheet" href="https://unpkg.com/codemirror@5.65.16/lib/codemirror.css">
@@ -127,6 +127,9 @@
   <script src="https://unpkg.com/codemirror@5.65.16/mode/r/r.js"></script>
   <script src="https://unpkg.com/codemirror@5.65.16/mode/sql/sql.js"></script>
 
+  <!-- JSCPP untuk menjalankan C/C++ di browser -->
+  <script src="https://cdn.jsdelivr.net/npm/JSCPP@0.0.10-2/dist/jscpp.min.js"></script>
+
   <script>
     const icons = {
       python: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-3.5 0-3.3 1.5-3.3 1.5v1.6h3.4v.5H7.3S5 5.3 5 8.8s2 3.4 2 3.4h1.2v-1.6s-.1-1.9 1.9-1.9h3.2s1.8 0 1.8-1.8V4.2S15.3 2 12 2zm-1.8 1.3a.6.6 0 1 1 0 1.2.6.6 0 0 1 0-1.2zM12 22c3.5 0 3.3-1.5 3.3-1.5v-1.6h-3.4v-.5h4.8s2.3.3 2.3-3.2-2-3.4-2-3.4h-1.2v1.6s.1 1.9-1.9 1.9h-3.2s-1.8 0-1.8 1.8v2.7S8.7 22 12 22zm1.8-1.3a.6.6 0 1 1 0-1.2.6.6 0 0 1 0 1.2z"/></svg>`,
@@ -145,25 +148,24 @@
     };
 
     const languages = [
-      { id: 'python', name: 'Python', file: 'main.py', mode: 'python', piston: 'python', version: '3.10.0', template: 'print("Halo dari Python!")\n' },
-      { id: 'r', name: 'R', file: 'main.r', mode: 'r', piston: 'r', version: '4.1.1', template: 'print("Halo dari R!")\n' },
-      { id: 'sql', name: 'SQLite', file: 'query.sql', mode: 'sql', piston: 'sqlite3', version: '3.36.0', template: 'SELECT "Halo dari SQL!" AS pesan;\n' },
-      { id: 'html', name: 'HTML/JS', file: 'index.html', mode: 'htmlmixed', piston: 'browser', version: '', template: '<!DOCTYPE html>\n<html>\n<body>\n  <h2 style="color:blue;">Halo HTML!</h2>\n</body>\n</html>' },
-      { id: 'java', name: 'Java', file: 'Main.java', mode: 'text/x-java', piston: 'java', version: '15.0.2', template: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Halo dari Java!");\n    }\n}' },
-      { id: 'kotlin', name: 'Kotlin', file: 'Main.kt', mode: 'text/x-kotlin', piston: 'kotlin', version: '1.8.20', template: 'fun main() {\n    println("Halo dari Kotlin!")\n}' },
-      { id: 'c', name: 'C', file: 'main.c', mode: 'text/x-csrc', piston: 'c', version: '10.2.0', template: '#include <stdio.h>\n\nint main() {\n    printf("Halo dari C!\\n");\n    return 0;\n}' },
-      { id: 'cpp', name: 'C++', file: 'main.cpp', mode: 'text/x-c++src', piston: 'c++', version: '10.2.0', template: '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Try clicking the Run button." << endl;\n    return 0;\n}' },
-      { id: 'csharp', name: 'C#', file: 'Program.cs', mode: 'text/x-csharp', piston: 'csharp', version: '6.12.0', template: 'using System;\nclass Program {\n    static void Main() {\n        Console.WriteLine("Halo dari C#!");\n    }\n}' },
-      { id: 'js', name: 'JavaScript', file: 'main.js', mode: 'javascript', piston: 'javascript', version: '18.15.0', template: 'console.log("Halo dari Node.js!");' },
-      { id: 'ts', name: 'TypeScript', file: 'main.ts', mode: 'text/typescript', piston: 'typescript', version: '5.0.3', template: 'const pesan: string = "Halo dari TypeScript!";\nconsole.log(pesan);' },
-      { id: 'go', name: 'Go', file: 'main.go', mode: 'go', piston: 'go', version: '1.16.2', template: 'package main\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Halo dari Go!")\n}' },
-      { id: 'rust', name: 'Rust', file: 'main.rs', mode: 'rust', piston: 'rust', version: '1.68.2', template: 'fn main() {\n    println!("Halo dari Rust!");\n}' }
+      { id: 'python', name: 'Python', file: 'main.py', mode: 'python', runner: 'unsupported', template: 'print("Halo dari Python!")\n' },
+      { id: 'r', name: 'R', file: 'main.r', mode: 'r', runner: 'unsupported', template: 'print("Halo dari R!")\n' },
+      { id: 'sql', name: 'SQLite', file: 'query.sql', mode: 'sql', runner: 'unsupported', template: 'SELECT "Halo dari SQL!" AS pesan;\n' },
+      { id: 'html', name: 'HTML/JS', file: 'index.html', mode: 'htmlmixed', runner: 'browser', template: '<!DOCTYPE html>\n<html>\n<body>\n  <h2 style="color:blue;">Halo HTML!</h2>\n</body>\n</html>' },
+      { id: 'java', name: 'Java', file: 'Main.java', mode: 'text/x-java', runner: 'unsupported', template: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Halo dari Java!");\n    }\n}' },
+      { id: 'kotlin', name: 'Kotlin', file: 'Main.kt', mode: 'text/x-kotlin', runner: 'unsupported', template: 'fun main() {\n    println("Halo dari Kotlin!")\n}' },
+      { id: 'c', name: 'C', file: 'main.c', mode: 'text/x-csrc', runner: 'jscpp', template: '#include <stdio.h>\n\nint main() {\n    printf("Halo dari C!\\n");\n    return 0;\n}' },
+      { id: 'cpp', name: 'C++', file: 'main.cpp', mode: 'text/x-c++src', runner: 'jscpp', template: '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Try clicking the Run button." << endl;\n    return 0;\n}' },
+      { id: 'csharp', name: 'C#', file: 'Program.cs', mode: 'text/x-csharp', runner: 'unsupported', template: 'using System;\nclass Program {\n    static void Main() {\n        Console.WriteLine("Halo dari C#!");\n    }\n}' },
+      { id: 'js', name: 'JavaScript', file: 'main.js', mode: 'javascript', runner: 'js', template: 'console.log("Halo dari JavaScript!");' },
+      { id: 'ts', name: 'TypeScript', file: 'main.ts', mode: 'text/typescript', runner: 'unsupported', template: 'const pesan: string = "Halo dari TypeScript!";\nconsole.log(pesan);' },
+      { id: 'go', name: 'Go', file: 'main.go', mode: 'go', runner: 'unsupported', template: 'package main\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Halo dari Go!")\n}' },
+      { id: 'rust', name: 'Rust', file: 'main.rs', mode: 'rust', runner: 'unsupported', template: 'fn main() {\n    println!("Halo dari Rust!");\n}' }
     ];
 
     let currentLang = languages[0];
     let editor = null;
 
-    // Render Sidebar
     const sidebar = document.getElementById('sidebar');
     languages.forEach((lang, index) => {
       const btn = document.createElement('button');
@@ -174,7 +176,6 @@
       sidebar.appendChild(btn);
     });
 
-    // Inisialisasi CodeMirror
     const textarea = document.getElementById('codeEditor');
     if (typeof CodeMirror !== 'undefined') {
       editor = CodeMirror.fromTextArea(textarea, {
@@ -236,14 +237,14 @@
       });
     }
 
-    async function runCode() {
+    function runCode() {
       const code = getCodeValue();
       const stdin = document.getElementById('stdinInput').value;
       const outputBox = document.getElementById('outputBox');
       const htmlPreview = document.getElementById('htmlPreview');
       const runBtn = document.getElementById('runBtn');
 
-      if (currentLang.piston === 'browser') {
+      if (currentLang.runner === 'browser') {
         outputBox.style.display = 'none';
         htmlPreview.style.display = 'block';
         htmlPreview.srcdoc = code;
@@ -252,34 +253,34 @@
 
       htmlPreview.style.display = 'none';
       outputBox.style.display = 'block';
-      outputBox.style.color = '#a9b1d6';
-      outputBox.textContent = 'Menjalankan kode...';
       runBtn.disabled = true;
 
       try {
-        const response = await fetch('https://emkc.org/api/v2/piston/execute', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            language: currentLang.piston,
-            version: currentLang.version,
-            files: [{ name: currentLang.file, content: code }],
-            stdin: stdin
-          })
-        });
-
-        const data = await response.json();
-        if (data.run) {
-          const out = data.run.output || '(Program selesai tanpa output)';
-          outputBox.style.color = data.run.code === 0 ? '#9ece6a' : '#f7768e';
-          outputBox.textContent = out;
+        if (currentLang.runner === 'jscpp') {
+          let out = '';
+          const exitCode = JSCPP.run(code, stdin, {
+            stdio: {
+              write: (s) => { out += s; }
+            }
+          });
+          outputBox.style.color = '#9ece6a';
+          outputBox.textContent = (out || '(Program selesai tanpa output)') + `\n\n[Exit code: ${exitCode}]`;
+        } else if (currentLang.runner === 'js') {
+          let logs = [];
+          const origLog = console.log;
+          console.log = (...args) => logs.push(args.join(' '));
+          const result = new Function(code)();
+          console.log = origLog;
+          if (result !== undefined) logs.push(String(result));
+          outputBox.style.color = '#9ece6a';
+          outputBox.textContent = logs.length ? logs.join('\n') : '(Program selesai tanpa output)';
         } else {
           outputBox.style.color = '#f7768e';
-          outputBox.textContent = 'Error API: ' + JSON.stringify(data);
+          outputBox.textContent = `${currentLang.name} belum bisa dijalankan di mode statis GitHub tanpa server/API eksternal (Piston API publik sudah whitelist-only).`;
         }
       } catch (err) {
         outputBox.style.color = '#f7768e';
-        outputBox.textContent = 'Gagal terhubung ke server compiler: ' + err.message;
+        outputBox.textContent = 'Error: ' + err.message;
       } finally {
         runBtn.disabled = false;
       }
