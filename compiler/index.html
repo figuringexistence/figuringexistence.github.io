@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Compiler - Figuring Existence</title>
+  <!-- Devicon untuk ikon bahasa pemrograman -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css">
+  <!-- CodeMirror CSS & Tema Gelap -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+    body { background-color: #1c2130; color: #f8f8f2; display: flex; height: 100vh; overflow: hidden; }
+    
+    /* Sidebar Kiri (Ikon Bahasa) */
+    .sidebar {
+      width: 55px; background-color: #161a25; border-right: 1px solid #2d3348;
+      display: flex; flex-direction: column; align-items: center; padding-top: 10px; gap: 8px; overflow-y: auto;
+    }
+    .lang-btn {
+      width: 40px; height: 40px; border-radius: 6px; border: 1px solid #2d3348;
+      background: #1f2436; color: #a9b1d6; font-size: 20px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: 0.2s;
+    }
+    .lang-btn:hover { background: #2c334a; color: #fff; }
+    .lang-btn.active { background: #1d63ed; color: #fff; border-color: #1d63ed; }
+
+    /* Area Utama (Split Editor & Output) */
+    .main-container { flex: 1; display: flex; }
+    .pane { flex: 1; display: flex; flex-direction: column; height: 100%; border-right: 1px solid #2d3348; }
+    
+    /* Header Atas */
+    .header {
+      height: 48px; background-color: #1f2436; border-bottom: 1px solid #2d3348;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 15px;
+    }
+    .file-tab {
+      background: #1c2130; padding: 8px 16px; border-top: 2px solid #1d63ed;
+      font-size: 14px; font-weight: 600; color: #fff;
+    }
+    .actions { display: flex; gap: 10px; }
+    .btn {
+      padding: 6px 14px; border-radius: 4px; border: none; font-size: 13px;
+      font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    }
+    .btn-export { background: #2d3348; color: #f8f8f2; border: 1px solid #414868; }
+    .btn-export:hover { background: #3b4261; }
+    .btn-run { background: #1d63ed; color: #fff; }
+    .btn-run:hover { background: #1552c9; }
+    .btn-run:disabled { background: #414868; cursor: not-allowed; }
+
+    /* Editor & Output Area */
+    .editor-wrapper { flex: 1; position: relative; overflow: hidden; }
+    .CodeMirror { height: 100% !important; font-size: 14px; background: #1c2130 !important; }
+    
+    .output-area {
+      flex: 1; background-color: #181a1f; padding: 15px; font-family: 'Consolas', monospace;
+      font-size: 14px; white-space: pre-wrap; overflow-y: auto; color: #e2e8f0;
+    }
+    iframe.preview-frame { width: 100%; height: 100%; border: none; background: #fff; display: none; }
+    
+    /* Input Stdin (Opsional untuk scanf / input()) */
+    .stdin-box {
+      background: #1f2436; border-top: 1px solid #2d3348; padding: 8px 15px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .stdin-box label { font-size: 11px; color: #8c96b5; text-transform: uppercase; }
+    .stdin-box textarea {
+      background: #161a25; border: 1px solid #2d3348; color: #fff; padding: 6px;
+      font-family: monospace; font-size: 13px; resize: none; height: 45px; border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar Ikon Bahasa -->
+  <div class="sidebar" id="sidebar"></div>
+
+  <!-- Split Screen Editor & Output -->
+  <div class="main-container">
+    <!-- Kiri: Code Editor -->
+    <div class="pane">
+      <div class="header">
+        <div class="file-tab" id="fileName">main.py</div>
+        <div class="actions">
+          <button class="btn btn-export" onclick="downloadCode()">⬇ Export</button>
+          <button class="btn btn-run" id="runBtn" onclick="runCode()">Run ▶</button>
+        </div>
+      </div>
+      <div class="editor-wrapper">
+        <textarea id="codeEditor"></textarea>
+      </div>
+      <div class="stdin-box">
+        <label>Input (Stdin - opsional jika program meminta input)</label>
+        <textarea id="stdinInput" placeholder="Masukkan input program di sini..."></textarea>
+      </div>
+    </div>
+
+    <!-- Kanan: Output -->
+    <div class="pane" style="border-right: none;">
+      <div class="header">
+        <div class="file-tab" style="border-color: transparent;">Output</div>
+        <button class="btn btn-export" onclick="clearOutput()">Clear</button>
+      </div>
+      <div class="output-area" id="outputBox">Klik "Run ▶" untuk menjalankan kode...</div>
+      <iframe id="htmlPreview" class="preview-frame"></iframe>
+    </div>
+  </div>
+
+  <!-- CodeMirror JS & Mode Bahasa -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/go/go.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/rust/rust.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/r/r.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+
+  <script>
+    // Konfigurasi Bahasa sesuai Icon di Gambar
+    const languages = [
+      { id: 'python', name: 'Python', file: 'main.py', icon: 'devicon-python-plain', mode: 'python', piston: 'python', version: '3.10.0', template: 'print("Halo dari Python!")\n' },
+      { id: 'r', name: 'R', file: 'main.r', icon: 'devicon-r-original', mode: 'r', piston: 'r', version: '4.1.1', template: 'print("Halo dari R!")\n' },
+      { id: 'sql', name: 'SQLite', file: 'query.sql', icon: 'devicon-mysql-plain', mode: 'sql', piston: 'sqlite3', version: '3.36.0', template: 'SELECT "Halo dari SQL!" AS pesan;\n' },
+      { id: 'html', name: 'HTML/JS', file: 'index.html', icon: 'devicon-html5-plain', mode: 'htmlmixed', piston: 'browser', version: '', template: '<!DOCTYPE html>\n<html>\n<body>\n  <h2 style="color:blue;">Halo HTML!</h2>\n</body>\n</html>' },
+      { id: 'java', name: 'Java', file: 'Main.java', icon: 'devicon-java-plain', mode: 'text/x-java', piston: 'java', version: '15.0.2', template: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Halo dari Java!");\n    }\n}' },
+      { id: 'kotlin', name: 'Kotlin', file: 'Main.kt', icon: 'devicon-kotlin-plain', mode: 'text/x-kotlin', piston: 'kotlin', version: '1.8.20', template: 'fun main() {\n    println("Halo dari Kotlin!")\n}' },
+      { id: 'c', name: 'C', file: 'main.c', icon: 'devicon-c-plain', mode: 'text/x-csrc', piston: 'c', version: '10.2.0', template: '#include <stdio.h>\n\nint main() {\n    printf("Halo dari C!\\n");\n    return 0;\n}' },
+      { id: 'cpp', name: 'C++', file: 'main.cpp', icon: 'devicon-cplusplus-plain', mode: 'text/x-c++src', piston: 'c++', version: '10.2.0', template: '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Halo dari C++!" << endl;\n    return 0;\n}' },
+      { id: 'csharp', name: 'C#', file: 'Program.cs', icon: 'devicon-csharp-plain', mode: 'text/x-csharp', piston: 'csharp', version: '6.12.0', template: 'using System;\nclass Program {\n    static void Main() {\n        Console.WriteLine("Halo dari C#!");\n    }\n}' },
+      { id: 'js', name: 'JavaScript', file: 'main.js', icon: 'devicon-javascript-plain', mode: 'javascript', piston: 'javascript', version: '18.15.0', template: 'console.log("Halo dari Node.js!");' },
+      { id: 'ts', name: 'TypeScript', file: 'main.ts', icon: 'devicon-typescript-plain', mode: 'text/typescript', piston: 'typescript', version: '5.0.3', template: 'const pesan: string = "Halo dari TypeScript!";\nconsole.log(pesan);' },
+      { id: 'go', name: 'Go', file: 'main.go', icon: 'devicon-go-original-wordmark', mode: 'go', piston: 'go', version: '1.16.2', template: 'package main\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Halo dari Go!")\n}' },
+      { id: 'rust', name: 'Rust', file: 'main.rs', icon: 'devicon-rust-plain', mode: 'rust', piston: 'rust', version: '1.68.2', template: 'fn main() {\n    println!("Halo dari Rust!");\n}' }
+    ];
+
+    let currentLang = languages[0];
+
+    // Inisialisasi CodeMirror
+    const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
+      lineNumbers: true,
+      theme: 'dracula',
+      mode: currentLang.mode,
+      indentUnit: 4,
+      tabSize: 4,
+      autoCloseBrackets: true
+    });
+
+    // Render Sidebar Icons
+    const sidebar = document.getElementById('sidebar');
+    languages.forEach((lang, index) => {
+      const btn = document.createElement('button');
+      btn.className = `lang-btn ${index === 0 ? 'active' : ''}`;
+      btn.title = lang.name;
+      btn.innerHTML = `<i class="${lang.icon}"></i>`;
+      btn.onclick = () => selectLanguage(lang, btn);
+      sidebar.appendChild(btn);
+    });
+
+    function selectLanguage(lang, btnElement) {
+      currentLang = lang;
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      btnElement.classList.add('active');
+      
+      document.getElementById('fileName').textContent = lang.file;
+      editor.setOption('mode', lang.mode);
+      editor.setValue(lang.template);
+      clearOutput();
+    }
+
+    // Set template awal
+    editor.setValue(currentLang.template);
+
+    // Fungsi Menjalankan Kode
+    async function runCode() {
+      const code = editor.getValue();
+      const stdin = document.getElementById('stdinInput').value;
+      const outputBox = document.getElementById('outputBox');
+      const htmlPreview = document.getElementById('htmlPreview');
+      const runBtn = document.getElementById('runBtn');
+
+      // Jika HTML, render langsung di iframe tanpa API
+      if (currentLang.piston === 'browser') {
+        outputBox.style.display = 'none';
+        htmlPreview.style.display = 'block';
+        htmlPreview.srcdoc = code;
+        return;
+      }
+
+      htmlPreview.style.display
