@@ -1,6 +1,4 @@
-Berikut kode lengkap **`/compiler/index.html`** yang sudah diperbaiki—mencakup perbaikan typo CSS (`* { box-sizing...`), pemuatan addon `simple.js` sebelum `rust.js` di CodeMirror, fitur split-pane resizer, penanda versi (`COMPILER_VERSION`), export dengan rename, serta dukungan runner dinamis dari folder `/compiler/runners/` (`runner: 'external'` dengan `runnerUrl` atau `./runners/${lang.id}-runner/runner.js`).
 
-```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -647,7 +645,3 @@ Berikut kode lengkap **`/compiler/index.html`** yang sudah diperbaiki—mencakup
   </script>
 </body>
 </html>
-
-```
-
-Setelah di-*paste* ke `/compiler/index.html`, kamu bisa langsung lanjut membuat file runner di dalam folder `/compiler/runners/` untuk bahasa yang ingin diaktifkan. Mau mulai dari bahasa mana?
