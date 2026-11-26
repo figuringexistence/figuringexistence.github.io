@@ -312,7 +312,34 @@
   }
 </style>
 
-<div class="project-scroll-row flex overflow-x-auto gap-6 pb-4 snap-x">
+<style>
+  .project-scroll-row {
+    scrollbar-width: thin;
+    scrollbar-color: #334155 #090d16;
+  }
+  .project-scroll-row::-webkit-scrollbar {
+    height: 8px;
+  }
+  .project-scroll-row::-webkit-scrollbar-track {
+    background: #090d16;
+    border-radius: 9999px;
+  }
+  .project-scroll-row::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 9999px;
+    border: 1px solid #334155;
+  }
+  .project-scroll-row::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+  }
+  .project-scroll-row::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+</style>
+
+<div class="project-scroll-row min-w-0 w-full max-w-full flex overflow-x-auto gap-6 pb-4 snap-x">
 
     <!-- Project 1 -->
     <div class="flex-none w-[320px] md:w-[380px] snap-start bg-slate-900/50 border border-slate-800/80 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition">
