@@ -1,18 +1,18 @@
 // /compiler/runners/r-runner/runner.js
 
-let rRuntimePromise = null;
+const WEBR_MODULE_URL = "https://webr.r-wasm.org/latest/webr.mjs";
+let webRInstancePromise = null;
 
-async function initRRuntime() {
-  if (!rRuntimePromise) {
-    rRuntimePromise = (async () => {
-      // Hubungkan ke WebR / WASM / endpoint R milikmu di sini jika sudah tersedia.
-      // Contoh jika ada modul lokal di folder ini:
-      // const mod = await import("./webr-loader.js");
-      // return await mod.init();
-      return null;
+async function getWebRInstance() {
+  if (!webRInstancePromise) {
+    webRInstancePromise = (async () => {
+      const { WebR } = await import(WEBR_MODULE_URL);
+      const webR = new WebR();
+      await webR.init();
+      return webR;
     })();
   }
-  return rRuntimePromise;
+  return webRInstancePromise;
 }
 
 export async function run(code, stdin = "") {
@@ -20,14 +20,26 @@ export async function run(code, stdin = "") {
     return "(Kode R kosong)";
   }
 
-  const runtime = await initRRuntime();
+  const webR = await getWebRInstance();
+  const shelter = await new webR.Shelter();
 
-  if (!runtime) {
-    throw new Error(
-      "Runtime R belum dihubungkan di /compiler/runners/r-runner/runner.js. " +
-      "Mode situs statis GitHub belum memiliki runtime R bawaan."
-    );
+  try {
+    const capture = await shelter.captureR(code, {
+      withAutoprint: true,
+      captureStreams: true,
+      captureConditions: true
+    });
+
+    const lines = [];
+    for (const item of capture.output || []) {
+      if (item && (item.type === "stdout" || item.type === "stderr") && typeof item.data === "string") {
+        lines.push(item.data);
+      }
+    }
+
+    const textOutput = lines.join("\n").trimEnd();
+    return textOutput || "(Program selesai tanpa output)";
+  } finally {
+    await shelter.purge();
   }
-
-  throw new Error("Bagian eksekusi kode R di r-runner/runner.js belum disambungkan.");
 }
