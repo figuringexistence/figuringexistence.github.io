@@ -1,3 +1,6 @@
+Kode HTML lengkap untuk folder **`/compiler`** sudah di-*replace* dengan perbaikan *sidebar* tanpa *scrollbar* tebal dan ditambahkan fitur **rename saat Export** (`downloadCode()` menampilkan *prompt* nama file bawaan seperti `main.py` agar bisa diganti sebelum diunduh, serta otomatis menjaga ekstensi bawaan jika pengguna hanya mengetik nama tanpa titik):
+
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -14,17 +17,21 @@
     body { background-color: #1c2130; color: #f8f8f2; display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
     body:fullscreen, body:-webkit-full-screen { width: 100vw; height: 100vh; height: 100dvh; }
     
-    /* Sidebar Kiri */
+    /* Sidebar Kiri tanpa scrollbar tebal */
     .sidebar {
-      width: 55px; background-color: #161a25; border-right: 1px solid #2d3348;
-      display: flex; flex-direction: column; align-items: center; padding-top: 10px; gap: 8px; overflow-y: auto; flex-shrink: 0;
+      width: 52px; background-color: #161a25; border-right: 1px solid #2d3348;
+      display: flex; flex-direction: column; align-items: center; padding: 8px 0; gap: 6px;
+      overflow-y: auto; overflow-x: hidden; flex-shrink: 0;
+      scrollbar-width: none; -ms-overflow-style: none;
     }
+    .sidebar::-webkit-scrollbar { display: none; }
+
     .lang-btn {
-      width: 40px; height: 40px; border-radius: 6px; border: 1px solid #2d3348;
+      width: 36px; height: 36px; border-radius: 6px; border: 1px solid #2d3348;
       background: #1f2436; color: #cbd5e1; font-size: 11px; font-weight: 700; cursor: pointer;
       display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0;
     }
-    .lang-btn svg { width: 22px; height: 22px; display: block; }
+    .lang-btn svg { width: 20px; height: 20px; display: block; }
     .lang-btn:hover { background: #2c334a; color: #fff; }
     .lang-btn.active { background: #1d63ed; color: #fff; border-color: #1d63ed; }
 
@@ -88,7 +95,9 @@
       .sidebar {
         width: 100%; height: 50px; flex-direction: row; border-right: none;
         border-bottom: 1px solid #2d3348; padding: 0 8px; gap: 6px; overflow-x: auto; overflow-y: hidden;
+        scrollbar-width: none; -ms-overflow-style: none;
       }
+      .sidebar::-webkit-scrollbar { display: none; }
       .lang-btn { width: 36px; height: 36px; }
       .lang-btn svg { width: 19px; height: 19px; }
       .header { padding: 6px 10px; }
@@ -109,7 +118,7 @@
         <div class="actions">
           <button class="btn btn-secondary" id="copyCodeBtn" onclick="copyCode()" title="Salin kode">Copy</button>
           <button class="btn btn-secondary" onclick="resetCode()" title="Kembalikan ke template awal">Reset</button>
-          <button class="btn btn-secondary" onclick="downloadCode()" title="Unduh file kode">⬇ Export</button>
+          <button class="btn btn-secondary" onclick="downloadCode()" title="Unduh dan beri nama file kode">⬇ Export</button>
           <button class="btn btn-secondary" id="fullscreenBtn" onclick="toggleFullscreen()" title="Mode layar penuh">⛶ Fullscreen</button>
           <button class="btn btn-run" id="runBtn" onclick="runCode()">Run ▶</button>
         </div>
@@ -426,11 +435,25 @@
 
     function downloadCode() {
       const code = getCodeValue();
+      const defaultFile = currentLang.file || 'code.txt';
+      const dotIndex = defaultFile.lastIndexOf('.');
+      const defaultExt = dotIndex !== -1 ? defaultFile.slice(dotIndex) : '';
+
+      const rawName = window.prompt('Masukkan nama file untuk di-export:', defaultFile);
+      if (rawName === null) return;
+
+      let fileName = rawName.trim().replace(/[\\/:*?"<>|]/g, '');
+      if (!fileName) {
+        fileName = defaultFile;
+      } else if (!fileName.includes('.') && defaultExt) {
+        fileName += defaultExt;
+      }
+
       const blob = new Blob([code], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = currentLang.file;
+      a.download = fileName;
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -445,3 +468,5 @@
   </script>
 </body>
 </html>
+
+```
