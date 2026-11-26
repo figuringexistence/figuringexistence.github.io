@@ -1,15 +1,4 @@
-Penyebab tidak bisa *compile* terlihat jelas di Console DevTools: `emkc.org/api/v2/piston/execute` mengembalikan status **401**. API publik Piston (`emkc.org`) sudah diubah menjadi **whitelist-only** sejak 15 Februari 2026, sehingga permintaan tanpa otorisasi/whitelist akan ditolak dengan HTTP 401 (bukan karena kode Python Anda salah).
 
-Karena halaman Anda di-host secara **statis di GitHub Pages** (`figuringexistence.github.io`) dan tidak punya server backend sendiri untuk menyembunyikan API key:
-
-* **JS & HTML/CSS** tetap bisa berjalan langsung di browser.
-* **Bahasa seperti Python, C, C++, Java, Go, Rust, SQL** tidak bisa lagi mengandalkan endpoint publik `emkc.org` tanpa otorisasi. Solusinya bisa memakai *runner* berbasis browser (seperti Pyodide/WebAssembly untuk Python) atau mengganti endpoint ke layanan lain yang mendukung *request* dari sisi Anda (dan bila memakai API key, idealnya lewat *proxy*/backend agar key tidak terekspos di kode front-end).
-
-Untuk **teks berwarna** di editor (seperti keyword `def`, `for`, `if`, string `"..."`, dan komentar `# ...`), di HTML `<textarea>` polos teks tidak bisa diwarnai per kata secara langsung—kita perlu melapisi editor dengan elemen `<pre><code>` yang diberi *syntax highlighting* lalu disinkronkan *scroll*-nya dengan `<textarea>`.
-
-Berikut kode `index.html` lengkap bertema gelap yang sudah dilengkapi **syntax highlighting berwarna** pada editor Python/JS/C/dll. serta dukungan **Python langsung di browser (Pyodide)** agar kode Python Anda bisa langsung jalan di GitHub Pages tanpa kena 401 dari Piston:
-
-```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -552,10 +541,3 @@ Berikut kode `index.html` lengkap bertema gelap yang sudah dilengkapi **syntax h
   </script>
 </body>
 </html>
-
-```
-
-### Catatan Pemakaian
-
-* **Input suhu (`stdin`):** Karena kode Python Anda memakai `input()` sebanyak 7 kali, isi 7 angka suhu di kotak **Input Program (stdin)** (masing-masing satu angka per baris) lalu klik **Run**.
-* **C & C++ di GitHub Pages:** Karena GitHub Pages hanya melayani file statis, mengeksekusi C/C++ murni di browser membutuhkan runner/API yang diizinkan; jika ingin menjalankan C/C++ juga, beri tahu apakah ingin diarahkan ke *runner* alternatif atau disiapkan *proxy* API-nya.
