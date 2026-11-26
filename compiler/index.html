@@ -127,10 +127,17 @@
   <script src="https://unpkg.com/codemirror@5.65.16/mode/r/r.js"></script>
   <script src="https://unpkg.com/codemirror@5.65.16/mode/sql/sql.js"></script>
 
-  <!-- JSCPP untuk menjalankan C/C++ di browser -->
+  <!-- JSCPP untuk C/C++ di browser -->
   <script src="https://cdn.jsdelivr.net/npm/JSCPP@0.0.10-2/dist/jscpp.min.js"></script>
+  <!-- Pyodide untuk Python di browser -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+  <!-- sql.js untuk SQLite di browser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
 
   <script>
+    // Arahkan ke modul runner .NET WASM / Roslyn milikmu jika sudah di-host di repo/CDN
+    const CSHARP_WASM_MODULE_URL = "./csharp-wasm/runner.js";
+
     const icons = {
       python: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-3.5 0-3.3 1.5-3.3 1.5v1.6h3.4v.5H7.3S5 5.3 5 8.8s2 3.4 2 3.4h1.2v-1.6s-.1-1.9 1.9-1.9h3.2s1.8 0 1.8-1.8V4.2S15.3 2 12 2zm-1.8 1.3a.6.6 0 1 1 0 1.2.6.6 0 0 1 0-1.2zM12 22c3.5 0 3.3-1.5 3.3-1.5v-1.6h-3.4v-.5h4.8s2.3.3 2.3-3.2-2-3.4-2-3.4h-1.2v1.6s.1 1.9-1.9 1.9h-3.2s-1.8 0-1.8 1.8v2.7S8.7 22 12 22zm1.8-1.3a.6.6 0 1 1 0-1.2.6.6 0 0 1 0 1.2z"/></svg>`,
       r: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="9" ry="6"/><text x="12" y="15.5" text-anchor="middle" fill="currentColor" stroke="none" font-size="10" font-weight="bold">R</text></svg>`,
@@ -148,15 +155,15 @@
     };
 
     const languages = [
-      { id: 'python', name: 'Python', file: 'main.py', mode: 'python', runner: 'unsupported', template: 'print("Halo dari Python!")\n' },
+      { id: 'python', name: 'Python', file: 'main.py', mode: 'python', runner: 'pyodide', template: 'print("Halo dari Python!")\n' },
       { id: 'r', name: 'R', file: 'main.r', mode: 'r', runner: 'unsupported', template: 'print("Halo dari R!")\n' },
-      { id: 'sql', name: 'SQLite', file: 'query.sql', mode: 'sql', runner: 'unsupported', template: 'SELECT "Halo dari SQL!" AS pesan;\n' },
+      { id: 'sql', name: 'SQLite', file: 'query.sql', mode: 'sql', runner: 'sqljs', template: 'CREATE TABLE pesan (teks TEXT);\nINSERT INTO pesan VALUES ("Halo dari SQLite!");\nSELECT * FROM pesan;\n' },
       { id: 'html', name: 'HTML/JS', file: 'index.html', mode: 'htmlmixed', runner: 'browser', template: '<!DOCTYPE html>\n<html>\n<body>\n  <h2 style="color:blue;">Halo HTML!</h2>\n</body>\n</html>' },
       { id: 'java', name: 'Java', file: 'Main.java', mode: 'text/x-java', runner: 'unsupported', template: 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Halo dari Java!");\n    }\n}' },
       { id: 'kotlin', name: 'Kotlin', file: 'Main.kt', mode: 'text/x-kotlin', runner: 'unsupported', template: 'fun main() {\n    println("Halo dari Kotlin!")\n}' },
       { id: 'c', name: 'C', file: 'main.c', mode: 'text/x-csrc', runner: 'jscpp', template: '#include <stdio.h>\n\nint main() {\n    printf("Halo dari C!\\n");\n    return 0;\n}' },
-      { id: 'cpp', name: 'C++', file: 'main.cpp', mode: 'text/x-c++src', runner: 'jscpp', template: '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Try clicking the Run button." << endl;\n    return 0;\n}' },
-      { id: 'csharp', name: 'C#', file: 'Program.cs', mode: 'text/x-csharp', runner: 'unsupported', template: 'using System;\nclass Program {\n    static void Main() {\n        Console.WriteLine("Halo dari C#!");\n    }\n}' },
+      { id: 'cpp', name: 'C++', file: 'main.cpp', mode: 'text/x-c++src', runner: 'jscpp', template: '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Halo dari C++!" << endl;\n    return 0;\n}' },
+      { id: 'csharp', name: 'C#', file: 'Program.cs', mode: 'text/x-csharp', runner: 'csharp_wasm', template: 'using System;\nclass Program {\n    static void Main() {\n        Console.WriteLine("Halo dari C#!");\n    }\n}' },
       { id: 'js', name: 'JavaScript', file: 'main.js', mode: 'javascript', runner: 'js', template: 'console.log("Halo dari JavaScript!");' },
       { id: 'ts', name: 'TypeScript', file: 'main.ts', mode: 'text/typescript', runner: 'unsupported', template: 'const pesan: string = "Halo dari TypeScript!";\nconsole.log(pesan);' },
       { id: 'go', name: 'Go', file: 'main.go', mode: 'go', runner: 'unsupported', template: 'package main\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Halo dari Go!")\n}' },
@@ -165,6 +172,9 @@
 
     let currentLang = languages[0];
     let editor = null;
+    let pyodideReady = null;
+    let sqlReady = null;
+    let csharpModule = null;
 
     const sidebar = document.getElementById('sidebar');
     languages.forEach((lang, index) => {
@@ -237,7 +247,33 @@
       });
     }
 
-    function runCode() {
+    async function getPyodide() {
+      if (!pyodideReady) {
+        pyodideReady = loadPyodide();
+      }
+      return pyodideReady;
+    }
+
+    async function getSqlJs() {
+      if (!sqlReady) {
+        sqlReady = initSqlJs({
+          locateFile: (file) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${file}`
+        });
+      }
+      return sqlReady;
+    }
+
+    async function runCSharpWasm(code, stdin) {
+      if (!csharpModule) {
+        csharpModule = await import(CSHARP_WASM_MODULE_URL);
+      }
+      if (typeof csharpModule.compileAndRunCSharp !== 'function') {
+        throw new Error('Modul C# WASM ditemukan, tetapi fungsi compileAndRunCSharp(code, stdin) belum tersedia.');
+      }
+      return await csharpModule.compileAndRunCSharp(code, stdin);
+    }
+
+    async function runCode() {
       const code = getCodeValue();
       const stdin = document.getElementById('stdinInput').value;
       const outputBox = document.getElementById('outputBox');
@@ -253,6 +289,8 @@
 
       htmlPreview.style.display = 'none';
       outputBox.style.display = 'block';
+      outputBox.style.color = '#a9b1d6';
+      outputBox.textContent = 'Menjalankan kode...';
       runBtn.disabled = true;
 
       try {
@@ -274,13 +312,34 @@
           if (result !== undefined) logs.push(String(result));
           outputBox.style.color = '#9ece6a';
           outputBox.textContent = logs.length ? logs.join('\n') : '(Program selesai tanpa output)';
+        } else if (currentLang.runner === 'pyodide') {
+          const pyodide = await getPyodide();
+          let out = '';
+          pyodide.setStdout({ batched: (msg) => { out += msg + '\n'; } });
+          pyodide.setStderr({ batched: (msg) => { out += msg + '\n'; } });
+          if (stdin) {
+            pyodide.setStdin({ stdin: () => stdin + '\n' });
+          }
+          await pyodide.runPythonAsync(code);
+          outputBox.style.color = '#9ece6a';
+          outputBox.textContent = out.trimEnd() || '(Program selesai tanpa output)';
+        } else if (currentLang.runner === 'sqljs') {
+          const SQL = await getSqlJs();
+          const db = new SQL.Database();
+          const results = db.exec(code);
+          outputBox.style.color = '#9ece6a';
+          outputBox.textContent = results.length ? JSON.stringify(results, null, 2) : '(Query selesai tanpa baris hasil)';
+        } else if (currentLang.runner === 'csharp_wasm') {
+          const out = await runCSharpWasm(code, stdin);
+          outputBox.style.color = '#9ece6a';
+          outputBox.textContent = out || '(Program selesai tanpa output)';
         } else {
           outputBox.style.color = '#f7768e';
-          outputBox.textContent = `${currentLang.name} belum bisa dijalankan di mode statis GitHub tanpa server/API eksternal (Piston API publik sudah whitelist-only).`;
+          outputBox.textContent = `${currentLang.name} belum memiliki compiler/runtime browser di mode statis GitHub.`;
         }
       } catch (err) {
         outputBox.style.color = '#f7768e';
-        outputBox.textContent = 'Error: ' + err.message;
+        outputBox.textContent = 'Error: ' + (err && err.message ? err.message : String(err));
       } finally {
         runBtn.disabled = false;
       }
