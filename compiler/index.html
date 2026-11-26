@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Online Compiler — Figuring Existence</title>
+  <title>Multi-Language Compiler — Figuring Existence</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <!-- Pyodide untuk menjalankan Python langsung di browser -->
   <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
   <style>
     :root {
@@ -22,7 +21,7 @@
       --text-muted: #71717a;
       --accent: #3b82f6;
       --accent-hover: #2563eb;
-      --accent-soft: rgba(59, 130, 246, 0.14);
+      --accent-soft: rgba(59, 130, 246, 0.16);
       --danger: #ef4444;
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
@@ -68,24 +67,24 @@
     .workspace { display: flex; flex: 1; overflow: hidden; }
 
     .sidebar {
-      width: 56px; background-color: var(--bg-surface);
+      width: 58px; background-color: var(--bg-surface);
       border-right: 1px solid var(--border);
       display: flex; flex-direction: column; align-items: center;
-      padding: 10px 0; gap: 6px; overflow-y: auto; flex-shrink: 0;
+      padding: 8px 0; gap: 6px; overflow-y: auto; flex-shrink: 0;
     }
 
     .lang-btn {
-      width: 40px; height: 40px; border-radius: 8px;
+      width: 42px; height: 42px; border-radius: 8px;
       border: 1px solid transparent; background: transparent;
       color: var(--text-secondary); font-family: var(--font-mono);
-      font-size: 12px; font-weight: 600; cursor: pointer;
+      font-size: 11px; font-weight: 700; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s ease;
+      transition: all 0.15s ease; flex-shrink: 0;
     }
     .lang-btn:hover { background-color: var(--bg-hover); color: var(--text-primary); }
     .lang-btn.active {
-      background-color: var(--accent-soft); color: var(--accent);
-      border-color: rgba(59, 130, 246, 0.35);
+      background-color: var(--accent); color: #ffffff;
+      border-color: var(--accent);
     }
 
     .panes { display: flex; flex: 1; overflow: hidden; }
@@ -107,7 +106,7 @@
       border-radius: 6px 6px 0 0; margin-bottom: -1px;
     }
 
-    .pane-controls { display: flex; align-items: center; gap: 8px; }
+    .pane-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
     button.btn {
       font-family: var(--font-sans); font-size: 12.5px; font-weight: 500;
@@ -124,7 +123,6 @@
     button.btn-primary:hover { background-color: var(--accent-hover); }
     button.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    /* Editor + Syntax Highlighting */
     .editor-wrapper {
       position: relative; flex: 1; display: flex;
       overflow: hidden; background-color: var(--bg-main);
@@ -138,9 +136,7 @@
       overflow: hidden; flex-shrink: 0; z-index: 2;
     }
 
-    .code-layer {
-      position: relative; flex: 1; height: 100%; overflow: hidden;
-    }
+    .code-layer { position: relative; flex: 1; height: 100%; overflow: hidden; }
 
     pre#code-highlight,
     textarea#code-editor {
@@ -150,21 +146,9 @@
       tab-size: 4; white-space: pre; word-wrap: normal; overflow: auto;
     }
 
-    pre#code-highlight {
-      color: var(--text-primary);
-      pointer-events: none;
-      z-index: 1;
-    }
+    pre#code-highlight { color: var(--text-primary); pointer-events: none; z-index: 1; }
+    textarea#code-editor { color: transparent; caret-color: #fafafa; background: transparent; resize: none; z-index: 2; }
 
-    textarea#code-editor {
-      color: transparent;
-      caret-color: #fafafa;
-      background: transparent;
-      resize: none;
-      z-index: 2;
-    }
-
-    /* Warna Syntax Highlighting */
     .tok-comment { color: #6b7280; font-style: italic; }
     .tok-string  { color: #86efac; }
     .tok-keyword { color: #93c5fd; font-weight: 500; }
@@ -189,10 +173,7 @@
     }
     textarea#stdin-input:focus { border-color: var(--accent); }
 
-    .resizer {
-      width: 5px; background-color: var(--border-subtle);
-      cursor: col-resize; flex-shrink: 0;
-    }
+    .resizer { width: 5px; background-color: var(--border-subtle); cursor: col-resize; flex-shrink: 0; }
     .resizer:hover, .resizer.dragging { background-color: var(--accent); }
 
     .output-body {
@@ -208,9 +189,7 @@
       border-top: 1px dashed var(--border); font-size: 11.5px; color: var(--text-muted);
     }
 
-    iframe#html-preview {
-      width: 100%; height: 100%; border: none; background: #ffffff; display: none;
-    }
+    iframe#html-preview { width: 100%; height: 100%; border: none; background: #ffffff; display: none; }
 
     @media (max-width: 768px) {
       .workspace { flex-direction: column; }
@@ -231,9 +210,9 @@
     <div class="brand">
       <span class="brand-dot"></span>
       <span class="brand-title">CODE.COMPILER</span>
-      <span class="brand-sub">figuringexistence.github.io</span>
+      <span class="brand-sub">figuringexistence.github.io/compiler</span>
     </div>
-    <span class="badge-info" id="lang-indicator">Python 3 (Browser)</span>
+    <span class="badge-info" id="lang-indicator">C++ (GitHub Actions)</span>
   </header>
 
   <div class="workspace">
@@ -242,7 +221,7 @@
     <div class="panes" id="panes">
       <section class="pane editor-pane" id="editor-pane">
         <div class="pane-header">
-          <div class="file-tab" id="file-tab">main.py</div>
+          <div class="file-tab" id="file-tab">main.cpp</div>
           <div class="pane-controls">
             <button class="btn" id="btn-reset">Reset</button>
             <button class="btn" id="btn-copy">Copy</button>
@@ -264,7 +243,7 @@
             <span>Input Program (stdin)</span>
             <span>Pisahkan tiap input dengan Enter (baris baru)</span>
           </div>
-          <textarea id="stdin-input" placeholder="Contoh untuk 7 suhu:&#10;28&#10;30&#10;29&#10;31&#10;27&#10;32&#10;29"></textarea>
+          <textarea id="stdin-input" placeholder="Masukkan input jika program membutuhkan..."></textarea>
         </div>
       </section>
 
@@ -279,7 +258,7 @@
           </div>
         </div>
         <div class="output-body" id="output-console">
-          <span class="output-placeholder">Klik tombol "Run" (atau Ctrl + Enter) untuk mengeksekusi kode, atau "GitHub Run" untuk memuat hasil terakhir dari GitHub Actions...</span>
+          <span class="output-placeholder">Klik "Run" atau "GitHub Run" untuk melihat hasil...</span>
         </div>
         <iframe id="html-preview" sandbox="allow-scripts"></iframe>
       </section>
@@ -288,49 +267,22 @@
 
   <script>
     const LANGUAGES = [
-      {
-        id: 'python',
-        short: 'PY',
-        label: 'Python 3 (Browser)',
-        file: 'main.py',
-        pyodide: true,
-        template: `suhu = []\n\nfor i in range(1, 8):\n    nilai = float(input(f"Masukkan suhu hari ke-{i} (°C): "))\n    suhu.append(nilai)\n\nsuhu_terbalik = suhu[::-1]\nrata_rata = sum(suhu) / len(suhu)\ndi_atas_rata = [s for s in suhu if s > rata_rata]\n\nprint("Daftar suhu asli :", suhu)\nprint("Urutan terbalik  :", suhu_terbalik)\nprint(f"Rata-rata suhu   : {rata_rata:.1f} °C")\nprint(f"Di atas rata-rata : {di_atas_rata} ({len(di_atas_rata)} hari)")`
-      },
-      {
-        id: 'javascript',
-        short: 'JS',
-        label: 'JavaScript (Browser)',
-        file: 'index.js',
-        local: true,
-        template: `const angka = [1, 2, 3, 4, 5];\nconsole.log("Kuadrat:", angka.map(n => n * n));`
-      },
-      {
-        id: 'html',
-        short: 'HTML',
-        label: 'HTML / CSS / JS',
-        file: 'index.html',
-        preview: true,
-        template: `<!DOCTYPE html>\n<html>\n<body style="background:#09090b;color:#fafafa;font-family:sans-serif;padding:24px">\n  <h2>Live HTML Preview</h2>\n  <p>Edit kode lalu klik Run.</p>\n</body>\n</html>`
-      },
-      {
-        id: 'cpp',
-        short: 'C++',
-        label: 'C++ (GitHub Actions)',
-        file: 'main.cpp',
-        remoteOnly: true,
-        template: `#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Halo C++" << endl;\n    return 0;\n}`
-      },
-      {
-        id: 'c',
-        short: 'C',
-        label: 'C (GitHub Actions)',
-        file: 'main.c',
-        remoteOnly: true,
-        template: `#include <stdio.h>\n\nint main() {\n    printf("Halo C\\n");\n    return 0;\n}`
-      }
+      { id: 'python', short: 'PY', label: 'Python 3 (Browser)', file: 'main.py', pyodide: true, template: `print("Halo Python di browser!")` },
+      { id: 'r', short: 'R', label: 'R (GitHub / Runner)', file: 'main.R', github: true, template: `cat("Halo dari R\\n")` },
+      { id: 'sql', short: 'SQL', label: 'SQL (GitHub / Runner)', file: 'query.sql', github: true, template: `SELECT 'Halo SQL' AS pesan;` },
+      { id: 'html', short: 'HTML', label: 'HTML / CSS / JS', file: 'index.html', preview: true, template: `<!DOCTYPE html>\n<html>\n<body style="background:#09090b;color:#fafafa;font-family:sans-serif;padding:24px">\n  <h2>HTML Preview</h2>\n</body>\n</html>` },
+      { id: 'java', short: 'JAVA', label: 'Java (GitHub / Runner)', file: 'Main.java', github: true, template: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Halo Java");\n    }\n}` },
+      { id: 'kotlin', short: 'KT', label: 'Kotlin (GitHub / Runner)', file: 'Main.kt', github: true, template: `fun main() {\n    println("Halo Kotlin")\n}` },
+      { id: 'c', short: 'C', label: 'C (GitHub Actions)', file: 'main.c', github: true, template: `#include <stdio.h>\n\nint main() {\n    printf("Halo C dari GitHub Actions\\n");\n    return 0;\n}` },
+      { id: 'cpp', short: 'C++', label: 'C++ (GitHub Actions)', file: 'main.cpp', github: true, template: `#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Halo C++ dari GitHub Actions" << endl;\n    return 0;\n}` },
+      { id: 'csharp', short: 'C#', label: 'C# (GitHub / Runner)', file: 'Program.cs', github: true, template: `using System;\n\nclass Program {\n    static void Main() {\n        Console.WriteLine("Halo C#");\n    }\n}` },
+      { id: 'javascript', short: 'JS', label: 'JavaScript (Browser)', file: 'index.js', local: true, template: `console.log("Halo JavaScript di browser!");` },
+      { id: 'typescript', short: 'TS', label: 'TypeScript (GitHub / Runner)', file: 'index.ts', github: true, template: `const pesan: string = "Halo TypeScript";\nconsole.log(pesan);` },
+      { id: 'go', short: 'GO', label: 'Go (GitHub / Runner)', file: 'main.go', github: true, template: `package main\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Halo Go")\n}` },
+      { id: 'rust', short: 'RS', label: 'Rust (GitHub / Runner)', file: 'main.rs', github: true, template: `fn main() {\n    println!("Halo Rust");\n}` }
     ];
 
-    let currentLang = LANGUAGES[0];
+    let currentLang = LANGUAGES.find(l => l.id === 'cpp');
     const savedCodes = {};
     let pyodideReadyPromise = null;
 
@@ -352,25 +304,13 @@
 
     function highlightCode(code) {
       const escaped = escapeHtml(code);
-      const tokenRegex = /(#[^\n]*|\/\/[^\n]*|\/\*[\s\S]*?\*\/|f?"""[\s\S]*?"""|f?'''[\s\S]*?'''|f?"(?:\\.|[^"\\])*"|f?'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\b(?:def|return|for|in|range|if|else|elif|while|import|from|as|class|True|False|None|and|or|not|function|const|let|var|async|await|int|float|double|char|void|struct|include|using|namespace|std|cout|cin|endl|printf|scanf|public|static|main)\b|\b\d+(?:\.\d+)?\b|\b([a-zA-Z_][a-zA-Z0-9_]*)(?=\s*\()/g;
+      const tokenRegex = /(#[^\n]*|\/\/[^\n]*|\/\*[\s\S]*?\*\/|f?"""[\s\S]*?"""|f?'''[\s\S]*?'''|f?"(?:\\.|[^"\\])*"|f?'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\b(?:def|return|for|in|range|if|else|elif|while|import|from|as|class|True|False|None|and|or|not|function|const|let|var|async|await|int|float|double|char|void|struct|include|using|namespace|std|cout|cin|endl|printf|scanf|public|static|main|fun|val|package|fn|SELECT|FROM|WHERE)\b|\b\d+(?:\.\d+)?\b|\b([a-zA-Z_][a-zA-Z0-9_]*)(?=\s*\()/g;
 
       return escaped.replace(tokenRegex, (match, fnName) => {
-        if (match.startsWith('#') || match.startsWith('//') || match.startsWith('/*')) {
-          return `<span class="tok-comment">${match}</span>`;
-        }
-        if (
-          match.startsWith('"') || match.startsWith("'") || match.startsWith('`') ||
-          match.startsWith('f"') || match.startsWith("f'") ||
-          match.startsWith('"""') || match.startsWith("'''")
-        ) {
-          return `<span class="tok-string">${match}</span>`;
-        }
-        if (/^\d/.test(match)) {
-          return `<span class="tok-number">${match}</span>`;
-        }
-        if (fnName) {
-          return `<span class="tok-func">${match}</span>`;
-        }
+        if (match.startsWith('#') || match.startsWith('//') || match.startsWith('/*')) return `<span class="tok-comment">${match}</span>`;
+        if (match.startsWith('"') || match.startsWith("'") || match.startsWith('`') || match.startsWith('f"') || match.startsWith("f'") || match.startsWith('"""') || match.startsWith("'''")) return `<span class="tok-string">${match}</span>`;
+        if (/^\d/.test(match)) return `<span class="tok-number">${match}</span>`;
+        if (fnName) return `<span class="tok-func">${match}</span>`;
         return `<span class="tok-keyword">${match}</span>`;
       });
     }
@@ -389,7 +329,6 @@
     });
 
     editorEl.addEventListener('input', syncEditor);
-
     editorEl.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         e.preventDefault();
@@ -425,7 +364,7 @@
       stdinBarEl.style.display = (currentLang.preview || currentLang.local) ? 'none' : 'flex';
       previewEl.style.display = 'none';
       outputEl.style.display = 'block';
-      outputEl.innerHTML = '<span class="output-placeholder">Klik tombol "Run" (atau Ctrl + Enter) untuk mengeksekusi kode, atau "GitHub Run" untuk memuat hasil terakhir dari GitHub Actions...</span>';
+      outputEl.innerHTML = '<span class="output-placeholder">Klik "Run" atau "GitHub Run" untuk melihat hasil...</span>';
       syncEditor();
       renderSidebar();
     }
@@ -433,18 +372,18 @@
     function downloadCurrentFile() {
       const blob = new Blob([editorEl.value], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = currentLang.file;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = currentLang.file;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
 
     async function getPyodideInstance() {
       if (!pyodideReadyPromise) {
-        outputEl.textContent = 'Memuat mesin Python di browser (pertama kali butuh beberapa detik)...';
+        outputEl.textContent = 'Memuat Python di browser...';
         pyodideReadyPromise = loadPyodide();
       }
       return pyodideReadyPromise;
@@ -455,7 +394,7 @@
       previewEl.style.display = 'none';
       try {
         const res = await fetch(`./last-run.json?t=${Date.now()}`);
-        if (!res.ok) throw new Error('last-run.json belum tersedia');
+        if (!res.ok) throw new Error('last-run.json belum tersedia di /compiler/');
         const data = await res.json();
         outputEl.innerHTML = `${escapeHtml(data.output || '(Kosong)')}<div class="output-meta">GitHub Actions (${data.source_file}) • Exit: ${data.exit_code} • ${data.updated_at}</div>`;
       } catch (err) {
@@ -506,7 +445,6 @@
           const lines = stdinEl.value.split(/\r?\n/);
           let idx = 0;
           const outputs = [];
-
           pyodide.setStdin({
             stdin: () => {
               const val = idx < lines.length ? lines[idx++] : '';
@@ -515,10 +453,9 @@
           });
           pyodide.setStdout({ batched: (msg) => outputs.push(msg) });
           pyodide.setStderr({ batched: (msg) => outputs.push('[stderr] ' + msg) });
-
           await pyodide.runPythonAsync(code);
           const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
-          outputEl.innerHTML = `${escapeHtml(outputs.join('\n') || '(Selesai tanpa output)')}<div class="output-meta">Python 3 (Pyodide) • Waktu: ${elapsed}s</div>`;
+          outputEl.innerHTML = `${escapeHtml(outputs.join('\n') || '(Selesai tanpa output)')}<div class="output-meta">Python 3 (Pyodide) • ${elapsed}s</div>`;
         } catch (err) {
           outputEl.innerHTML = `<span class="output-error">${escapeHtml(err.toString())}</span>`;
         }
@@ -565,7 +502,7 @@
     });
     window.addEventListener('mouseup', () => { isResizing = false; resizer.classList.remove('dragging'); });
 
-    selectLanguage('python');
+    selectLanguage('cpp');
   </script>
 </body>
 </html>
