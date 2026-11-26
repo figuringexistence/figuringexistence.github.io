@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -247,6 +246,7 @@
           <div class="pane-controls">
             <button class="btn" id="btn-reset">Reset</button>
             <button class="btn" id="btn-copy">Copy</button>
+            <button class="btn" id="btn-download">Download</button>
             <button class="btn btn-primary" id="btn-run">▶ Run</button>
           </div>
         </div>
@@ -274,11 +274,12 @@
         <div class="pane-header">
           <div class="file-tab">Output</div>
           <div class="pane-controls">
+            <button class="btn" id="btn-gh-run">GitHub Run</button>
             <button class="btn" id="btn-clear-out">Clear Output</button>
           </div>
         </div>
         <div class="output-body" id="output-console">
-          <span class="output-placeholder">Klik tombol "Run" (atau Ctrl + Enter) untuk mengeksekusi kode...</span>
+          <span class="output-placeholder">Klik tombol "Run" (atau Ctrl + Enter) untuk mengeksekusi kode, atau "GitHub Run" untuk memuat hasil terakhir dari GitHub Actions...</span>
         </div>
         <iframe id="html-preview" sandbox="allow-scripts"></iframe>
       </section>
@@ -314,7 +315,7 @@
       {
         id: 'cpp',
         short: 'C++',
-        label: 'C++ (Perlu Runner/API)',
+        label: 'C++ (GitHub Actions)',
         file: 'main.cpp',
         remoteOnly: true,
         template: `#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Halo C++" << endl;\n    return 0;\n}`
@@ -322,7 +323,7 @@
       {
         id: 'c',
         short: 'C',
-        label: 'C (Perlu Runner/API)',
+        label: 'C (GitHub Actions)',
         file: 'main.c',
         remoteOnly: true,
         template: `#include <stdio.h>\n\nint main() {\n    printf("Halo C\\n");\n    return 0;\n}`
@@ -424,9 +425,21 @@
       stdinBarEl.style.display = (currentLang.preview || currentLang.local) ? 'none' : 'flex';
       previewEl.style.display = 'none';
       outputEl.style.display = 'block';
-      outputEl.innerHTML = '<span class="output-placeholder">Klik tombol "Run" (atau Ctrl + Enter) untuk mengeksekusi kode...</span>';
+      outputEl.innerHTML = '<span class="output-placeholder">Klik tombol "Run" (atau Ctrl + Enter) untuk mengeksekusi kode, atau "GitHub Run" untuk memuat hasil terakhir dari GitHub Actions...</span>';
       syncEditor();
       renderSidebar();
+    }
+
+    function downloadCurrentFile() {
+      const blob = new Blob([editorEl.value], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = currentLang.file;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     }
 
     async function getPyodideInstance() {
@@ -435,6 +448,19 @@
         pyodideReadyPromise = loadPyodide();
       }
       return pyodideReadyPromise;
+    }
+
+    async function loadGitHubLastRun() {
+      outputEl.style.display = 'block';
+      previewEl.style.display = 'none';
+      try {
+        const res = await fetch(`./last-run.json?t=${Date.now()}`);
+        if (!res.ok) throw new Error('last-run.json belum tersedia');
+        const data = await res.json();
+        outputEl.innerHTML = `${escapeHtml(data.output || '(Kosong)')}<div class="output-meta">GitHub Actions (${data.source_file}) • Exit: ${data.exit_code} • ${data.updated_at}</div>`;
+      } catch (err) {
+        outputEl.innerHTML = `<span class="output-error">${escapeHtml(err.message)}</span>`;
+      }
     }
 
     async function runCode() {
@@ -501,12 +527,14 @@
         return;
       }
 
-      outputEl.innerHTML = `<span class="output-error">Endpoint Piston publik (emkc.org) mengembalikan 401 (whitelist-only sejak 15 Feb 2026). Untuk ${currentLang.label} di GitHub Pages statis, gunakan runner berbasis browser/WebAssembly atau endpoint backend Anda sendiri.</span>`;
+      await loadGitHubLastRun();
       btnRun.disabled = false;
       btnRun.textContent = '▶ Run';
     }
 
     btnRun.addEventListener('click', runCode);
+    document.getElementById('btn-download').addEventListener('click', downloadCurrentFile);
+    document.getElementById('btn-gh-run').addEventListener('click', loadGitHubLastRun);
     document.getElementById('btn-reset').addEventListener('click', () => {
       editorEl.value = currentLang.template;
       savedCodes[currentLang.id] = currentLang.template;
