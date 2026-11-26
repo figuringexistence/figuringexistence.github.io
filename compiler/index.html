@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Online Compiler — Figuring Existence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-main: #09090b;
+      --bg-surface: #121215;
+      --bg-elevated: #18181b;
+      --bg-hover: #27272a;
+      --border: #27272a;
+      --border-subtle: #1f1f23;
+      --text-primary: #fafafa;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-soft: rgba(59, 130, 246, 0.14);
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Header */
+    header {
+      height: 54px;
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      border-left: 1px solid var(--border);
+      padding-left: 10px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-info {
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+    }
+
+    /* Main Layout */
+    .workspace {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Language Sidebar */
+    .sidebar {
+      width: 56px;
+      background-color: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 0;
+      gap: 6px;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .lang-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .lang-btn:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .lang-btn.active {
+      background-color: var(--accent-soft);
+      color: var(--accent);
+      border-color: rgba(59, 130, 246, 0.35);
+    }
+
+    /* Panes Container */
+    .panes {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .pane {
+      display: flex;
+      flex-direction: column;
+      min-width: 240px;
+      overflow: hidden;
+    }
+
+    .editor-pane {
+      width: 55%;
+      background-color: var(--bg-main);
+    }
+
+    .output-pane {
+      flex: 1;
+      background-color: var(--bg-surface);
+    }
+
+    /* Toolbar */
+    .pane-header {
+      height: 42px;
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      flex-shrink: 0;
+    }
+
+    .file-tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-primary);
+      background-color: var(--bg-main);
+      border: 1px solid var(--border);
+      border-bottom-color: var(--bg-main);
+      padding: 6px 14px;
+      border-radius: 6px 6px 0 0;
+      margin-bottom: -1px;
+    }
+
+    .pane-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button.btn {
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background-color: var(--bg-elevated);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    button.btn:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    button.btn-primary {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    button.btn-primary:hover {
+      background-color: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    button.btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Code Editor Area */
+    .editor-wrapper {
+      position: relative;
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      background-color: var(--bg-main);
+    }
+
+    .line-numbers {
+      width: 48px;
+      padding: 14px 10px 14px 0;
+      text-align: right;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      background-color: var(--bg-main);
+      border-right: 1px solid var(--border-subtle);
+      user-select: none;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    textarea#code-editor {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      padding: 14px 16px;
+      background-color: transparent;
+      color: var(--text-primary);
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      line-height: 1.6;
+      tab-size: 4;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    /* Stdin Bar */
+    .stdin-bar {
+      border-top: 1px solid var(--border);
+      background-color: var(--bg-surface);
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .stdin-label {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    textarea#stdin-input {
+      width: 100%;
+      height: 54px;
+      background-color: var(--bg-main);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      resize: none;
+      outline: none;
+    }
+
+    textarea#stdin-input:focus {
+      border-color: var(--accent);
+    }
+
+    /* Resizer */
+    .resizer {
+      width: 5px;
+      background-color: var(--border-subtle);
+      cursor: col-resize;
+      transition: background-color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .resizer:hover, .resizer.dragging {
+      background-color: var(--accent);
+    }
+
+    /* Output Console */
+    .output-body {
+      flex: 1;
+      padding: 16px;
+      overflow: auto;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: #e4e4e7;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .output-placeholder {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .output-error {
+      color: var(--danger);
+    }
+
+    .output-meta {
+      margin-top: 16px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    iframe#html-preview {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #ffffff;
+      display: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .workspace {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        height: 50px;
+        flex-direction: row;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 0 10px;
+      }
+      .panes {
+        flex-direction: column;
+      }
+      .editor-pane {
+        width: 100% !important;
+        height: 52%;
+      }
+      .resizer {
+        display: none;
+      }
+      .brand-sub, .badge-info {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span class="brand-title">CODE.COMPILER</span>
+      <span class="brand-sub">figuringexistence.github.io</span>
+    </div>
+    <div class="header-actions">
+      <span class="badge-info" id="lang-indicator">C++ (GCC)</span>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <!-- Sidebar Bahasa -->
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <!-- Area Editor & Output -->
+    <div class="panes" id="panes">
+      <!-- Panel Kiri: Editor -->
+      <section class="pane editor-pane" id="editor-pane">
+        <div class="pane-header">
+          <div class="file-tab" id="file-tab">main.cpp</div>
+          <div class="pane-controls">
+            <button class="btn" id="btn-reset" title="Reset ke template awal">Reset</button>
+            <button class="btn" id="btn-copy" title="Salin kode">Copy</button>
+            <button class="btn btn-primary" id="btn-run">▶ Run</button>
+          </div>
+        </div>
+
+        <div class="editor-wrapper">
+          <div class="line-numbers" id="line-numbers">1</div>
+          <textarea id="code-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+        </div>
+
+        <div class="stdin-bar" id="stdin-bar">
+          <div class="stdin-label">
+            <span>Input Program (stdin)</span>
+            <span>Opsional — untuk scanf / cin / input()</span>
+          </div>
+          <textarea id="stdin-input" placeholder="Masukkan input program di sini jika dibutuhkan..."></textarea>
+        </div>
+      </section>
+
+      <!-- Pembatas Geser -->
+      <div class="resizer" id="resizer"></div>
+
+      <!-- Panel Kanan: Output -->
+      <section class="pane output-pane">
+        <div class="pane-header">
+          <div class="file-tab">Output</div>
+          <div class="pane-controls">
+            <button class="btn" id="btn-clear-out">Clear Output</button>
+          </div>
+        </div>
+        <div class="output-body" id="output-console">
+          <span class="output-placeholder">Klik tombol "Run" (atau Ctrl + Enter) untuk mengeksekusi kode...</span>
+        </div>
+        <iframe id="html-preview" sandbox="allow-scripts"></iframe>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const LANGUAGES = [
+      {
+        id: 'cpp',
+        short: 'C++',
+        label: 'C++ (GCC)',
+        file: 'main.cpp',
+        pistonLang: 'c++',
+        pistonVersion: '10.2.0',
+        template: `#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Halo dari C++ Compiler!" << endl;\n    return 0;\n}`
+      },
+      {
+        id: 'c',
+        short: 'C',
+        label: 'C (GCC)',
+        file: 'main.c',
+        pistonLang: 'c',
+        pistonVersion: '10.2.0',
+        template: `#include <stdio.h>\n\nint main() {\n    printf("Halo dari Pemrograman C!\\n");\n    return 0;\n}`
+      },
+      {
+        id: 'python',
+        short: 'PY',
+        label: 'Python 3',
+        file: 'main.py',
+        pistonLang: 'python',
+        pistonVersion: '3.10.0',
+        template: `def sapa(nama):\n    return f"Halo, {nama}! Selamat ngoding."\n\nprint(sapa("Mahasiswa TIF"))`
+      },
+      {
+        id: 'javascript',
+        short: 'JS',
+        label: 'JavaScript (Browser)',
+        file: 'index.js',
+        local: true,
+        template: `const angka = [1, 2, 3, 4, 5];\nconst kuadrat = angka.map(n => n * n);\n\nconsole.log("Array awal:", angka);\nconsole.log("Hasil kuadrat:", kuadrat);`
+      },
+      {
+        id: 'html',
+        short: 'HTML',
+        label: 'HTML / CSS / JS',
+        file: 'index.html',
+        preview: true,
+        template: `<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body {\n      background: #09090b;\n      color: #fafafa;\n      font-family: sans-serif;\n      display: grid;\n      place-items: center;\n      height: 90vh;\n    }\n    .card {\n      padding: 20px 28px;\n      border: 1px solid #27272a;\n      border-radius: 10px;\n      background: #121215;\n    }\n  </style>\n</head>\n<body>\n  <div class="card">\n    <h2>Live HTML Preview</h2>\n    <p>Edit kode di sebelah kiri lalu klik Run.</p>\n  </div>\n</body>\n</html>`
+      },
+      {
+        id: 'java',
+        short: 'JAVA',
+        label: 'Java (OpenJDK)',
+        file: 'Main.java',
+        pistonLang: 'java',
+        pistonVersion: '15.0.2',
+        template: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Halo dari Java!");\n    }\n}`
+      },
+      {
+        id: 'go',
+        short: 'GO',
+        label: 'Go',
+        file: 'main.go',
+        pistonLang: 'go',
+        pistonVersion: '1.16.2',
+        template: `package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Halo dari Golang!")\n}`
+      },
+      {
+        id: 'rust',
+        short: 'RS',
+        label: 'Rust',
+        file: 'main.rs',
+        pistonLang: 'rust',
+        pistonVersion: '1.68.2',
+        template: `fn main() {\n    println!("Halo dari Rust!");\n}`
+      },
+      {
+        id: 'sql',
+        short: 'SQL',
+        label: 'SQLite 3',
+        file: 'query.sql',
+        pistonLang: 'sqlite3',
+        pistonVersion: '3.36.0',
+        template: `CREATE TABLE mahasiswa (nim TEXT, nama TEXT);\nINSERT INTO mahasiswa VALUES ('202614013', 'Yudi');\nSELECT * FROM mahasiswa;`
+      }
+    ];
+
+    let currentLang = LANGUAGES[0];
+    const savedCodes = {};
+
+    const sidebarEl = document.getElementById('sidebar');
+    const editorEl = document.getElementById('code-editor');
+    const lineNumbersEl = document.getElementById('line-numbers');
+    const fileTabEl = document.getElementById('file-tab');
+    const langIndicatorEl = document.getElementById('lang-indicator');
+    const outputEl = document.getElementById('output-console');
+    const previewEl = document.getElementById('html-preview');
+    const stdinEl = document.getElementById('stdin-input');
+    const stdinBarEl = document.getElementById('stdin-bar');
+    const btnRun = document.getElementById('btn-run');
+
+    // Render tombol bahasa di sidebar
+    function renderSidebar() {
+      sidebarEl.innerHTML = '';
+      LANGUAGES.forEach(lang => {
+        const btn = document.createElement('button');
+        btn.className = 'lang-btn' + (lang.id === currentLang.id ? ' active' : '');
+        btn.textContent = lang.short;
+        btn.title = lang.label;
+        btn.onclick = () => selectLanguage(lang.id);
+        sidebarEl.appendChild(btn);
+      });
+    }
+
+    function selectLanguage(id) {
+      savedCodes[currentLang.id] = editorEl.value;
+      currentLang = LANGUAGES.find(l => l.id === id);
+
+      fileTabEl.textContent = currentLang.file;
+      langIndicatorEl.textContent = currentLang.label;
+      editorEl.value = savedCodes[id] !== undefined ? savedCodes[id] : currentLang.template;
+
+      stdinBarEl.style.display = (currentLang.preview || currentLang.local) ? 'none' : 'flex';
+      previewEl.style.display = 'none';
+      outputEl.style.display = 'block';
+      outputEl.innerHTML = '<span class="output-placeholder">Klik tombol "Run" (atau Ctrl + Enter) untuk mengeksekusi kode...</span>';
+
+      updateLineNumbers();
+      renderSidebar();
+    }
+
+    function updateLineNumbers() {
+      const lines = editorEl.value.split('\n').length;
+      lineNumbersEl.innerHTML = Array.from({ length: lines }, (_, i) => i + 1).join('<br>');
+    }
+
+    // Sinkronisasi scroll nomor baris
+    editorEl.addEventListener('scroll', () => {
+      lineNumbersEl.scrollTop = editorEl.scrollTop;
+    });
+
+    editorEl.addEventListener('input', updateLineNumbers);
+
+    // Dukungan tombol Tab & Ctrl+Enter
+    editorEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = editorEl.selectionStart;
+        const end = editorEl.selectionEnd;
+        editorEl.value = editorEl.value.substring(0, start) + '    ' + editorEl.value.substring(end);
+        editorEl.selectionStart = editorEl.selectionEnd = start + 4;
+        updateLineNumbers();
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        runCode();
+      }
+    });
+
+    // Eksekusi Kode
+    async function runCode() {
+      const code = editorEl.value;
+      btnRun.disabled = true;
+      btnRun.textContent = 'Running...';
+
+      if (currentLang.preview) {
+        outputEl.style.display = 'none';
+        previewEl.style.display = 'block';
+        previewEl.srcdoc = code;
+        btnRun.disabled = false;
+        btnRun.textContent = '▶ Run';
+        return;
+      }
+
+      previewEl.style.display = 'none';
+      outputEl.style.display = 'block';
+      outputEl.textContent = 'Menjalankan kode...';
+
+      const startTime = performance.now();
+
+      // Eksekusi JavaScript langsung di browser
+      if (currentLang.local) {
+        const logs = [];
+        const customConsole = {
+          log: (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')),
+          error: (...args) => logs.push('[Error] ' + args.join(' ')),
+          warn: (...args) => logs.push('[Warn] ' + args.join(' '))
+        };
+
+        try {
+          const fn = new Function('console', code);
+          fn(customConsole);
+          const elapsed = ((performance.now() - startTime) / 1000).toFixed(3);
+          outputEl.innerHTML = `${escapeHtml(logs.join('\n') || '(Program selesai tanpa output)')}<div class="output-meta">Selesai dieksekusi di browser dalam ${elapsed}s</div>`;
+        } catch (err) {
+          outputEl.innerHTML = `<span class="output-error">${escapeHtml(err.toString())}</span>`;
+        }
+
+        btnRun.disabled = false;
+        btnRun.textContent = '▶ Run';
+        return;
+      }
+
+      // Eksekusi bahasa terkompilasi via Piston Public API
+      try {
+        const response = await fetch('https://emkc.org/api/v2/piston/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            language: currentLang.pistonLang,
+            version: currentLang.pistonVersion,
+            files: [{ name: currentLang.file, content: code }],
+            stdin: stdinEl.value
+          })
+        });
+
+        const data = await response.json();
+        const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
+
+        if (data.compile && data.compile.code !== 0) {
+          outputEl.innerHTML = `<span class="output-error">Compilation Error:\n${escapeHtml(data.compile.stderr || data.compile.output)}</span>`;
+        } else if (data.run) {
+          const outText = data.run.output || '(Program selesai tanpa output)';
+          const isErr = data.run.code !== 0;
+          outputEl.innerHTML = `<span class="${isErr ? 'output-error' : ''}">${escapeHtml(outText)}</span><div class="output-meta">Exit code: ${data.run.code} • Waktu: ${elapsed}s</div>`;
+        } else {
+          outputEl.innerHTML = `<span class="output-error">Gagal menerima respons dari server compiler.</span>`;
+        }
+      } catch (error) {
+        outputEl.innerHTML = `<span class="output-error">Koneksi gagal: Pastikan perangkat terhubung ke internet untuk menjalankan ${currentLang.label}.</span>`;
+      }
+
+      btnRun.disabled = false;
+      btnRun.textContent = '▶ Run';
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Tombol kontrol
+    btnRun.addEventListener('click', runCode);
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      editorEl.value = currentLang.template;
+      savedCodes[currentLang.id] = currentLang.template;
+      updateLineNumbers();
+    });
+
+    document.getElementById('btn-copy').addEventListener('click', async () => {
+      await navigator.clipboard.writeText(editorEl.value);
+      const btn = document.getElementById('btn-copy');
+      btn.textContent = 'Copied!';
+      setTimeout(() => (btn.textContent = 'Copy'), 1500);
+    });
+
+    document.getElementById('btn-clear-out').addEventListener('click', () => {
+      previewEl.srcdoc = '';
+      outputEl.innerHTML = '<span class="output-placeholder">Output dibersihkan.</span>';
+    });
+
+    // Resizer panel kiri & kanan
+    const resizer = document.getElementById('resizer');
+    const editorPane = document.getElementById('editor-pane');
+    const panesContainer = document.getElementById('panes');
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', () => {
+      isResizing = true;
+      resizer.classList.add('dragging');
+      document.body.style.cursor = 'col-resize';
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+      const rect = panesContainer.getBoundingClientRect();
+      const offsetX = e.clientX - rect.left;
+      const percentage = (offsetX / rect.width) * 100;
+      if (percentage > 25 && percentage < 75) {
+        editorPane.style.width = `${percentage}%`;
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isResizing) {
+        isResizing = false;
+        resizer.classList.remove('dragging');
+        document.body.style.cursor = 'default';
+      }
+    });
+
+    // Inisialisasi awal
+    selectLanguage('cpp');
+  </script>
+</body>
+</html>
