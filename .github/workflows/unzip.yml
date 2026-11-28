@@ -1,0 +1,27 @@
+name: Ekstrak ZIP
+
+on:
+  workflow_dispatch: # Agar bisa dijalankan secara manual lewat tombol
+
+permissions:
+  contents: write # Memberi izin agar hasil ekstrak bisa disimpan ke repo
+
+jobs:
+  unzip-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ambil isi repositori
+        uses: actions/checkout@v4
+
+      - name: Ekstrak yoz.zip
+        run: |
+          unzip -o yoz.zip -d .
+          rm yoz.zip
+
+      - name: Simpan hasil ekstrak ke repositori
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Ekstrak yoz.zip otomatis"
+          git push
