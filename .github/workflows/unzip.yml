@@ -1,10 +1,10 @@
 name: Ekstrak ZIP
 
 on:
-  workflow_dispatch: # Agar bisa dijalankan secara manual lewat tombol
+  workflow_dispatch:
 
 permissions:
-  contents: write # Memberi izin agar hasil ekstrak bisa disimpan ke repo
+  contents: write
 
 jobs:
   unzip-job:
@@ -13,15 +13,22 @@ jobs:
       - name: Ambil isi repositori
         uses: actions/checkout@v4
 
-      - name: Ekstrak yoz.zip
+      - name: Cari dan ekstrak Yoz.zip
         run: |
-          unzip -o yoz.zip -d .
-          rm yoz.zip
+          FILE_ZIP=$(find . -iname "Yoz.zip" | head -n 1)
+          if [ -z "$FILE_ZIP" ]; then
+            echo "File Yoz.zip tetap tidak ditemukan. Daftar file saat ini:"
+            find . -maxdepth 3
+            exit 1
+          fi
+          echo "Menemukan file di: $FILE_ZIP"
+          unzip -o "$FILE_ZIP" -d "$(dirname "$FILE_ZIP")"
+          rm "$FILE_ZIP"
 
       - name: Simpan hasil ekstrak ke repositori
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git commit -m "Ekstrak yoz.zip otomatis"
+          git commit -m "Ekstrak Yoz.zip otomatis"
           git push
