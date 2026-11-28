@@ -13,17 +13,10 @@ jobs:
       - name: Ambil isi repositori
         uses: actions/checkout@v4
 
-      - name: Cari dan ekstrak Yoz.zip
+      - name: Ekstrak Yoz.zip
         run: |
-          FILE_ZIP=$(find . -iname "Yoz.zip" | head -n 1)
-          if [ -z "$FILE_ZIP" ]; then
-            echo "File Yoz.zip tetap tidak ditemukan. Daftar file saat ini:"
-            find . -maxdepth 3
-            exit 1
-          fi
-          echo "Menemukan file di: $FILE_ZIP"
-          unzip -o "$FILE_ZIP" -d "$(dirname "$FILE_ZIP")"
-          rm "$FILE_ZIP"
+          unzip -o Yoz.zip -d .
+          rm Yoz.zip
 
       - name: Simpan hasil ekstrak ke repositori
         run: |
