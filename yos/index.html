@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WinRunner.exe — Yos Emulator</title>
+  <link rel="stylesheet" href="https://v8.js-dos.com/latest/js-dos.css" />
+  <script src="https://v8.js-dos.com/latest/js-dos.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0b1220;
+      color: #f8fafc;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Toolbar Atas */
+    .toolbar {
+      background: #1e293b;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .file-controls { display: flex; align-items: center; gap: 8px; }
+
+    .btn {
+      background: #38bdf8;
+      color: #0f172a;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn:hover { background: #7dd3fc; }
+    .btn.secondary { background: #334155; color: #f8fafc; }
+    .btn.secondary:hover { background: #475569; }
+
+    #status { font-size: 12px; color: #94a3b8; }
+
+    /* Area Layar Emulator */
+    #screen-wrap {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #020617;
+    }
+
+    #dos-container {
+      width: 100%;
+      height: 100%;
+    }
+
+    .placeholder {
+      position: absolute;
+      text-align: center;
+      max-width: 420px;
+      padding: 20px;
+      pointer-events: none;
+    }
+    .placeholder h2 { font-size: 18px; margin-bottom: 8px; color: #38bdf8; }
+    .placeholder p { font-size: 13px; color: #94a3b8; line-height: 1.5; }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div class="file-controls">
+      <input type="file" id="exe-input" accept=".exe,.com,.bat,.zip,.jsdos" hidden />
+      <button class="btn" onclick="document.getElementById('exe-input').click()">📂 Pilih File .EXE</button>
+      <button class="btn secondary" onclick="location.reload()">🔄 Reset</button>
+    </div>
+    <span id="status">Siap memuat .exe (DOS / x86 WASM)</span>
+  </div>
+
+  <div id="screen-wrap">
+    <div class="placeholder" id="placeholder">
+      <h2>Yos WinRunner.exe</h2>
+      <p>
+        Klik <b>Pilih File .EXE</b> di kiri atas untuk menjalankan program <code>.exe</code> (MS-DOS / 16-bit) atau arsip <code>.zip</code> / <code>.jsdos</code> langsung di browser.
+      </p>
+    </div>
+    <div id="dos-container"></div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById("exe-input");
+    const statusEl = document.getElementById("status");
+    const placeholder = document.getElementById("placeholder");
+    const dosContainer = document.getElementById("dos-container");
+
+    fileInput.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      statusEl.textContent = `Memproses ${file.name}...`;
+      placeholder.style.display = "none";
+      dosContainer.innerHTML = "";
+
+      try {
+        let bundleUrl = "";
+
+        if (file.name.toLowerCase().endsWith(".jsdos")) {
+          // Langsung jalankan jika sudah berupa bundel .jsdos
+          bundleUrl = URL.createObjectURL(file);
+        } else {
+          // Bungkus file .exe / .zip otomatis menjadi paket .jsdos di memori
+          const zip = new JSZip();
+          const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+          const arrayBuffer = await file.arrayBuffer();
+
+          if (file.name.toLowerCase().endsWith(".zip")) {
+            const loadedZip = await JSZip.loadAsync(arrayBuffer);
+            let targetExe = "";
+            for (const [path, entry] of Object.entries(loadedZip.files)) {
+              if (!entry.dir) {
+                zip.file(path, await entry.async("arraybuffer"));
+                if (!targetExe && path.toLowerCase().endsWith(".exe")) {
+                  targetExe = path.replace(/\//g, "\\");
+                }
+              }
+            }
+            const conf = `[autoexec]\n@echo off\nmount c .\nc:\n${targetExe || "dir"}\n`;
+            zip.file(".jsdos/dosbox.conf", conf);
+          } else {
+            zip.file(safeName, arrayBuffer);
+            const conf = `[autoexec]\n@echo off\nmount c .\nc:\n${safeName}\n`;
+            zip.file(".jsdos/dosbox.conf", conf);
+          }
+
+          const blob = await zip.generateAsync({ type: "blob" });
+          bundleUrl = URL.createObjectURL(blob);
+        }
+
+        statusEl.textContent = `Menjalankan: ${file.name}`;
+        Dos(dosContainer, {
+          url: bundleUrl,
+          autoStart: true
+        });
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = `Gagal memuat file: ${err.message}`;
+        placeholder.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>
