@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VUS Hub — Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg-elevated:#111827;--card:rgba(17,24,39,.6);--card-hover:rgba(30,41,59,.7);--border:rgba(51,65,85,.5);--border-hover:rgba(74,222,128,.3);--fg:#f1f5f9;--fg-muted:#94a3b8;--fg-dim:#475569;--accent:#22c55e;--radius:14px;--font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:transparent;color:var(--fg);font-family:var(--font)}
+body{padding:4px 2px 24px}
+.top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+.title{font-size:15px;font-weight:600;margin-bottom:2px}
+.sub{font-size:13px;color:var(--fg-muted)}
+.online{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:7px 14px 7px 12px;backdrop-filter:blur(12px);white-space:nowrap}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.4}}
+.count{font:600 13px var(--mono)}
+.lbl{font-size:12px;color:var(--fg-muted)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;backdrop-filter:blur(12px);transition:border-color .25s,background .25s}
+.card:hover{border-color:var(--border-hover);background:var(--card-hover)}
+.card.tall{grid-row:span 2}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.card.tall{grid-row:auto}}
+.head{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;margin-bottom:14px}
+.clear{margin-left:auto;background:none;border:none;color:var(--fg-dim);font:500 12px var(--font);cursor:pointer}
+.clear:hover{color:var(--fg)}
+.list{display:flex;flex-direction:column;gap:4px}
+.row{display:flex;align-items:center;gap:10px;width:100%;padding:8px;border-radius:9px;border:none;background:transparent;cursor:pointer;transition:background .2s;text-decoration:none;color:inherit;font-family:var(--font);text-align:left}
+.row:hover{background:rgba(255,255,255,.04)}
+.ico{width:28px;height:28px;min-width:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:rgba(34,197,94,.12);color:#4ade80}
+.ico.blue{background:rgba(59,130,246,.12);color:#60a5fa}.ico.amber{background:rgba(245,158,11,.12);color:#fbbf24}.ico.rose{background:rgba(244,63,94,.12);color:#fb7185}.ico.violet{background:rgba(139,92,246,.12);color:#a78bfa}.ico.cyan{background:rgba(6,182,212,.12);color:#22d3ee}.ico.lime{background:rgba(132,204,22,.12);color:#a3e635}.ico.orange{background:rgba(249,115,22,.12);color:#fb923c}.ico.red{background:rgba(239,68,68,.12);color:#f87171}.ico.black,.ico.white{background:rgba(148,163,184,.12);color:#cbd5e1}
+.ico.plain{background:var(--bg-elevated);border:1px solid var(--border);color:var(--fg-muted);font-size:10px}
+.name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{font-size:13px;color:var(--fg-dim);padding:8px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+body.rm *,body.rm *::before,body.rm *::after{animation:none!important;transition:none!important;backdrop-filter:none!important;box-shadow:none!important}
+body.rm .card,body.rm .online{background:var(--bg-elevated)}
+</style>
+</head>
+<body>
+<div class="top">
+  <div>
+    <div class="title" id="greeting">Welcome to VUS</div>
+    <div class="sub">Your dashboard for everything VUS Hub</div>
+  </div>
+  <div class="online"><span class="dot"></span><span class="count" id="onlineCount">–</span><span class="lbl">online</span></div>
+</div>
+
+<div class="grid">
+  <div class="card tall">
+    <div class="head"><span>🔥</span> Recently Used <button type="button" class="clear" id="clearRecent">Clear</button></div>
+    <div class="list" id="recentList"></div>
+  </div>
+  <div class="card">
+    <div class="head"><span>⭐</span> Favorites</div>
+    <div class="list" id="favoritesList"></div>
+  </div>
+  <div class="card">
+    <div class="head"><span>🔗</span> Socials</div>
+    <div class="list">
+      <a class="row" href="https://github.com/Cra-Z-Gaming/VUS" target="_blank" rel="noopener"><span class="ico plain">GH</span><span class="name">GitHub</span></a>
+      <a class="row" href="https://discord.gg/UXdUNXr3yQ" target="_blank" rel="noopener"><span class="ico plain">DC</span><span class="name">Discord</span></a>
+      <a class="row" href="https://youtube.com/@notvladyt" target="_blank" rel="noopener"><span class="ico plain">YT</span><span class="name">YouTube</span></a>
+    </div>
+  </div>
+</div>
+
+<script>
+// Low-motion mode (shared setting; the hub also toggles this live)
+try { if (JSON.parse(localStorage.getItem("vus_settings") || "{}").animationsEnabled === false) document.body.classList.add("rm"); } catch (e) {}
+
+// Greeting
+const hr = new Date().getHours();
+document.getElementById("greeting").textContent =
+  (hr < 5 ? "Up late" : hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening") + ", welcome to VUS";
+
+// Online count (firebase.js loaded as a Blob module)
+fetch("https://raw.githubusercontent.com/Cra-Z-Gaming/VUS/refs/heads/main/firebase.js?v=" + Date.now(), { cache: "no-store" })
+  .then(r => { if (!r.ok) throw 0; return r.text(); })
+  .then(code => import(URL.createObjectURL(new Blob([code], { type: "application/javascript" }))))
+  .then(mod => mod.onOnlineCount(c => { const el = document.getElementById("onlineCount"); if (el) el.textContent = c; }))
+  .catch(() => console.warn("VUS Hub: online count unavailable."));
+
+const FAV_KEY = "vus_favorites", RECENT_KEY = "vus_recent_apps";
+const esc = s => (s || "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const read = k => { try { return JSON.parse(localStorage.getItem(k) || "[]"); } catch (e) { return []; } };
+
+function openFromWidget(app) {
+  if (!app || !app.url) return;
+  try { if (window.parent && window.parent !== window && typeof window.parent.openApp === "function") { window.parent.openApp(app); return; } } catch (e) {}
+  window.open(app.url, "_blank", "noopener");
+}
+
+function renderList(id, list, emptyMsg) {
+  const el = document.getElementById(id);
+  if (!list.length) { el.innerHTML = '<div class="empty">' + esc(emptyMsg) + '</div>'; return; }
+  el.innerHTML = list.map((a, i) =>
+    '<button class="row" type="button" data-i="' + i + '"><span class="ico ' + esc(a.color || "") + '">' +
+    esc(a.icon || (a.name || "").substring(0, 2).toUpperCase()) + '</span><span class="name">' + esc(a.name) + '</span></button>').join("");
+  [...el.children].forEach((b, i) => b.addEventListener("click", () => openFromWidget(list[i])));
+}
+
+const renderRecent = () => renderList("recentList", read(RECENT_KEY), "Nothing opened yet. Your recent apps will show up here.");
+const renderFavs = () => renderList("favoritesList", read(FAV_KEY), "No favorites yet. Tap the star on any app to add one.");
+
+document.getElementById("clearRecent").onclick = () => {
+  try { localStorage.removeItem(RECENT_KEY); } catch (e) {}
+  renderRecent();
+};
+
+renderRecent(); renderFavs();
+window.addEventListener("storage", e => { if (e.key === RECENT_KEY) renderRecent(); if (e.key === FAV_KEY) renderFavs(); });
+</script>
+</body>
+</html>
